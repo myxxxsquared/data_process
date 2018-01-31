@@ -25,11 +25,7 @@ def get_theta(points_list):
         xs.append(x)
         ys.append(y)
     xs = np.array(xs)
-#    xs = xs - np.mean(xs)
     ys = np.array(ys)
-#    ys = ys - np.mean(ys)
-    # k = (len(xs)*np.sum(xs*ys) - np.sum(xs)*np.sum(ys))/(len(xs)*np.sum(np.square(xs))-np.square(np.sum(xs)))
-#    k = np.linalg.lstsq(xs, ys)[0][0]
     m,b = np.polyfit(xs, ys, 1)
     theta = np.arctan(m)
     return theta
@@ -92,9 +88,7 @@ def resize(im, cnts, row, col):
     return im_, cnts_
 
 def find_mid_line_and_radius(points_list,dist='l1',sampling_num=500):
-    if dist == 'l1': dist_func = get_l1_dist
-    elif dist == 'l2': dist_func = get_l2_dist
-    else: raise NotImplementedError(dist+' is not implemented')
+
     def neg_cosine(p1,p2,p3,p4):
         vector_1 = (p2[0]-p1[0],p2[1]-p1[1])
         vector_2 = (p4[0]-p3[0], p4[1]-p3[1])
@@ -103,14 +97,16 @@ def find_mid_line_and_radius(points_list,dist='l1',sampling_num=500):
         return (vector_1[1]*vector_2[1]+vector_1[0]*vector_2[0])/(get_l2_dist(vector_2,(0,0))*get_l2_dist(vector_1,(0,0)))
 
     def sampling(p1,p2,sampling_num):
-        ''':param p1:
-        :param p2:
-        :param sampling_num:
-        :return: point with elements of float number
-        '''
         x = np.linspace(p1[0], p2[0], sampling_num)
         y = np.linspace(p1[1], p2[1], sampling_num)
         return [(x[i],y[i]) for i in range(x.shape[0])]
+
+    if dist == 'l1':
+        dist_func = get_l1_dist
+    elif dist == 'l2':
+        dist_func = get_l2_dist
+    else:
+        raise NotImplementedError(dist+' is not implemented')
 
     points_list = [tuple(point) for point in points_list]
 
@@ -135,7 +131,6 @@ def find_mid_line_and_radius(points_list,dist='l1',sampling_num=500):
 
         line_one = [cosine_list[p][1] for p in range(best[0],best[1])]
         line_two = ([cosine_list[p][1] for p in range(best[1],len(cosine_list))]+[cosine_list[p][1] for p in range(0, best[0])])[::-1]
-
     elif len(points_list) == 4:
         d1=get_l2_dist(points_list[0],points_list[1])
         d2 = get_l2_dist(points_list[1], points_list[2])
@@ -183,6 +178,7 @@ def find_mid_line_and_radius(points_list,dist='l1',sampling_num=500):
 
     center_line = []
     radius_dict = {}
+    theta_dict = {}
 
     for i in range(len(point_list_one)):
         x1, y1 = point_list_one[i][0], point_list_one[i][1]
@@ -190,25 +186,45 @@ def find_mid_line_and_radius(points_list,dist='l1',sampling_num=500):
         x, y = int(round((x1+x2)/2)), int(round((y1+y2)/2))
         center_line.append((x,y))
         radius_dict[(x,y)] = dist_func((x1,y1),(x2,y2))/2
+
+    if len(points_list) == 4:
+        theta = get_theta(center_line)
+        for point in center_line:
+            theta_dict[point] = theta
+    else:
+        for point in center_line:
+            width = int(NEIGHBOR * radius_dict[point])
+            fit_points = []
+            for fit_point in center_line:
+                if point[0] - width <= fit_point[0] <= point[0] + width and \
+                        point[1] - width <= fit_point[1] <= point[1] + width:
+                    fit_points.append(fit_point)
+            theta = get_theta(fit_points)
+            theta_dict[point] = theta
+
     temp = []
-    temp_dict = {}
+    temp_radius_dict = {}
+    temp_theta_dict = {}
     crop_length1 = radius_dict[center_line[0]]
     crop_length2 = radius_dict[center_line[-1]]
     for point in center_line:
         if dist_func(point, center_line[0]) >= crop_length1*CROPSKEL and \
            dist_func(point, center_line[-1]) >= crop_length2 * CROPSKEL:
             temp.append(point)
-            temp_dict[point] = radius_dict[point]
+            temp_radius_dict[point] = radius_dict[point]
+            temp_theta_dict[point] = theta_dict[point]
     center_line = temp
-    radius_dict = temp_dict
-    return center_line, radius_dict
+    radius_dict = temp_radius_dict
+    theta_dict = temp_theta_dict
+    return center_line, radius_dict, theta_dict
 
 error = 0
 def get_maps_algo3(im, cnts):
     global error
     if DIST == 'l1': dist_func = get_l1_dist
     elif DIST == 'l2': dist_func = get_l2_dist
-    else: raise NotImplementedError(dist+' is not implemented')
+    else: raise NotImplementedError(DIST+' is not implemented')
+
     skels_points = []
     radius_dict = {}
     score_dict = {}
@@ -219,36 +235,17 @@ def get_maps_algo3(im, cnts):
     for cnt in cnts:
         cnt = np.squeeze(cnt)
         point_list = [(point[1],point[0]) for point in cnt]
-        skel_points, radius_dict_cnt = find_mid_line_and_radius(point_list, dist=DIST,
-                                                                sampling_num=500)
+        skel_points, radius_dict_cnt, theta_dict_cnt = find_mid_line_and_radius(point_list, dist=DIST, sampling_num=500)
 
         for point, radius in radius_dict_cnt.items():
             radius_dict[point] = radius
+        for point, theta in theta_dict_cnt.items():
+            theta_dict[point] = theta
+
         [skels_points.append(point) for point in skel_points]
         mask_zero = np.zeros(im.shape[:2], dtype = np.uint8)
         mask_fill = cv2.fillPoly(mask_zero, pts = [cnt], color=(255))
         mask_fills.append(np.sign(mask_fill.copy()).astype(MAP_TYPE))
-        # get theta for skel_points
-        if len(cnt) != 4:
-            for point in skel_points:
-                width = int(NEIGHBOR*radius_dict[point])
-                fit_points = []
-                for fit_point in skel_points:
-                    if point[0] - width <= fit_point[0] <= point[0] + width and \
-                       point[1] - width <= fit_point[1] <= point[1] + width:
-                        fit_points.append(fit_point)
-                theta = get_theta(fit_points)
-                theta_dict[point] =theta
-        else:
-            if len(skel_points) <= 1:
-                theta = 0.0
-                print(im.shape, cnt)
-                error += 1
-                print(error)
-            else:
-                theta = get_theta(skel_points)
-            for point in skel_points:
-                theta_dict[point] =theta
 
         # get belt
         belt = set()
@@ -258,15 +255,12 @@ def get_maps_algo3(im, cnts):
             for i in range(-thickness, thickness+1):
                 for j in range(-thickness, thickness+1):
                     candidate = (point[0]+i, point[1]+j)
-                    #TODO: to save time
-                    # if is_validate_point(im, candidate) and \
-                    #    is_inside_point_cnt(candidate, cnt):
-                    # if is_validate_point(im, candidate):
-                    if candidate[0] < row and candidate[1] < col:
+                    if is_validate_point(im, candidate):
                         belt.add(candidate)
                         if candidate not in connect_dict:
                             connect_dict[candidate] = []
                         connect_dict[candidate].append(point)
+
         # score map
         for point in belt:
             score_dict[point] = 1.0
@@ -281,7 +275,8 @@ def get_maps_algo3(im, cnts):
                     min_dist_point = skel_point
                     min_dist = dist
             theta_dict[point] = theta_dict[min_dist_point[0], min_dist_point[1]]
-            radius_dict[point] = radius_dict[min_dist_point[0], min_dist_point[1]]
+            radius_dict[point] = radius_dict[min_dist_point[0], min_dist_point[1]]-min_dist
+
         # curvature map
         for point in belt:
             curvature_dict[tuple(point)] = 0.0
@@ -294,9 +289,11 @@ def get_maps(im, cnts, algo = 3):
             get_maps_algo3(im,cnts)
     else:
         raise NotImplementedError('algo'+str(algo)+'is not implemented')
+
     mask_skel = np.zeros(im.shape[:2], dtype = PIC_TYPE)
     for point in skels_points:
         mask_skel[point[0],point[1]] = 255
+
     maps = np.zeros(list(im.shape[:2])+[4], dtype = MAP_TYPE)
     for point, s in score_dict.items():
         maps[point[0],point[1],0] = s

@@ -134,6 +134,7 @@ def compress(output):
     return output
 
 def main(args):
+
     mapnames = []
     index = totaltext_index()
 

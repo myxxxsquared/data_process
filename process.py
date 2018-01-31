@@ -85,45 +85,48 @@ def generate_process(im, cnts, save_name, algo = 3):
     skel, maps = get_maps(im, cnts, algo)
     np.save(SAVE_DIR+save_name+'_maps.npy', maps)
 
+
 args = get_args()
 args = check(args)
-gt = sio.loadmat(SYNTEXT_DIR+'gt.mat')
-pic_num = len(gt['imnames'][0])
-index = {}
 
-for i in range(pic_num):
-    index[i] = str(gt['imnames'][0][i][0])
-with open(SAVE_DIR+args.save_name+'index.json', 'w+') as f:
-    json.dump(index, f)
+if args.data == 'synthtext':
+    gt = sio.loadmat(SYNTEXT_DIR+'gt.mat')
+    pic_num = len(gt['imnames'][0])
+    index = {}
 
-if args.check:
-    check_set = set()
-    assert args.check_num <= pic_num, 'check_num is too big'
-    while len(check_set) < args.check_num:
-        check_set.add(random.randint(0, pic_num - 1))
-    for i in check_set:
+    for i in range(pic_num):
+        index[i] = str(gt['imnames'][0][i][0])
+    with open(SAVE_DIR+args.save_name+'index.json', 'w+') as f:
+        json.dump(index, f)
+
+    if args.check:
+        check_set = set()
+        assert args.check_num <= pic_num, 'check_num is too big'
+        while len(check_set) < args.check_num:
+            check_set.add(random.randint(0, pic_num - 1))
+        for i in check_set:
+            imname = str(gt['imnames'][0][i][0])
+            cnts = gt['wordBB'][0][i].transpose().astype(np.int32)
+            if len(cnts.shape) == 2: cnts = np.expand_dims(cnts, 0)
+            cnts = list(np.expand_dims(cnts, 2))
+            im = cv2.imread(SYNTEXT_DIR + imname)
+            im, cnts = validate(im, cnts)
+            im_save_name = '{:0>8d}'.format(i)
+            check_process(im, cnts, args.save_name+im_save_name,SYN_ALGO)
+
+    def job(i):
         imname = str(gt['imnames'][0][i][0])
         cnts = gt['wordBB'][0][i].transpose().astype(np.int32)
         if len(cnts.shape) == 2: cnts = np.expand_dims(cnts, 0)
         cnts = list(np.expand_dims(cnts, 2))
         im = cv2.imread(SYNTEXT_DIR + imname)
-        im, cnts = validate(im, cnts)
         im_save_name = '{:0>8d}'.format(i)
-        check_process(im, cnts, args.save_name+im_save_name,SYN_ALGO)
+        generate_process(im, cnts, args.save_name+im_save_name,SYN_ALGO)
 
-def job(i):
-    imname = str(gt['imnames'][0][i][0])
-    cnts = gt['wordBB'][0][i].transpose().astype(np.int32)
-    if len(cnts.shape) == 2: cnts = np.expand_dims(cnts, 0)
-    cnts = list(np.expand_dims(cnts, 2))
-    im = cv2.imread(SYNTEXT_DIR + imname)
-    im_save_name = '{:0>8d}'.format(i)
-    generate_process(im, cnts, args.save_name+im_save_name,SYN_ALGO)
+    pool = mp.Pool(args.thread)
+    pool.map(job, range(pic_num))
 
-pool = mp.Pool(args.thread)
-pool.map(job, range(pic_num))
-
-def totaltext(args):
+elif args.data == 'totaltext':
     if not os.path.exists(SAVE_DIR+args.save_name+'Train/'):
         os.mkdir(SAVE_DIR+args.save_name+'Train/')
     if not os.path.exists(SAVE_DIR+args.save_name+'Test/'):
@@ -156,8 +159,6 @@ def totaltext(args):
         assert args.check_num <= pic_num, 'check_num is too big'
         while len(check_set) < args.check_num:
             check_set.add(random.randint(0, pic_num-1))
-        #TODO
-        check_set.add(imnames.index('img1045'))
 
         for i in check_set:
             imname = imnames[i]
@@ -211,39 +212,18 @@ def totaltext(args):
         im_save_name = '{:0>8d}'.format(i)
         generate_process(im, cnts, args.save_name + 'Test/'+ im_save_name, TOTAL_ALGO)
 
-    def train(start,stop):
-        for i in range(start,stop):
-            train_job(i)
+    pool = mp.Pool(args.thread)
+    pool.map(train_job, range(pic_num))
+    pool.close()
+    pool.join()
 
-    def test(start,stop):
-        for i in range(start,stop):
-            test_job(i)
+    pool = mp.Pool(args.thread)
+    pool.map(test_job, range(pic_num_test))
+    pool.close()
+    pool.join()
 
-    jobs = []
-    for x in range(0, pic_num, pic_num//args.thread):
-        if x+pic_num//args.thread >= pic_num:
-            y = pic_num
-        else:
-            y = x+pic_num//args.thread
-        jobs.append(mp.Process(target=train, args=(x,y)))
-    for job in jobs:
-        job.start()
-    for job in jobs:
-        job.join()
+elif args.data == 'msra':
 
-    jobs = []
-    for x in range(0, pic_num_test, pic_num_test//args.thread):
-        if x+pic_num_test//args.thread >= pic_num_test:
-            y = pic_num_test
-        else:
-            y = x+pic_num_test//args.thread
-        jobs.append(mp.Process(target=test, args=(x,y)))
-    for job in jobs:
-        job.start()
-    for job in jobs:
-        job.join()
-
-def msra(args):
     if not os.path.exists(SAVE_DIR+args.save_name+'Train/'):
         os.mkdir(SAVE_DIR+args.save_name+'Train/')
     if not os.path.exists(SAVE_DIR+args.save_name+'Test/'):
@@ -315,45 +295,15 @@ def msra(args):
         im_save_name = '{:0>8d}'.format(i)
         generate_process(im, cnts, args.save_name + 'Test/'+ im_save_name, MSRA_ALGO)
 
+    pool = mp.Pool(args.thread)
+    pool.map(train_job, range(pic_num))
+    pool.close()
+    pool.join()
 
-    def train(start,stop):
-        for i in range(start,stop):
-            train_job(i)
+    pool = mp.Pool(args.thread)
+    pool.map(test_job, range(pic_num_test))
+    pool.close()
+    pool.join()
 
-    def test(start,stop):
-        for i in range(start,stop):
-            test_job(i)
-
-    jobs = []
-    for x in range(0, pic_num, pic_num//args.thread):
-        if x+pic_num//args.thread >= pic_num:
-            y = pic_num
-        else:
-            y = x+pic_num//args.thread
-        jobs.append(mp.Process(target=train, args=(x,y)))
-    for job in jobs:
-        job.start()
-    for job in jobs:
-        job.join()
-
-    jobs = []
-    for x in range(0, pic_num_test, pic_num_test//args.thread):
-        if x+pic_num_test//args.thread >= pic_num_test:
-            y = pic_num_test
-        else:
-            y = x+pic_num_test//args.thread
-        jobs.append(mp.Process(target=test, args=(x,y)))
-    for job in jobs:
-        job.start()
-    for job in jobs:
-        job.join()
-
-def main(args):
-    datasets = [name.strip() for name in args.data.lower().split(',')]
-    if 'synthtext' in datasets:
-        synthtext(args)
-    if 'totaltext' in datasets:
-        totaltext(args)
-    if 'msra' in datasets:
-        msra(args)
-
+else:
+    raise NotImplementedError(args.data +' is not supported now')
