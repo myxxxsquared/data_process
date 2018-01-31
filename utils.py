@@ -10,7 +10,7 @@ MAP_TYPE = np.float32
 PIC_TYPE = np.uint8
 THICKNESS = 0.15
 NEIGHBOR = 3.0
-CROPSKEL = 1.0
+CROPSKEL = 2.0
 DIST = 'l2'
 
 def get_l2_dist(point1, point2):
@@ -206,14 +206,14 @@ def find_mid_line_and_radius(points_list,dist='l1',sampling_num=500):
     decrease = 0.0
     while len(temp) <= 1:
         for point in center_line:
-            crop_length1 = crop_length1*(1-decrease)
-            crop_length2 = crop_length2*(1-decrease)
+            crop_length1 = crop_length1*(1+decrease)
+            crop_length2 = crop_length2*(1+decrease)
             if dist_func(point, center_line[0]) >= crop_length1*CROPSKEL and \
                dist_func(point, center_line[-1]) >= crop_length2 * CROPSKEL:
                 temp.append(point)
                 temp_radius_dict[point] = radius_dict[point]
                 temp_theta_dict[point] = theta_dict[point]
-            decrease += 0.01
+        decrease += 0.01
     center_line = temp
     radius_dict = temp_radius_dict
     theta_dict = temp_theta_dict
@@ -232,7 +232,6 @@ def get_maps_algo3(im, cnts):
     curvature_dict = {}
     theta_dict = {}
     mask_fills = []
-    row, col = im.shape[:2]
     for cnt in cnts:
         cnt = np.squeeze(cnt)
         point_list = [(point[1],point[0]) for point in cnt]
