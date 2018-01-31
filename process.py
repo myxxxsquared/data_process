@@ -198,6 +198,7 @@ elif args.data == 'totaltext':
 
     #process train
     def train_job(i):
+        global writer_train
         imname = imnames[i]
         im = cv2.imread(TOTALTEXT_DIR+'totaltext/Images/Train/'+imname+'.jpg')
         if im is None: im = cv2.imread(TOTALTEXT_DIR+'totaltext/Images/Train/'+imname+'.JPG')
@@ -208,7 +209,7 @@ elif args.data == 'totaltext':
         cnts = get_cnts(mat)
         im, cnts = validate(im, cnts)
         im_save_name = '{:0>8d}'.format(i)
-        generate_process(im, cnts, args.save_name + 'Train/'+ im_save_name, TOTAL_ALGO)
+        generate_process(im, cnts, args.save_name + 'Train/'+ im_save_name, TOTAL_ALGO, writer_train)
 
 
     #process test
@@ -222,6 +223,7 @@ elif args.data == 'totaltext':
         json.dump(temp, f)
 
     def test_job(i):
+        global writer_test
         imname = imnames_test[i]
         im = cv2.imread(TOTALTEXT_DIR+'totaltext/Images/Test/'+imname+'.jpg')
         if im is None: im = cv2.imread(TOTALTEXT_DIR+'totaltext/Images/Test/'+imname+'.JPG')
@@ -232,7 +234,14 @@ elif args.data == 'totaltext':
         cnts = get_cnts(mat)
         im, cnts = validate(im, cnts)
         im_save_name = '{:0>8d}'.format(i)
-        generate_process(im, cnts, args.save_name + 'Test/'+ im_save_name, TOTAL_ALGO)
+        generate_process(im, cnts, args.save_name + 'Test/'+ im_save_name, TOTAL_ALGO, writer_test)
+
+    if args.type == 'tfrecord':
+        writer_train = tf.python_io.TFRecordWriter(SAVE_DIR+args.save_name+'Train/')
+        writer_test = tf.python_io.TFRecordWriter(SAVE_DIR+args.save_name+'Test/')
+    else:
+        writer_train = None
+        writer_test = None
 
     pool = mp.Pool(args.thread)
     pool.map(train_job, range(pic_num))
