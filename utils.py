@@ -203,9 +203,9 @@ def find_mid_line_and_radius(points_list,dist='l1',sampling_num=500):
     temp_theta_dict = {}
     crop_length1 = radius_dict[center_line[0]]
     crop_length2 = radius_dict[center_line[-1]]
-    for point in center_line:
-        decrease = 0.0
-        while len(temp) <= 1:
+    decrease = 0.0
+    while len(temp) <= 1:
+        for point in center_line:
             crop_length1 = crop_length1*(1-decrease)
             crop_length2 = crop_length2*(1-decrease)
             if dist_func(point, center_line[0]) >= crop_length1*CROPSKEL and \
@@ -219,7 +219,7 @@ def find_mid_line_and_radius(points_list,dist='l1',sampling_num=500):
     theta_dict = temp_theta_dict
     return center_line, radius_dict, theta_dict
 
-error = 0
+
 def get_maps_algo3(im, cnts):
     global error
     if DIST == 'l1': dist_func = get_l1_dist

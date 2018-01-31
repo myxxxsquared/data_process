@@ -95,13 +95,14 @@ def generate_process(im, cnts, save_name, algo = 3, writer=None):
         im_ = im.copy()
         im, cnts = resize(im, cnts, RESIZE_GT_ROW, RESIZE_GT_COL)
         skel, maps = get_maps(im, cnts, algo)
+        save_num = int(save_name)
         features = {
-            "id": tf.train.Feature(int64_list=tf.train.Int64List(value=[save_name])),
+            "id": tf.train.Feature(int64_list=tf.train.Int64List(value=[save_num])),
             'img_raw': tf.train.Feature(bytes_list=tf.train.BytesList(value=[im_.tobytes()])),
             'labels': tf.train.Feature(bytes_list=tf.train.BytesList(value=[maps.tobytes()]))
         }
         example = tf.train.Example(features=tf.train.Features(feature=features))
-        writer.write(example.SerializeToString())  # 序列化为字符串
+        writer.write(example.SerializeToString())
 
 args = get_args()
 args = check(args)
@@ -139,7 +140,10 @@ if args.data == 'synthtext':
         cnts = list(np.expand_dims(cnts, 2))
         im = cv2.imread(SYNTEXT_DIR + imname)
         im_save_name = '{:0>8d}'.format(i)
-        generate_process(im, cnts, args.save_name+im_save_name,SYN_ALGO, writer)
+        if args.type == 'tfrecord':
+            generate_process(im, cnts, i,SYN_ALGO, writer)
+        else:
+            generate_process(im, cnts, args.save_name+im_save_name,SYN_ALGO, writer)
 
     if args.type == 'tfrecord':
         writer = tf.python_io.TFRecordWriter(SAVE_DIR+args.save_name)
@@ -209,7 +213,10 @@ elif args.data == 'totaltext':
         cnts = get_cnts(mat)
         im, cnts = validate(im, cnts)
         im_save_name = '{:0>8d}'.format(i)
-        generate_process(im, cnts, args.save_name + 'Train/'+ im_save_name, TOTAL_ALGO, writer_train)
+        if args.type == 'tfrecord':
+            generate_process(im, cnts, i, TOTAL_ALGO, writer_train)
+        else:
+            generate_process(im, cnts, args.save_name + 'Train/'+ im_save_name, TOTAL_ALGO, writer_train)
 
 
     #process test
@@ -234,7 +241,10 @@ elif args.data == 'totaltext':
         cnts = get_cnts(mat)
         im, cnts = validate(im, cnts)
         im_save_name = '{:0>8d}'.format(i)
-        generate_process(im, cnts, args.save_name + 'Test/'+ im_save_name, TOTAL_ALGO, writer_test)
+        if args.type == 'tfrecord':
+            generate_process(im, cnts, i, TOTAL_ALGO, writer_test)
+        else:
+            generate_process(im, cnts, args.save_name + 'Test/'+ im_save_name, TOTAL_ALGO, writer_test)
 
     if args.type == 'tfrecord':
         writer_train = tf.python_io.TFRecordWriter(SAVE_DIR+args.save_name+'Train/')
