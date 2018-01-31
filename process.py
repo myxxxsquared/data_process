@@ -7,6 +7,7 @@ import os
 import random
 import json
 import multiprocessing as mp
+import tensorflow as tf
 
 RESIZE_PIC_ROW = 512
 RESIZE_PIC_COL = 512
@@ -31,6 +32,7 @@ def get_args():
     parser.add_argument('data', type=str, help='Enter the name of datasets seperated with comma, candidates are totaltext, synthtext, icdar2013, icdar2015, msra')
     parser.add_argument('save_name', type=str, default='', help='save_name')
     parser.add_argument('--thread', type=int, default=20, help='Number of parallel threads')
+    parser.add_argument('--type', type=str, default='', help='data type')
     parser.add_argument('--check', type=int, default = True, help='Whether to check the output')
     parser.add_argument('--check_num', type=int, default = 20, help='The number of examples for checking')
     return parser.parse_args()
@@ -66,6 +68,7 @@ def check_process(im, cnts, save_name, algo = 3):
     box = cv2.drawContours(zero, cnts, -1, (255), 1)
     cv2.imwrite(SAVE_DIR+'sample/'+save_name+'_box.jpg', box)
     cv2.imwrite(SAVE_DIR+'sample/'+save_name+'_skel.jpg', skel)
+    cv2.imwrite(SAVE_DIR+'sample/'+save_name+'_skel_box.jpg', skel+box)
     cv2.imwrite(SAVE_DIR+'sample/'+save_name+'_score.jpg',
                         maps[:,:,0]*255/(np.max(maps[:,:,0])+1))
     cv2.imwrite(SAVE_DIR+'sample/'+save_name+'_theta.jpg',
@@ -77,14 +80,28 @@ def check_process(im, cnts, save_name, algo = 3):
     cv2.imwrite(SAVE_DIR+'sample/'+save_name+'_mask.jpg',
                         maps[:,:,4]*255/(np.max(maps[:,:,4])+1))
 
-def generate_process(im, cnts, save_name, algo = 3):
-    im, cnts = validate(im, cnts)
-    im, cnts = resize(im, cnts, RESIZE_PIC_ROW, RESIZE_PIC_COL)
-    np.save(SAVE_DIR+save_name+'.npy', im)
-    im, cnts = resize(im, cnts, RESIZE_GT_ROW, RESIZE_GT_COL)
-    skel, maps = get_maps(im, cnts, algo)
-    np.save(SAVE_DIR+save_name+'_maps.npy', maps)
+def generate_process(im, cnts, save_name, algo = 3, writer=None):
+    if writer == None:
+        im, cnts = validate(im, cnts)
+        im, cnts = resize(im, cnts, RESIZE_PIC_ROW, RESIZE_PIC_COL)
+        np.save(SAVE_DIR+save_name+'.npy', im)
 
+        im, cnts = resize(im, cnts, RESIZE_GT_ROW, RESIZE_GT_COL)
+        skel, maps = get_maps(im, cnts, algo)
+        np.save(SAVE_DIR+save_name+'_maps.npy', maps)
+    else:
+        im, cnts = validate(im, cnts)
+        im, cnts = resize(im, cnts, RESIZE_PIC_ROW, RESIZE_PIC_COL)
+        im_ = im.copy()
+        im, cnts = resize(im, cnts, RESIZE_GT_ROW, RESIZE_GT_COL)
+        skel, maps = get_maps(im, cnts, algo)
+        features = {
+            "id": tf.train.Feature(int64_list=tf.train.Int64List(value=[save_name])),
+            'img_raw': tf.train.Feature(bytes_list=tf.train.BytesList(value=[im_.tobytes()])),
+            'labels': tf.train.Feature(bytes_list=tf.train.BytesList(value=[maps.tobytes()]))
+        }
+        example = tf.train.Example(features=tf.train.Features(feature=features))
+        writer.write(example.SerializeToString())  # 序列化为字符串
 
 args = get_args()
 args = check(args)
@@ -115,14 +132,19 @@ if args.data == 'synthtext':
             check_process(im, cnts, args.save_name+im_save_name,SYN_ALGO)
 
     def job(i):
+        global writer
         imname = str(gt['imnames'][0][i][0])
         cnts = gt['wordBB'][0][i].transpose().astype(np.int32)
         if len(cnts.shape) == 2: cnts = np.expand_dims(cnts, 0)
         cnts = list(np.expand_dims(cnts, 2))
         im = cv2.imread(SYNTEXT_DIR + imname)
         im_save_name = '{:0>8d}'.format(i)
-        generate_process(im, cnts, args.save_name+im_save_name,SYN_ALGO)
+        generate_process(im, cnts, args.save_name+im_save_name,SYN_ALGO, writer)
 
+    if args.type == 'tfrecord':
+        writer = tf.python_io.TFRecordWriter(SAVE_DIR+args.save_name)
+    else:
+        writer = None
     pool = mp.Pool(args.thread)
     pool.map(job, range(pic_num))
 

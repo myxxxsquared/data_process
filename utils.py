@@ -11,7 +11,7 @@ PIC_TYPE = np.uint8
 THICKNESS = 0.15
 NEIGHBOR = 3.0
 CROPSKEL = 1.0
-DIST = 'l1'
+DIST = 'l2'
 
 def get_l2_dist(point1, point2):
     return ((point1[0]-point2[0])**2+(point1[1]-point2[1])**2)**0.5
@@ -44,18 +44,15 @@ def is_validate_cnts(im, cnts):
     if im_col < col_max: flag = False
     return flag
 
-
 def is_validate_point(im, point):
     row, col = im.shape[:2]
     return (point[0] < row) and (point[1] < col)
-
 
 def is_inside_point_cnt(point, cnt):
     # ugly place. point here is (row, col)
     # but in the contour points points are (col, row)
     point = (point[1], point[0])
     return cv2.pointPolygonTest(cnt, point, False) >= 0
-
 
 def validate(im, cnts):
     cols, rows = [], []
@@ -73,7 +70,6 @@ def validate(im, cnts):
         temp = np.zeros([im.shape[0], col_max-im_col, im.shape[2]])
         im = np.concatenate((im, temp), 1)
     return im, cnts
-
 
 def resize(im, cnts, row, col):
     im_row, im_col = im.shape[0], im.shape[1]
@@ -208,11 +204,16 @@ def find_mid_line_and_radius(points_list,dist='l1',sampling_num=500):
     crop_length1 = radius_dict[center_line[0]]
     crop_length2 = radius_dict[center_line[-1]]
     for point in center_line:
-        if dist_func(point, center_line[0]) >= crop_length1*CROPSKEL and \
-           dist_func(point, center_line[-1]) >= crop_length2 * CROPSKEL:
-            temp.append(point)
-            temp_radius_dict[point] = radius_dict[point]
-            temp_theta_dict[point] = theta_dict[point]
+        decrease = 0.0
+        while len(temp) <= 1:
+            crop_length1 = crop_length1*(1-decrease)
+            crop_length2 = crop_length2*(1-decrease)
+            if dist_func(point, center_line[0]) >= crop_length1*CROPSKEL and \
+               dist_func(point, center_line[-1]) >= crop_length2 * CROPSKEL:
+                temp.append(point)
+                temp_radius_dict[point] = radius_dict[point]
+                temp_theta_dict[point] = theta_dict[point]
+            decrease += 0.01
     center_line = temp
     radius_dict = temp_radius_dict
     theta_dict = temp_theta_dict
