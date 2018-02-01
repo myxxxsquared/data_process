@@ -102,6 +102,7 @@ def is_inside_point_cnt(point, cnt):
     '''
     # ugly place. point here is (row, col)
     # but in the contour points points are (col, row)
+    cnt = np.array(cnt, np.float32)
     point = (point[1], point[0])
     return cv2.pointPolygonTest(cnt, point, False) >= 0
 
@@ -430,7 +431,7 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
         for point in points_list:
             xs.append(point[0])
             ys.append(point[1])
-        return round(sum(xs)/len(xs)), round(sum(ys)/len(ys))
+        return int(round(sum(xs)/len(xs))), int(round(sum(ys)/len(ys)))
 
     def reorder(char_cnt_per_text):
         '''
@@ -438,45 +439,66 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
                 char_cnt: np.ndarray(4,2) # suppose to be 4
         :return: char_cnt_per_text, same as the input
         '''
-        assert char_cnt_per_text[0][0].shape == (4, 2), str(char_cnt_per_text[0])
-
+        assert char_cnt_per_text[0][1].shape == (4, 2), char_cnt_per_text[0]
         len_ = len(char_cnt_per_text)
         info = np.zeros((len_, len_))
         for i in range(len_):
             for j in range(len_):
                 dist = get_l2_dist(char_cnt_per_text[i][0], char_cnt_per_text[j][0])
                 info[i, j] = info[j, i] = dist
-        tree = set(0)
+        tree = set()
+        tree.add(0)
         remain = set(range(1,len_))
-        path = {}
+        path = []
 
         while len(tree) < len_:
             dist_list = []
             for start in tree:
                 for end in remain:
                     dist_list.append((info[start,end], start, end))
-            start,end = sorted(dist_list)[1:]
+            start,end = sorted(dist_list)[0][1:]
+            path.append((start, end))
             tree.add(end)
             remain.remove(end)
-            path[start] = end
+            print('tree', tree)
+            print('remain', remain)
+            print('path', path)
 
         # assert that there is only one path in the tree
-        start,end = path.popitem()
         deque = []
+        start, end = path[0]
+        path.pop(0)
         deque.append(start)
         deque.append(end)
-        while end in path:
-            next_ = path[end]
-            deque.append(next_)
-            end = next_
-        while start in path:
-            next_ = path[start]
-            deque.insert(0, next_)
-            start = next_
+
+        def is_connect(index, path):
+            for start, end in path:
+                if start == index:
+                    return True
+            return False
+
+        while is_connect(deque[0], path):
+            for i in range(len(path)):
+                start, end = path[i]
+                if start == deque[0]:
+                    deque.insert(0, end)
+                path.pop(i)
+                break
+
+        while is_connect(deque[0], path):
+            for i in range(len(path)):
+                start, end = path[i]
+                if start == deque[0]:
+                    deque.append(end)
+                path.pop(i)
+                break
+
+        print(deque)
+        print(path)
         assert len(deque) == len_
         new = []
         for index in deque:
-            new.append(char_cnt_per_text[i])
+            new.append(char_cnt_per_text[index])
         return new
 
     def reconstruct(skel_points, radius_dict_cnt, row, col):
@@ -506,7 +528,8 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
     sin_theta_dict = {}
     mask_fills = []
 
-    text_cnts, char_cnts = cnts
+    char_cnts, text_cnts = cnts
+    print(len(char_cnts))
     for text_cnt in text_cnts:
         char_cnt_per_text = []
         for char_cnt in char_cnts:
@@ -515,6 +538,13 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
             if is_inside_point_cnt(center_point, text_cnt):
                 char_cnt_per_text.append((center_point, char_cnt))
 
+        if char_cnt_per_text == []:
+            print(text_cnt)
+            count = 0
+            for char_cnt in char_cnts:
+                print(count)
+                print(get_center_point(char_cnt))
+                count += 1
         char_cnt_per_text = reorder(char_cnt_per_text)
 
         skel_points, radius_dict_cnt, theta_dict_cnt = \

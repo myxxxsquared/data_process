@@ -134,3 +134,29 @@ if __name__=='__main__':
     #implement the main function for call data labeling conversion
     a=data_churn()## params
     a.data_to_tfrecord(args.tf_record_path)
+    word_cnts = np.reshape(gt['wordBB'][0][0], (-1, 4, 2))
+    char_cnts = np.reshape(gt['charBB'][0][0], (-1, 4, 2))
+    img = np.zeros((1000,1000))
+    cnts = [char_cnts, word_cnts]
+    skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(img, cnts, False, 0.15, 2.0, 1.0)
+    cnt = [[423.16126397,439.60847343],
+     [450.66887979,  466.31976402],
+    [479.76190495,
+    504.59927448],
+    [418.80489444 , 450.13965942]]
+    points=[
+    (327, 328),
+    (248, 325),
+    (378, 317),
+    (363, 357),
+    (315, 350),
+    (353, 373),
+    (289, 254),
+    (148, 131),
+    (103, 98),
+    (46, 72),
+    (98, 62),
+    (91, 57),
+    (91, 127),
+    (61, 103),
+    (127, 85)]
