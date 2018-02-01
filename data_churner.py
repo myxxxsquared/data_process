@@ -1,6 +1,9 @@
 #from .reader import data_loader  # <- for raw data loading
 #from .util import *              # <- for data_augmentation
+from .utils import get_maps
 import argparse
+import cv2
+import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument('data_set', type=str, help='appoint a dataset to crunch')
@@ -10,12 +13,18 @@ parser.add_argument('tf_record_path', type=str, help='appoint a path to store')
 args = parser.parse_args()
 
 class data_churn(object):
-    def __init__(self,*args,**kw):
+    def __init__(self, thickness=0.15, neighbor=3.0, crop_skel=1.0, *args,**kw):
         """
         initialize an instance
         :param kw: 'data_set': str, 'SynthText', 'totaltext', etc.
                      'start_point','end_point':int, indicating the starting point for the crunching process
+               thickness: the thickness of the text center line
+               neighbor: the range used for fit the theta
+               crop_skel: the length for cropping the text center line (skeleton)
         """
+        self.thickness = thickness
+        self.neighbor = neighbor
+        self.crop_skel =crop_skel
         pass
 
     def _loader_initialization(self):
@@ -50,13 +59,18 @@ class data_churn(object):
         """
         pass
 
-    def _data_labeling(self, *args, **kw):
+    def _data_labeling(self, img_name, img, cnts, is_text_cnts, left_top, right_bottom):
         """
         taking input of the given format:
         {'img_name':str,   original_name
-        'img':np.uint8,
+        'img':np.uint8, raw_img, it can has arbitary size
         'contour':List[the contour of each text instance],
-        'type': 'char' or 'tl'}
+        'is_text_cnts': bool, ture for cnts of boxes,
+                            false for cnts of char
+                            important: if False, cnts = [char_cnts, text_cnts]
+        'left_top': tuple (x, y), x is row, y is col, please be careful about the order,
+        'right_bottom': tuple (x, y), x is row, y is col}
+
 
         return the labelled data instance:
         {'img_name':str,   original_name
@@ -74,7 +88,27 @@ class data_churn(object):
         :param kw:
         :return:
         """
-        pass
+
+        skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
+            get_maps(img, cnts, is_text_cnts, self.thickness, self.neighbor, self.crop_skel )
+        TR = mask_fills[0]
+        for i in range(1, len(mask_fills)):
+            TR = np.bitwise_and(TR, mask_fills[i])
+        TCL = np.zeros(img.shape[:2], np.bool)
+        for point, _ in score_dict.items():
+            TCL[point[0], point[1]] = True
+        radius = np.zeros(img.shape[:2], np.float32)
+        for point, r in radius_dict.items():
+            radius[point[0], point[1]] = r
+        cos_theta = np.zeros(img.shape[:2], np.float32)
+        for point, c_t in cos_theta_dict.items():
+            cos_theta[point[0], point[1]] = c_t
+        sin_theta = np.zeros(img.shape[:2], np.float32)
+        for point, s_t in sin_theta_dict.items():
+            sin_theta[point[0], point[1]] = s_t
+        maps = [TR, TCL, radius, cos_theta, sin_theta]
+        return img_name, img, maps
+
 
     def _data_generator_wrapper(self):
         """
