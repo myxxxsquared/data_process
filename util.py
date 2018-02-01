@@ -12,6 +12,10 @@ class data_augmentor(object):
 
     while returning the same format.
 
+    valuable data augmentation types:
+        crop, pad, flip, invert, add(channel), add to hue and saturation, multiply,
+        gaussian blur, average blur, median blur
+
     """
     def __init__(self,*args,**kw):
         pass
