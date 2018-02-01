@@ -90,7 +90,7 @@ class data_churn(object):
         """
 
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
-            get_maps(img, cnts, is_text_cnts, self.thickness, self.neighbor, self.crop_skel )
+            get_maps(img, cnts, is_text_cnts, self.thickness, self.neighbor, self.crop_skel)
         TR = mask_fills[0]
         for i in range(1, len(mask_fills)):
             TR = np.bitwise_and(TR, mask_fills[i])

@@ -5,7 +5,6 @@ from random import random
 import warnings
 warnings.simplefilter('ignore', np.RankWarning)
 
-
 def get_l2_dist(point1, point2):
     '''
     :param point1: tuple (x, y)
@@ -474,7 +473,7 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
             next_ = path[start]
             deque.insert(0, next_)
             start = next_
-        assert len(deque) = len_
+        assert len(deque) == len_
         new = []
         for index in deque:
             new.append(char_cnt_per_text[i])
