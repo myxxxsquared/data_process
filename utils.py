@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import math
 from random import random
+import time
 import warnings
 warnings.simplefilter('ignore', np.RankWarning)
 
@@ -560,19 +561,24 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
         mask_fills.append(mask_fill.astype(np.bool))
 
         print('start getting belt')
+
         # get belt
         belt = set()
         connect_dict = {}
         for point in skel_points:
             thickness = int(thickness*radius_dict[point])
             for i in range(-thickness, thickness+1):
+                t1 = time.time()
                 for j in range(-thickness, thickness+1):
                     candidate = (point[0]+i, point[1]+j)
+                    print(is_validate_point(im, candidate))
                     if is_validate_point(im, candidate):
                         belt.add(candidate)
                         if candidate not in connect_dict:
                             connect_dict[candidate] = []
                         connect_dict[candidate].append(point)
+                t2 = time.time()
+                print('t2', t2-t1)
 
         print('start getting score')
         # score map
