@@ -2,6 +2,7 @@ import scipy.io as sio
 import numpy as np
 import cv2
 import os
+import math
 
 
 SYNTHTEXT_DIR = '/home/rjq/data/SynthText/SynthText/'
@@ -28,8 +29,8 @@ def validate(im, cnts):
         for i in range(len(cnt)):
             cols.append(cnt[i][0][0])
             rows.append(cnt[i][0][1])
-    col_max = max(cols)
-    row_max = max(rows)
+    col_max = math.ceil(max(cols))
+    row_max = math.ceil(max(rows))
     im_row, im_col = im.shape[0]-1, im.shape[1]-1
     if im_row < row_max:
         temp = np.zeros([row_max-im_row, im.shape[1], im.shape[2]])
@@ -97,7 +98,7 @@ def Totaltext_loader(patch_num, n_th_patch, is_train):
         cnts_ = []
         for cnt in cnts:
             if len(cnt) >= 3:
-                cnts_.append(cnt)
+                cnts_.append(np.array(cnt, np.float32))
         return cnts_
 
     if is_train:
@@ -211,5 +212,10 @@ def TD500_loader(start_point,end_point):
     pass
 
 if __name__ == '__main__':
-    for res in SynthText_loader(10, 2, False):
+    # for res in SynthText_loader(10, 2, False):
+    #     print(res)
+
+    for res in Totaltext_loader(10, 2, True):
+        print(res)
+    for res in Totaltext_loader(10, 2, False):
         print(res)
