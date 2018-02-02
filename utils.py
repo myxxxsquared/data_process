@@ -700,15 +700,15 @@ if __name__ == '__main__':
     pic_num = len(gt['imnames'][0])
     # for i in range(pic_num):
 
-    for i in [10,12]:
-        imname = gt['imnames'][0][i][0]
+    for index in [10,12]:
+        imname = gt['imnames'][0][index][0]
         origin = cv2.imread('/home/rjq/data/SynthText/SynthText/'+imname)
         # cv2.imwrite(str(i)+'_origin.jpg', origin)
-        word_cnts = np.transpose(gt['wordBB'][0][i], (2,1,0))
-        char_cnts = np.transpose(gt['charBB'][0][i], (2,1,0))
+        word_cnts = np.transpose(gt['wordBB'][0][index], (2,1,0))
+        char_cnts = np.transpose(gt['charBB'][0][index], (2,1,0))
         char_cnts = [np.array(char_cnt, np.float32) for char_cnt in char_cnts]
         word_cnts = [np.array(word_cnt, np.float32) for word_cnt in word_cnts]
-        print('i:', i)
+        print('index:', index)
         print('imname', imname)
 
 
@@ -716,7 +716,7 @@ if __name__ == '__main__':
         im = cv2.drawContours(im, np.array(word_cnts, np.int32), -1, (255,255,255), 1)
         # cv2.imwrite(str(i)+'_text_box.jpg', im)
         im = cv2.drawContours(im, np.array(char_cnts, np.int32), -1, (0,0,255), 1)
-        cv2.imwrite(str(i)+'_box.jpg', im)
+        cv2.imwrite(str(index)+'_box.jpg', im)
 
         cnts = [char_cnts, word_cnts]
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(origin, cnts, False, 0.15, 2.0, 1.0)
@@ -737,11 +737,11 @@ if __name__ == '__main__':
             sin_theta[point[0], point[1]] = s_t
         maps = [TR, TCL, radius, cos_theta, sin_theta]
 
-        # save_heatmap(str(i)+'_TR.jpg', TR)
-        save_heatmap(str(i)+'_TCL.jpg', TCL)
-        # save_heatmap(str(i)+'_radius.jpg', radius)
-        # save_heatmap(str(i)+'_cos_theta.jpg', cos_theta)
-        # save_heatmap(str(i)+'_sin_theta.jpg', sin_theta)
+        # save_heatmap(str(index)+'_TR.jpg', TR)
+        save_heatmap(str(index)+'_TCL.jpg', TCL)
+        # save_heatmap(str(index)+'_radius.jpg', radius)
+        # save_heatmap(str(index)+'_cos_theta.jpg', cos_theta)
+        # save_heatmap(str(index)+'_sin_theta.jpg', sin_theta)
 
     # cnt = [[423.16126397,439.60847343],
     #  [450.66887979,  466.31976402],
