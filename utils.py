@@ -554,9 +554,12 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
             theta_dict[point] = theta
         [skels_points.append(point) for point in skel_points]
 
+        print('start getting reconstruct')
+
         mask_fill = reconstruct(skel_points, radius_dict_cnt, im.shape[0], im.shape[1])
         mask_fills.append(mask_fill.astype(np.bool))
 
+        print('start getting belt')
         # get belt
         belt = set()
         connect_dict = {}
@@ -571,10 +574,12 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
                             connect_dict[candidate] = []
                         connect_dict[candidate].append(point)
 
+        print('start getting score')
         # score map
         for point in belt:
             score_dict[point] = True
 
+        print('start getting theta, radius')
         # theta, raidus map
         for point in belt:
             min_dist = 1e8
