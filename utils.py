@@ -61,7 +61,7 @@ def get_radius(point, cnt):
     '''
     cnt = np.squeeze(cnt)
     # change the order of the cnt
-    cnt_changed = [tuple(point[1], point[0]) for point in cnt]
+    cnt_changed = [(point[1], point[0]) for point in cnt]
     cnt_changed = cnt_changed + [cnt_changed[0]]
     dist_list = []
     for i in range(len(cnt_changed)-1):
