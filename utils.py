@@ -533,6 +533,8 @@ def get_maps_charbox(im, cnts, thickness):
     sin_theta_dict = {}
     mask_fills = []
 
+    char_cnts, text_cnts = cnts
+
     while len(text_cnts) != 0:
         text_cnt = text_cnts.pop(0)
         print('start----------')
