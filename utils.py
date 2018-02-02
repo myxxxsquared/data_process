@@ -528,7 +528,7 @@ def reconstruct(skel_points, radius_dict_cnt, row, col):
     return mask_fill
 
 
-def get_maps_charbox(im, cnts, thickness, , crop_skel, neighbor):
+def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
     :param cnts: list(list(numpy.ndarray)), shape (n, 1, 2), dtype int32, point order (col, row)
@@ -657,7 +657,7 @@ def get_maps_charbox(im, cnts, thickness, , crop_skel, neighbor):
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
 
-def get_maps(im, cnts, is_textbox, thickness, neighbor, crop_skel):
+def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
     :param if is_textbox is True:
