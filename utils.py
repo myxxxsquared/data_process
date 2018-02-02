@@ -309,7 +309,7 @@ def find_mid_line_with_radius_theta(points_list, crop_skel, neighbor, sampling_n
     return center_line, radius_dict, theta_dict
 
 
-def get_maps_textbox(im, cnts, thickness, neighbor, crop_skel):
+def get_maps_textbox(im, cnts, thickness,crop_skel, neighbor):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
     :param cnts: list(numpy.ndarray), shape (n, 1, 2), dtype int32, point order (col, row)
@@ -528,7 +528,7 @@ def reconstruct(skel_points, radius_dict_cnt, row, col):
     return mask_fill
 
 
-def get_maps_charbox(im, cnts, thickness):
+def get_maps_charbox(im, cnts, thickness, , crop_skel, neighbor):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
     :param cnts: list(list(numpy.ndarray)), shape (n, 1, 2), dtype int32, point order (col, row)
@@ -594,8 +594,14 @@ def get_maps_charbox(im, cnts, thickness):
             char_cnts = char_cnts_temp
 
             print('start get mid line')
-            skel_points, radius_dict_cnt, theta_dict_cnt = \
-                find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500)
+            if len(char_cnt_per_text) == 1:
+                point_list = [(point[1], point[0]) for point in char_cnt_per_text[0]]
+                skel_points, radius_dict_cnt, theta_dict_cnt = \
+                    find_mid_line_with_radius_theta(point_list, crop_skel, neighbor)
+                pass
+            else:
+                skel_points, radius_dict_cnt, theta_dict_cnt = \
+                    find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500)
 
             for point, radius in radius_dict_cnt.items():
                 radius_dict[point] = radius
@@ -664,14 +670,14 @@ def get_maps(im, cnts, is_textbox, thickness, neighbor, crop_skel):
     if is_textbox:
         cnts = [np.array(cnt, np.float32) for cnt in cnts]
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
-            get_maps_textbox(im,cnts, thickness, neighbor, crop_skel)
+            get_maps_textbox(im,cnts, thickness, crop_skel, neighbor)
     else:
         char_cnts, text_cnts = cnts
         char_cnts = [np.array(cnt, np.float32) for cnt in char_cnts]
         text_cnts = [np.array(cnt, np.float32) for cnt in text_cnts]
         cnts = [char_cnts, text_cnts]
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
-            get_maps_charbox(im,cnts, thickness)
+            get_maps_charbox(im,cnts, thickness, crop_skel, neighbor)
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
 
