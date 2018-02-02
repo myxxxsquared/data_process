@@ -178,7 +178,7 @@ class DataAugmentor(object):
 
         input_data['img'] = self._get_seq().augment_image(input_data['img'])
         cv2.imshow('show', input_data['img'])
-        x=input('enter to see next step')
+        #x=input('enter to see next step')
 
         return input_data
 
@@ -204,7 +204,7 @@ class DataAugmentor(object):
         det_transformer=transformer.to_deterministic()
         input_data['img'] = det_transformer.augment_image(input_data['img'])
         cv2.imshow('show', input_data['img'])
-        x = input('enter to see next step')
+        #x = input('enter to see next step')
         for p,cnt in enumerate(input_data['contour']):
             input_data['contour'][p]=det_transformer.augment_keypoints([self._key_points(image_shape=input_data['img'].shape,point_list=cnt)])[0]
             input_data['contour'][p]=[(int(keypoints.x),int(keypoints.y))for keypoints in input_data['contour'][p].keypoints]
@@ -249,8 +249,8 @@ class DataAugmentor(object):
         yield input_data, (0, 0)
 
         for i in range(augment_rate):
-
-            yield self._affine_transformation(self._pixel_augmentation(input_data)), self._crop_flip_pad(input_data)
+            yield self._pixel_augmentation(input_data), self._crop_flip_pad(input_data)
+            #yield self._affine_transformation(self._pixel_augmentation(input_data)), self._crop_flip_pad(input_data)
 
 
 import time,glob
@@ -277,11 +277,12 @@ while x=='':
     image_,crop_point_starting=next(image_output)
     print(time.time()-start)
     print(image_['img'].shape)
-    for point in range(image_['contour'][0].shape[0]):
-        img=image_['img']
-        img[image_['contour'][0][point,0,0]-5:image_['contour'][0][point,0,0]+5,image_['contour'][0][point,0,1]-5:image_['contour'][0][point,0,1]+5,:]=255
-    img[crop_point_starting[0]:crop_point_starting[0]+5, crop_point_starting[1]:crop_point_starting[1]+5, :] = 255
-    img[crop_point_starting[0] + 507:crop_point_starting[0]+512, crop_point_starting[1] + 507:crop_point_starting[1]+512, :] = 255
+    print(image_['contour'][0].shape[0])
+    img = image_['img']
+    #for point in range(image_['contour'][0].shape[0]):
+    #    img[image_['contour'][0][point,0,0]-5:image_['contour'][0][point,0,0]+5,image_['contour'][0][point,0,1]-5:image_['contour'][0][point,0,1]+5,:]=255
+    img[crop_point_starting[0]-256-10:crop_point_starting[0]-256+10, crop_point_starting[0]-256-10:crop_point_starting[0]+256+10, :] = 255
+    img[crop_point_starting[0] + 256-10:crop_point_starting[0]+256+10, crop_point_starting[1] + 256-10:crop_point_starting[1]+256+10, :] = 255
     cv2.imshow('show',img)
     cv2.waitKey(1)
     time.sleep(0.3)

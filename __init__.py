@@ -4,7 +4,7 @@ from multiprocessing import Pool
 import subprocess
 parser = argparse.ArgumentParser()
 parser.add_argument('data_set', type=str, help='appoint a dataset to crunch')
-parser.add_argument('Pool_size', type=int, help='pool size')
+parser.add_argument('Pool_size', type=int, help='pool size',default=35)
 args = parser.parse_args()
 
 if args.data_set=='SynthText':
