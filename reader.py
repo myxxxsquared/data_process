@@ -30,7 +30,7 @@ def SynthText_loader(start_point, end_point):
     gt = sio.loadmat(SYNTHTEXT_DIR+'gt.mat')
     print('total len of synthtext: '+len(gt['imnames'][0]))
 
-    for index range(start_point, end_point):
+    for index in range(start_point, end_point):
         imname = gt['imnames'][0][index][0]
         origin = cv2.imread('/home/rjq/data/SynthText/SynthText/'+imname)
         origin = np.array(origin, np.uint8)
