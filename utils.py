@@ -60,7 +60,7 @@ def get_radius(point, cnt):
     '''
     cnt = np.squeeze(cnt)
     cnt = [tuple(point) for point in cnt]
-    cnt = cnt + cnt[0]
+    cnt = cnt + [cnt[0]]
     dist_list = []
     for i in range(len(cnt)-1):
         dist_list.append(get_shortest_dist(point, cnt[i], cnt[i+1]))
