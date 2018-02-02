@@ -61,6 +61,7 @@ def SynthText_loader(patch_num, n_th_patch, is_train):
         origin = cv2.imread('/home/rjq/data/SynthText/SynthText/'+imname)
         origin = np.array(origin, np.uint8)
         assert origin.shape[2] == 3
+
         print(word_cnts.shape)
         print(char_cnts.shape)
         word_cnts = np.transpose(gt['wordBB'][0][index], (2,1,0))
