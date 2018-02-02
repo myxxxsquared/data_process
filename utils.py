@@ -572,7 +572,7 @@ def get_maps_charbox(im, cnts, thickness):
                 if i not in char_cnt_index:
                     char_cnts_temp.append(char_cnts[i])
             char_cnts = char_cnts_temp
-            
+
             print('start get mid line')
             skel_points, radius_dict_cnt, theta_dict_cnt = \
                 find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500)
@@ -679,6 +679,7 @@ if __name__ == '__main__':
     for i in range(len(gt['imnames'][0])):
         imname = gt['imnames'][0][i][0]
         origin = cv2.imread('/home/rjq/data/SynthText/SynthText/'+imname)
+        cv2.imwrite(str(i)+'_origin.jpg', origin)
         word_cnts = np.transpose(gt['wordBB'][0][i], (2,1,0))
         char_cnts = np.transpose(gt['charBB'][0][i], (2,1,0))
         char_cnts = [np.array(char_cnt, np.float32) for char_cnt in char_cnts]
@@ -689,7 +690,7 @@ if __name__ == '__main__':
 
         im = np.zeros((origin.shape[0], origin.shape[1], 3))
         im = cv2.drawContours(im, np.array(word_cnts, np.int32), -1, (255,255,255), 1)
-        cv2.imwrite(str(i)+'_text_box.jpg', im)
+        # cv2.imwrite(str(i)+'_text_box.jpg', im)
         im = cv2.drawContours(im, np.array(char_cnts, np.int32), -1, (0,0,255), 1)
         cv2.imwrite(str(i)+'_box.jpg', im)
 
@@ -713,11 +714,11 @@ if __name__ == '__main__':
             sin_theta[point[0], point[1]] = s_t
         maps = [TR, TCL, radius, cos_theta, sin_theta]
 
-        save_heatmap(str(i)+'_TR.jpg', TR)
+        # save_heatmap(str(i)+'_TR.jpg', TR)
         save_heatmap(str(i)+'_TCL.jpg', TCL)
-        save_heatmap(str(i)+'_radius.jpg', radius)
-        save_heatmap(str(i)+'_cos_theta.jpg', cos_theta)
-        save_heatmap(str(i)+'_sin_theta.jpg', sin_theta)
+        # save_heatmap(str(i)+'_radius.jpg', radius)
+        # save_heatmap(str(i)+'_cos_theta.jpg', cos_theta)
+        # save_heatmap(str(i)+'_sin_theta.jpg', sin_theta)
 
     # cnt = [[423.16126397,439.60847343],
     #  [450.66887979,  466.31976402],
