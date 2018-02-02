@@ -2,6 +2,8 @@ import scipy.io as sio
 import numpy as np
 import cv2
 SYNTHTEXT_DIR = '/home/rjq/data/SynthText/SynthText/'
+TOTALTEXT_DIR = '/home/rjq/data/Total-Text-Dataset/Download/'
+
 def data_loader(data_set,start_point,end_point):
     """
     as defined in data_cruncher._loader_initialization
@@ -34,7 +36,7 @@ def SynthText_loader(start_point, end_point):
         imname = gt['imnames'][0][index][0]
         origin = cv2.imread('/home/rjq/data/SynthText/SynthText/'+imname)
         origin = np.array(origin, np.uint8)
-        assert origin.shape[2] = 3
+        assert origin.shape[2] == 3
         word_cnts = np.transpose(gt['wordBB'][0][index], (2,1,0))
         char_cnts = np.transpose(gt['charBB'][0][index], (2,1,0))
         char_cnts = [np.array(char_cnt, np.float32) for char_cnt in char_cnts]
@@ -56,7 +58,7 @@ def Totaltext_loader(start_point,end_point):
         'img':np.uint8,
         'contour':List[the contour of each text instance]}
     """
-    pass
+
 
 def MSRA_TD_500_loader(start_point,end_point):
     """
