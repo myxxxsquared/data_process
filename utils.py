@@ -633,7 +633,7 @@ if __name__ == '__main__':
     cnts = [char_cnts, word_cnts]
     im = np.zeros((1000, 1000))
     im = cv2.drawContours(im, [np.array(word_cnts[0], np.int32)], -1, (255), 1)
-    # im = cv2.drawContours(im, np.array(char_cnts, np.int32), 0, (255), 1)
+    im = cv2.drawContours(im, np.array(char_cnts, np.int32), -1, (255), 1)
     cv2.imwrite('box.jpg', im)
     skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(img, cnts, False, 0.15, 2.0, 1.0)
 
