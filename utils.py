@@ -405,6 +405,7 @@ def find_mid_line_with_radius_theta_char(char_cnt_per_text, crop_skel, neighbor,
         assert char_cnt_per_text[i][0] in theta_dict
     return skel_points, radius_dict, theta_dict
 
+
 def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
@@ -607,4 +608,26 @@ def get_maps(im, cnts, is_textbox, thickness, neighbor, crop_skel):
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
             get_maps_charbox(im,cnts, thickness, neighbor, crop_skel)
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
+
+
+if __name__ == '__main__':
+    import scipy.io as sio
+    # gt = sio.loadmat('/home/rjq/data/SynthText/SynthText/gt.mat')
+    # word_cnts = np.reshape(gt['wordBB'][0][0], (-1, 4, 2))
+    # char_cnts = np.reshape(gt['charBB'][0][0], (-1, 4, 2))
+    # import json
+    # with open('cnts.json', 'w+') as f:
+    #     json.dump([char_cnts.tolist(), word_cnts.tolist()], f)
+    import json
+    with open('cnts.json', 'r') as f:
+        char_cnts, word_cnts = json.load(f)
+    char_cnts = np.array(char_cnts)
+    word_cnts = np.array(word_cnts)
+    img = np.zeros((1000,1000))
+    cnts = [char_cnts, word_cnts]
+    im = np.zeros((1000, 1000))
+    im = cv2.drawContours(im, [np.array(word_cnts[0], np.int32)], -1, (255), 1)
+    # im = cv2.drawContours(im, np.array(char_cnts, np.int32), 0, (255), 1)
+    cv2.imwrite('box.jpg', im)
+    skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(img, cnts, False, 0.15, 2.0, 1.0)
 
