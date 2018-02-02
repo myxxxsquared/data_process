@@ -737,6 +737,7 @@ if __name__ == '__main__':
             sin_theta[point[0], point[1]] = s_t
         maps = [TR, TCL, radius, cos_theta, sin_theta]
 
+
         save_heatmap(str(index)+'_TR.jpg', TR)
         save_heatmap(str(index)+'_TCL.jpg', TCL)
         # save_heatmap(str(index)+'_radius.jpg', radius)
