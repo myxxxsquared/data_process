@@ -699,7 +699,7 @@ if __name__ == '__main__':
     #     char_cnts, word_cnts = json.load(f)
     pic_num = len(gt['imnames'][0])
     # for i in range(pic_num):
-    for i in [10,]:
+    for i in [10,12]:
         imname = gt['imnames'][0][i][0]
         origin = cv2.imread('/home/rjq/data/SynthText/SynthText/'+imname)
         # cv2.imwrite(str(i)+'_origin.jpg', origin)
