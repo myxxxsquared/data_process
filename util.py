@@ -47,10 +47,10 @@ class DataAugmentor(object):
                                  ]
 
         self.blur_augmentation_list = [
-            iaa.GaussianBlur((1, 2)),
-            iaa.AverageBlur((1, 2)),
-            iaa.MedianBlur((1, 2)),
-            iaa.BilateralBlur((1, 2))
+            iaa.GaussianBlur((1, 3)),
+            iaa.AverageBlur((1, 3)),
+            iaa.MedianBlur((1, 3)),
+            iaa.BilateralBlur((1, 3))
         ]
 
         self.noise_augmentation_list = [
@@ -71,8 +71,9 @@ class DataAugmentor(object):
         ]
 
         self.affine = [
-            iaa.Affine(scale=(0.9,1.1),rotate=(-180,180),shear=(-55,55)),
-            iaa.Scale({'height': (0.9,1.1), 'width': (0.9,1.1)}, 'cubic')
+            iaa.Affine(rotate=(-180,180),
+                       shear=(-55,55),
+                       scale={"x": (0.8, 1.2), "y": (0.8, 1.2)}),
         ]
 
     def _get_seq(self,affine=False):
@@ -117,20 +118,43 @@ class DataAugmentor(object):
         :return:
         return scaled img
         """
-        if input_data['img'].shape(0) > input_data['img'].shape(1):
-            if input_data['img'].shape(1) < 512:
+        rate=1
+        if input_data['img'].shape[0] > input_data['img'].shape[1]:
+            if input_data['img'].shape[1] < 512:
+                rate=512/input_data['img'].shape[1]
                 seq = iaa.Sequential([
                     iaa.Scale({'height': "keep-aspect-ratio", 'width': 512}, 'cubic')
                 ])
+                input_data['img'] = seq.augment_image(input_data['img'])
         else:
-            if input_data['img'].shape(0) < 512:
+            if input_data['img'].shape[0] < 512:
+                rate=512/input_data['img'].shape[0]
                 seq = iaa.Sequential([
                     iaa.Scale({'height': 512, 'width': "keep-aspect-ratio"}, 'cubic')
                 ])
+                input_data['img'] = seq.augment_image(input_data['img'])
+        input_data['contour']=[np.cast['int32'](contour*rate) for contour in input_data['contour']]
+        return input_data
 
-        return seq.augment_image(input_data['img'])
+    def _pad(self,input_data):
+        h = input_data['img'].shape[0]
+        w = input_data['img'].shape[1]
+        max_size = max([int(np.sqrt(np.power(h, 2) + np.power(w, 2))),
+                        int(w+h*np.cos(11/36))
+                        ]) + 5
 
-    def _pixel_augmentation(self, input_data):
+        up = (max_size - h) // 2
+        down = max_size - up - h
+        left = (max_size - w) // 2
+        right = max_size - left - w
+
+        input_data['img'] = np.pad(input_data['img'], ((up,down), (left, right),(0,0)), mode='constant')
+
+        input_data['contour'] = list(map(lambda x: np.stack([x[:, :, 0]+up, x[:, :, 1]+left], axis=-1),#x: np.array(n,1,2)
+                                         input_data['contour']))
+        return input_data
+
+    def _pixel_augmentation(self, inputs):
         """
         1. pad a large black background
         2. doing augmentations that do not make affine transformation
@@ -145,27 +169,20 @@ class DataAugmentor(object):
         return: padded + augmented image
 
         """
-        h = input_data['img'].shape[0]
-        w = input_data['img'].shape[1]
-        max_size = max([int(np.sqrt(np.power(h, 2) + np.power(w, 2))),
-                        int(w+h*np.cos(11/36))
-                        ]) + 5
-
-        up = (max_size - h) // 2
-        down = max_size - up - h
-        left = (max_size - w) // 2
-        right = max_size - left - w
-
-        input_data['img'] = np.pad(input_data['img'], ((up,down), (left, right)), mode='constant')
-
-        input_data['contour'] = list(map(lambda x: np.stack([x[:, :, 0]+up, x[:, :, 1]+left], axis=-1),#x: np.array(n,1,2)
-                                         input_data['contour']))
+        input_data = {
+            'img': inputs['img'],
+            'contour': inputs['contour'],
+            'type': inputs['type'],
+            'is_text_cnts': inputs['is_text_cnts']
+        }
 
         input_data['img'] = self._get_seq().augment_image(input_data['img'])
+        cv2.imshow('show', input_data['img'])
+        x=input('enter to see next step')
 
         return input_data
 
-    def _affine_transformation(self, input_data):
+    def _affine_transformation(self, inputs):
         """
         affine types include:
             1. scaling
@@ -177,12 +194,21 @@ class DataAugmentor(object):
         :param kw:
         :return:
         """
+        input_data = {
+                    'img':inputs['img'],
+                    'contour':inputs['contour'],
+                    'type':inputs['type'],
+                    'is_text_cnts':inputs['is_text_cnts']
+                }
         transformer=self._get_seq(affine=True)
         det_transformer=transformer.to_deterministic()
         input_data['img'] = det_transformer.augment_image(input_data['img'])
+        cv2.imshow('show', input_data['img'])
+        x = input('enter to see next step')
         for p,cnt in enumerate(input_data['contour']):
-            input_data['contour'][p]=det_transformer.augment_keypoint(self._key_points(image_shape=input_data['img'].shape,point_list=cnt))
-
+            input_data['contour'][p]=det_transformer.augment_keypoints([self._key_points(image_shape=input_data['img'].shape,point_list=cnt)])[0]
+            input_data['contour'][p]=[(int(keypoints.x),int(keypoints.y))for keypoints in input_data['contour'][p].keypoints]
+            input_data['contour'][p]=np.reshape(np.stack(input_data['contour'][p],axis=0),newshape=(-1,1,2))
         return input_data
 
     def _crop_flip_pad(self, input_data):
@@ -203,7 +229,7 @@ class DataAugmentor(object):
                 'img':np.uint8,
                 'contour':List[the contour of each text instance],
                 'type': 'char' or 'tl',
-                'flag':if this is synthetext or not}
+                'is_text_cnts':if this is synthetext or not}
         :return:
         Dict{'img_name':str,   original_name
             'img':np.uint8,
@@ -213,10 +239,50 @@ class DataAugmentor(object):
             'left_top': tuple (x, y), x is row, y is col, please be careful about the order,
                  'right_bottom': tuple (x, y), x is row, y is col}
         """
+        input_data = self._enlarge(input_data)
+        yield input_data, (0, 0)
         if not input_data['is_text_cnts']:
-            yield input_data
+            yield input_data,(0,0)
             return
 
+        input_data = self._pad(input_data)
+        yield input_data, (0, 0)
+
         for i in range(augment_rate):
-            input_data['img']=self._enlarge(input_data)
+
             yield self._affine_transformation(self._pixel_augmentation(input_data)), self._crop_flip_pad(input_data)
+
+
+import time,glob
+
+images = glob.glob('/Users/longshangbang/Documents/Total-Text-Dataset-master/Images/Test/*jpg')
+
+
+shuffle(images)
+
+image=cv2.imread(images[0])
+
+DA=DataAugmentor()
+
+x=input('start to demo:')
+image_output=DA.augment({
+    'img':image,
+    'contour':[np.cast['int32'](np.random.uniform(0,1,(4,1,2))*min(image.shape[:2]))],
+    'type':'tl',
+    'is_text_cnts':'False'
+})
+
+while x=='':
+    start=time.time()
+    image_,crop_point_starting=next(image_output)
+    print(time.time()-start)
+    print(image_['img'].shape)
+    for point in range(image_['contour'][0].shape[0]):
+        img=image_['img']
+        img[image_['contour'][0][point,0,0]-5:image_['contour'][0][point,0,0]+5,image_['contour'][0][point,0,1]-5:image_['contour'][0][point,0,1]+5,:]=255
+    img[crop_point_starting[0]:crop_point_starting[0]+5, crop_point_starting[1]:crop_point_starting[1]+5, :] = 255
+    img[crop_point_starting[0] + 507:crop_point_starting[0]+512, crop_point_starting[1] + 507:crop_point_starting[1]+512, :] = 255
+    cv2.imshow('show',img)
+    cv2.waitKey(1)
+    time.sleep(0.3)
+    x = input('enter to see next:')
