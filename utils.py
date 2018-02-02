@@ -363,7 +363,7 @@ def get_maps_textbox(im, cnts, thickness, neighbor, crop_skel):
 
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
-def find_mid_line_with_radius_theta_char(char_cnt_per_text, crop_skel, neighbor, sampling_num=500):
+def find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500):
     '''
     :param char_cnt_per_text: list(tuple(point, char_cnt)); point: (x, y) int;
                             char_cnt: np.ndarray(4,2) # suppose to be 4
@@ -457,6 +457,13 @@ def reorder(char_cnt_per_text):
         print('-'*10)
 
     # assert that there is only one path in the tree
+    count = [0 for i in range(len_)]
+    for start, end in path:
+        count[start]+=1
+        count[end]+=1
+    if max(count) > 2:
+        return False
+
     deque = []
     start, end = path[0]
     path.pop(0)
@@ -501,7 +508,7 @@ def reconstruct(skel_points, radius_dict_cnt, row, col):
     mask_fill = cv2.fillPoly(mask_fill,[hull],(255)).astype(np.bool)
     return mask_fill
 
-def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
+def get_maps_charbox(im, cnts, thickness):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
     :param cnts: list(list(numpy.ndarray)), shape (n, 1, 2), dtype int32, point order (col, row)
@@ -528,12 +535,15 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
 
     char_cnts, text_cnts = cnts
     print(len(char_cnts))
-    for text_cnt in text_cnts:
+
+
+    while len(text_cnts) != 0:
+        text_cnt = text_cnts.pop(0)
         print('start----------')
         print('text_cnt', text_cnt)
         char_cnt_per_text = []
         for char_cnt in char_cnts:
-            char_cnt = np.squeeze(char_cnt)
+            # char_cnt = np.squeeze(char_cnt)
             center_point = get_center_point(char_cnt)
             if is_inside_point_cnt(center_point, text_cnt):
                 char_cnt_per_text.append((center_point, char_cnt))
@@ -552,60 +562,67 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
         print('strat reorder')
         char_cnt_per_text = reorder(char_cnt_per_text)
 
-        print('start get mid line')
-        skel_points, radius_dict_cnt, theta_dict_cnt = \
-            find_mid_line_with_radius_theta_char(char_cnt_per_text, crop_skel, neighbor, sampling_num=500)
+        if char_cnt_per_text is False:
+            text_cnts.append(text_cnt)
+        else:
+            print('pop out those claimed char_cnt')
+            for _, char_cnt in char_cnt_per_text:
+                char_cnts.remove(char_cnt)
 
-        for point, radius in radius_dict_cnt.items():
-            radius_dict[point] = radius
-        for point, theta in theta_dict_cnt.items():
-            theta_dict[point] = theta
-        [skels_points.append(point) for point in skel_points]
+            print('start get mid line')
+            skel_points, radius_dict_cnt, theta_dict_cnt = \
+                find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500)
 
-        print('start getting reconstruct')
-        mask_fill = reconstruct(skel_points, radius_dict_cnt, im.shape[0], im.shape[1])
-        mask_fills.append(mask_fill.astype(np.bool))
+            for point, radius in radius_dict_cnt.items():
+                radius_dict[point] = radius
+            for point, theta in theta_dict_cnt.items():
+                theta_dict[point] = theta
+            [skels_points.append(point) for point in skel_points]
 
-        print('start getting belt')
+            print('start getting reconstruct')
+            mask_fill = reconstruct(skel_points, radius_dict_cnt, im.shape[0], im.shape[1])
+            mask_fills.append(mask_fill.astype(np.bool))
 
-        # get belt
-        belt = set()
-        connect_dict = {}
-        print('skel_num', len(skel_points))
+            print('start getting belt')
 
-        for point in skel_points:
-            r = int(thickness*radius_dict[point])
-            for i in range(-r, r+1):
-                for j in range(-r, r+1):
-                    candidate = (point[0]+i, point[1]+j)
-                    # print(is_validate_point(im, candidate))
-                    if is_validate_point(im, candidate):
-                        belt.add(candidate)
-                        if candidate not in connect_dict:
-                            connect_dict[candidate] = []
-                        connect_dict[candidate].append(point)
-                t2 = time.time()
+            # get belt
+            belt = set()
+            connect_dict = {}
+            print('skel_num', len(skel_points))
 
-        print('start getting score')
-        # score map
-        for point in belt:
-            score_dict[point] = True
+            for point in skel_points:
+                r = int(thickness*radius_dict[point])
+                for i in range(-r, r+1):
+                    for j in range(-r, r+1):
+                        candidate = (point[0]+i, point[1]+j)
+                        # print(is_validate_point(im, candidate))
+                        if is_validate_point(im, candidate):
+                            belt.add(candidate)
+                            if candidate not in connect_dict:
+                                connect_dict[candidate] = []
+                            connect_dict[candidate].append(point)
+                    t2 = time.time()
 
-        print('start getting theta, radius')
-        # theta, raidus map
-        for point in belt:
-            min_dist = 1e8
-            min_dist_point = None
-            for skel_point in connect_dict[point]:
-                dist = get_l2_dist(point, skel_point)
-                if dist < min_dist:
-                    min_dist_point = skel_point
-                    min_dist = dist
-            cos_theta_dict[point] = math.cos(theta_dict[min_dist_point[0], min_dist_point[1]])
-            sin_theta_dict[point] = math.sin(theta_dict[min_dist_point[0], min_dist_point[1]])
-            radius_dict[point] = radius_dict[min_dist_point[0], min_dist_point[1]]-min_dist
+            print('start getting score')
+            # score map
+            for point in belt:
+                score_dict[point] = True
 
-        print('end------')
+            print('start getting theta, radius')
+            # theta, raidus map
+            for point in belt:
+                min_dist = 1e8
+                min_dist_point = None
+                for skel_point in connect_dict[point]:
+                    dist = get_l2_dist(point, skel_point)
+                    if dist < min_dist:
+                        min_dist_point = skel_point
+                        min_dist = dist
+                cos_theta_dict[point] = math.cos(theta_dict[min_dist_point[0], min_dist_point[1]])
+                sin_theta_dict[point] = math.sin(theta_dict[min_dist_point[0], min_dist_point[1]])
+                radius_dict[point] = radius_dict[min_dist_point[0], min_dist_point[1]]-min_dist
+
+            print('end------')
 
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
@@ -622,7 +639,7 @@ def get_maps(im, cnts, is_textbox, thickness, neighbor, crop_skel):
             get_maps_textbox(im,cnts, thickness, neighbor, crop_skel)
     else:
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
-            get_maps_charbox(im,cnts, thickness, neighbor, crop_skel)
+            get_maps_charbox(im,cnts, thickness)
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
 
@@ -647,7 +664,7 @@ if __name__ == '__main__':
     word_cnts = np.array(word_cnts)
 
 
-    im = np.zeros((1000, 1000, 3))
+    im = np.zeros((origin.shape[0], origin[1], 3))
     im = cv2.drawContours(im, np.array(word_cnts, np.int32), -1, (255,255,255), 1)
     cv2.imwrite('text_box.jpg', im)
     im = cv2.drawContours(im, np.array(char_cnts, np.int32), -1, (0,0,255), 1)
@@ -681,7 +698,7 @@ if __name__ == '__main__':
 
 
 
-    img = np.zeros((400,400))
+    img = np.zeros((origin.shape[0], origin.shape[1]))
     cnts = [char_cnts, word_cnts]
     skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(img, cnts, False, 0.15, 2.0, 1.0)
     TR = mask_fills[0]
