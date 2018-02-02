@@ -3,8 +3,10 @@ import numpy as np
 import cv2
 import os
 
+
 SYNTHTEXT_DIR = '/home/rjq/data/SynthText/SynthText/'
 TOTALTEXT_DIR = '/home/rjq/data/Total-Text-Dataset/Download/'
+
 
 def data_loader(data_set,patch_num,n_th_patch, is_train):
     '''
@@ -17,6 +19,7 @@ def data_loader(data_set,patch_num,n_th_patch, is_train):
     dataset={'SynthText':SynthText_loader} #and  etc.
 
     return dataset[data_set](patch_num,n_th_patch, is_train)
+
 
 ##generators:
 def validate(im, cnts):
@@ -58,8 +61,11 @@ def SynthText_loader(patch_num, n_th_patch, is_train):
         origin = cv2.imread('/home/rjq/data/SynthText/SynthText/'+imname)
         origin = np.array(origin, np.uint8)
         assert origin.shape[2] == 3
+
         word_cnts = np.transpose(gt['wordBB'][0][index], (2,1,0))
         char_cnts = np.transpose(gt['charBB'][0][index], (2,1,0))
+        print(word_cnts.shape)
+        print(char_cnts.shape)
         char_cnts = [np.array(char_cnt, np.float32) for char_cnt in char_cnts]
         word_cnts = [np.array(word_cnt, np.float32) for word_cnt in word_cnts]
         cnts = [char_cnts, word_cnts]
