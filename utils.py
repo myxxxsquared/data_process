@@ -567,9 +567,12 @@ def get_maps_charbox(im, cnts, thickness):
             text_cnts.append(text_cnt)
         else:
             print('pop out those claimed char_cnt')
-            for index in char_cnt_index:
-                char_cnts.pop(index)
-
+            char_cnts_temp = []
+            for i in range(len(char_cnts)):
+                if i not in char_cnt_index:
+                    char_cnts_temp.append(char_cnts[i])
+            char_cnts = char_cnts_temp
+            
             print('start get mid line')
             skel_points, radius_dict_cnt, theta_dict_cnt = \
                 find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500)
