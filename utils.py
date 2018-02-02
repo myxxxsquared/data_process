@@ -638,6 +638,7 @@ if __name__ == '__main__':
 
     im = np.zeros((1000, 1000, 3))
     im = cv2.drawContours(im, np.array(word_cnts, np.int32), -1, (255,255,255), 1)
+    cv2.imwrite('text_box.jpg', im)
     im = cv2.drawContours(im, np.array(char_cnts, np.int32), -1, (0,0,255), 1)
     cv2.imwrite('box.jpg', im)
 
