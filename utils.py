@@ -60,11 +60,12 @@ def get_radius(point, cnt):
     :return:
     '''
     cnt = np.squeeze(cnt)
-    cnt = [tuple(point) for point in cnt]
-    cnt = cnt + [cnt[0]]
+    # change the order of the cnt
+    cnt_changed = [tuple(point[1], point[0]) for point in cnt]
+    cnt_changed = cnt_changed + [cnt_changed[0]]
     dist_list = []
-    for i in range(len(cnt)-1):
-        dist_list.append(get_shortest_dist(point, cnt[i], cnt[i+1]))
+    for i in range(len(cnt_changed)-1):
+        dist_list.append(get_shortest_dist(point, cnt_changed[i], cnt_changed[i+1]))
     return max(dist_list)
 
 def is_validate_cnts(im, cnts):
