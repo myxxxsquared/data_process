@@ -103,7 +103,7 @@ def is_inside_point_cnt(point, cnt):
     # ugly place. point here is (row, col)
     # but in the contour points points are (col, row)
     cnt = np.array(cnt, np.float32)
-    point = (point[1], point[0])
+    # point = (point[1], point[0])
     return cv2.pointPolygonTest(cnt, point, False) >= 0
 
 def validate(im, cnts):
