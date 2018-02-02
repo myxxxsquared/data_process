@@ -441,7 +441,8 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
         :return: char_cnt_per_text, same as the input
         '''
         # assert char_cnt_per_text[0][1].shape == (4, 2), char_cnt_per_text[0]
-        print(char_cnt_per_text)
+        print('char_cnt_per_text', char_cnt_per_text)
+        print('-'*10)
         len_ = len(char_cnt_per_text)
         info = np.zeros((len_, len_))
         for i in range(len_):
@@ -465,6 +466,7 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
             print('tree', tree)
             print('remain', remain)
             print('path', path)
+            print('-'*10)
 
         # assert that there is only one path in the tree
         deque = []
@@ -473,27 +475,12 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
         deque.append(start)
         deque.append(end)
 
-        def is_connect(index, path):
-            for start, end in path:
-                if start == index:
-                    return True
-            return False
-
-        while is_connect(deque[0], path):
+        for _ in range(len_):
             for i in range(len(path)):
-                start, end = path[i]
-                if start == deque[0]:
-                    deque.insert(0, end)
-                path.pop(i)
-                break
-
-        while is_connect(deque[0], path):
-            for i in range(len(path)):
-                start, end = path[i]
-                if start == deque[0]:
-                    deque.append(end)
-                path.pop(i)
-                break
+                if path[i][0] == deque[0]:
+                    deque.insert(0, path[i][1])
+                elif path[i][0] == deque[-1]:
+                    deque.append(path[i][1])
 
         print(deque)
         print(path)
