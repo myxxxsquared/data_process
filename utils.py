@@ -487,11 +487,13 @@ def reconstruct(skel_points, radius_dict_cnt, row, col):
     hull_points = set()
     for point in skel_points:
         radius = radius_dict_cnt[point]
+        print(radius)
         for i in range(int(radius)+1):
             for j in range(int(radius)+1):
                 if get_l2_dist((0,0),(i,j)) < radius:
                     hull_points.add((point[0]+i, point[1]+j))
     hull_points = list(hull_points)
+    print(hull_points)
     hull = cv2.convexHull(np.array(hull_points, np.float32))
     mask_fill = np.zeros((row, col), np.uint8)
     hull = np.array(hull, np.int32)
@@ -563,7 +565,6 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
         [skels_points.append(point) for point in skel_points]
 
         print('start getting reconstruct')
-
         mask_fill = reconstruct(skel_points, radius_dict_cnt, im.shape[0], im.shape[1])
         mask_fills.append(mask_fill.astype(np.bool))
 
