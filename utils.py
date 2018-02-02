@@ -582,7 +582,7 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
         print('strat reorder')
         char_cnt_per_text = reorder(char_cnt_per_text)
 
-        print(char_cnt_per_text)
+        print('char_cnt_per_text', char_cnt_per_text)
         if char_cnt_per_text is None:
             text_cnts.append(text_cnt)
         else:
@@ -595,7 +595,7 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
 
             print('start get mid line')
             if len(char_cnt_per_text) == 1:
-                point_list = [(point[1], point[0]) for point in char_cnt_per_text[0]]
+                point_list = [(point[1], point[0]) for point in char_cnt_per_text[0][1]]
                 print(point_list)
                 skel_points, radius_dict_cnt, theta_dict_cnt = \
                     find_mid_line_with_radius_theta(point_list, crop_skel, neighbor)
