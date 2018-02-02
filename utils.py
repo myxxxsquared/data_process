@@ -494,11 +494,9 @@ def reconstruct(skel_points, radius_dict_cnt, row, col):
                 if get_l2_dist((0,0),(i,j)) < radius:
                     hull_points.add((point[0]+i, point[1]+j))
     hull_points = list(hull_points)
-    print(hull_points)
     hull = cv2.convexHull(np.array(hull_points, np.float32))
     mask_fill = np.zeros((row, col), np.uint8)
     hull = np.array(hull, np.int32)
-    print(hull)
     print(hull.shape)
     print(hull.dtype)
     mask_fill = cv2.fillPoly(mask_fill,hull,(255)).astype(np.bool)
@@ -604,6 +602,8 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
                 if dist < min_dist:
                     min_dist_point = skel_point
                     min_dist = dist
+            print('point', point)
+            print('theta', theta_dict[min_dist_point[0], min_dist_point[1]])
             cos_theta_dict[point] = math.cos(theta_dict[min_dist_point[0], min_dist_point[1]])
             sin_theta_dict[point] = math.sin(theta_dict[min_dist_point[0], min_dist_point[1]])
             radius_dict[point] = radius_dict[min_dist_point[0], min_dist_point[1]]-min_dist
@@ -689,7 +689,7 @@ if __name__ == '__main__':
     skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(img, cnts, False, 0.15, 2.0, 1.0)
     TR = mask_fills[0]
     for i in range(1, len(mask_fills)):
-        TR = np.bitwise_and(TR, mask_fills[i])
+        TR = np.bitwise_or(TR, mask_fills[i])
     TCL = np.zeros(img.shape[:2], np.bool)
     for point, _ in score_dict.items():
         TCL[point[0], point[1]] = True
