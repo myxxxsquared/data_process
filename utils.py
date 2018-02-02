@@ -565,14 +565,14 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
         # get belt
         belt = set()
         connect_dict = {}
-        print(len(skel_points))
+        print('skel', len(skel_points))
 
         for point in skel_points:
-            thickness = int(thickness*radius_dict[point])
-            print(thickness)
-            for i in range(-thickness, thickness+1):
+            r = int(thickness*radius_dict[point])
+            print(r)
+            for i in range(-r, r+1):
                 t1 = time.time()
-                for j in range(-thickness, thickness+1):
+                for j in range(-r, r+1):
                     candidate = (point[0]+i, point[1]+j)
                     # print(is_validate_point(im, candidate))
                     if is_validate_point(im, candidate):
