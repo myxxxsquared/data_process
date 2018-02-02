@@ -638,3 +638,27 @@ if __name__ == '__main__':
     cv2.imwrite('box.jpg', im)
     skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(img, cnts, False, 0.15, 2.0, 1.0)
 
+    cnt = [[423.16126397,439.60847343],
+     [450.66887979,  466.31976402],
+    [479.76190495,
+    504.59927448],
+    [418.80489444 , 450.13965942]]
+
+    points=[
+    (327, 328),
+    (248, 325),
+    (378, 317),
+    (363, 357),
+    (315, 350),
+    (353, 373),
+    (289, 254),
+    (148, 131),
+    (103, 98),
+    (46, 72),
+    (98, 62),
+    (91, 57),
+    (91, 127),
+    (61, 103),
+    (127, 85)]
+    for point in points:
+        print(is_inside_point_cnt(point, cnt))
