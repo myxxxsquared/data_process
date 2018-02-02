@@ -62,10 +62,14 @@ def SynthText_loader(patch_num, n_th_patch, is_train):
         origin = np.array(origin, np.uint8)
         assert origin.shape[2] == 3
 
-        print(gt['wordBB'][0][index].shape)
-        print(gt['charBB'][0][index].shape)
-        word_cnts = np.transpose(gt['wordBB'][0][index], (2,1,0))
-        char_cnts = np.transpose(gt['charBB'][0][index], (2,1,0))
+        word_cnts = gt['wordBB'][0][index]
+        char_cnts = gt['charBB'][0][index]
+        if len(word_cnts.shape) == 2:
+            word_cnts = np.expand_dims(word_cnts, 2)
+        if len(char_cnts.shape) == 2:
+            char_cnts = np.expand_dims(char_cnts, 2)
+        word_cnts = np.transpose(word_cnts, (2,1,0))
+        char_cnts = np.transpose(char_cnts, (2,1,0))
 
         char_cnts = [np.array(char_cnt, np.float32) for char_cnt in char_cnts]
         word_cnts = [np.array(word_cnt, np.float32) for word_cnt in word_cnts]
