@@ -707,7 +707,7 @@ if __name__ == '__main__':
 
     def save_heatmap(save_name, map):
         if np.max(map) != 0.0 or np.max(map) != 0:
-            cv2.imwrite(save_name, map.astype(np.uint8) * 255 / np.max(map))
+            cv2.imwrite(save_name, (map * 255 / np.max(map)).astype(np.uint8))
         else:
             cv2.imwrite(save_name, map.astype(np.uint8))
 
