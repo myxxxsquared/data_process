@@ -675,8 +675,8 @@ if __name__ == '__main__':
     # import json
     # with open('cnts.json', 'r') as f:
     #     char_cnts, word_cnts = json.load(f)
-
-    for i in range(len(gt['imnames'][0])):
+    pic_num = len(gt['imnames'][0])
+    for i in [9]:
         imname = gt['imnames'][0][i][0]
         origin = cv2.imread('/home/rjq/data/SynthText/SynthText/'+imname)
         cv2.imwrite(str(i)+'_origin.jpg', origin)
@@ -694,22 +694,21 @@ if __name__ == '__main__':
         im = cv2.drawContours(im, np.array(char_cnts, np.int32), -1, (0,0,255), 1)
         cv2.imwrite(str(i)+'_box.jpg', im)
 
-        img = np.zeros((origin.shape[0], origin.shape[1]))
         cnts = [char_cnts, word_cnts]
-        skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(img, cnts, False, 0.15, 2.0, 1.0)
+        skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(origin, cnts, False, 0.15, 2.0, 1.0)
         TR = mask_fills[0]
         for i in range(1, len(mask_fills)):
             TR = np.bitwise_or(TR, mask_fills[i])
-        TCL = np.zeros(img.shape[:2], np.bool)
+        TCL = np.zeros(origin.shape[:2], np.bool)
         for point, _ in score_dict.items():
             TCL[point[0], point[1]] = True
-        radius = np.zeros(img.shape[:2], np.float32)
+        radius = np.zeros(origin.shape[:2], np.float32)
         for point, r in radius_dict.items():
             radius[point[0], point[1]] = r
-        cos_theta = np.zeros(img.shape[:2], np.float32)
+        cos_theta = np.zeros(origin.shape[:2], np.float32)
         for point, c_t in cos_theta_dict.items():
             cos_theta[point[0], point[1]] = c_t
-        sin_theta = np.zeros(img.shape[:2], np.float32)
+        sin_theta = np.zeros(origin.shape[:2], np.float32)
         for point, s_t in sin_theta_dict.items():
             sin_theta[point[0], point[1]] = s_t
         maps = [TR, TCL, radius, cos_theta, sin_theta]
