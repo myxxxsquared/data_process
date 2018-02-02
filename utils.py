@@ -444,8 +444,6 @@ def reorder(char_cnt_per_text):
     :return: char_cnt_per_text, same as the input
     '''
     # assert char_cnt_per_text[0][1].shape == (4, 2), char_cnt_per_text[0]
-    print('char_cnt_per_text', char_cnt_per_text)
-    print('-'*10)
     len_ = len(char_cnt_per_text)
     if len_ == 1:
         return char_cnt_per_text
@@ -469,10 +467,6 @@ def reorder(char_cnt_per_text):
         path.append((start, end))
         tree.add(end)
         remain.remove(end)
-        print('tree', tree)
-        print('remain', remain)
-        print('path', path)
-        print('-'*10)
 
     # assert that there is only one path in the tree
     count = [0 for i in range(len_)]
@@ -495,8 +489,6 @@ def reorder(char_cnt_per_text):
             elif path[i][0] == deque[-1]:
                 deque.append(path[i][1])
 
-    print(deque)
-    print(path)
     assert len(deque) == len_
     new = []
     for index in deque:
@@ -557,46 +549,35 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
 
     while len(text_cnts) != 0:
         text_cnt = text_cnts.pop(0)
-        print('start----------')
-        print('text_cnt', text_cnt)
+        # print('start----------')
+        # print('text_cnt', text_cnt)
         char_cnt_per_text = []
 
         char_cnt_index = []
         for index, char_cnt in enumerate(char_cnts):
-            # char_cnt = np.squeeze(char_cnt)
             center_point = get_center_point(char_cnt)
             if is_inside_point_cnt(center_point, text_cnt):
                 char_cnt_per_text.append((center_point, char_cnt))
                 char_cnt_index.append(index)
 
-
-        if char_cnt_per_text == []:
-            print('char_cnt_per_text_len is 0')
-            count = 0
-            for char_cnt in char_cnts:
-                print(count)
-                print(get_center_point(char_cnt))
-                print(is_inside_point_cnt(get_center_point(char_cnt), text_cnt))
-                count += 1
-
-        print('strat reorder')
+        # print('strat reorder')
         char_cnt_per_text = reorder(char_cnt_per_text)
 
-        print('char_cnt_per_text', char_cnt_per_text)
+        # print('char_cnt_per_text', char_cnt_per_text)
         if char_cnt_per_text is None:
             text_cnts.append(text_cnt)
         else:
-            print('pop out those claimed char_cnt')
+            # print('pop out those claimed char_cnt')
             char_cnts_temp = []
             for i in range(len(char_cnts)):
                 if i not in char_cnt_index:
                     char_cnts_temp.append(char_cnts[i])
             char_cnts = char_cnts_temp
 
-            print('start get mid line')
+            # print('start get mid line')
             if len(char_cnt_per_text) == 1:
                 point_list = [(point[1], point[0]) for point in char_cnt_per_text[0][1]]
-                print(point_list)
+                # print(point_list)
                 skel_points, radius_dict_cnt, theta_dict_cnt = \
                     find_mid_line_with_radius_theta(point_list, crop_skel, neighbor)
                 pass
@@ -610,16 +591,16 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
                 theta_dict[point] = theta
             [skels_points.append(point) for point in skel_points]
 
-            print('start getting reconstruct')
+            # print('start getting reconstruct')
             mask_fill = reconstruct(skel_points, radius_dict_cnt, im.shape[0], im.shape[1])
             mask_fills.append(mask_fill.astype(np.bool))
 
-            print('start getting belt')
+            # print('start getting belt')
 
             # get belt
             belt = set()
             connect_dict = {}
-            print('skel_num', len(skel_points))
+            # print('skel_num', len(skel_points))
 
             for point in skel_points:
                 r = int(thickness*radius_dict[point])
@@ -634,12 +615,12 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
                             connect_dict[candidate].append(point)
                     t2 = time.time()
 
-            print('start getting score')
+            # print('start getting score')
             # score map
             for point in belt:
                 score_dict[point] = True
 
-            print('start getting theta, radius')
+            # print('start getting theta, radius')
             # theta, raidus map
             for point in belt:
                 min_dist = 1e8
@@ -653,7 +634,7 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
                 sin_theta_dict[point] = math.sin(theta_dict[min_dist_point[0], min_dist_point[1]])
                 radius_dict[point] = radius_dict[min_dist_point[0], min_dist_point[1]]-min_dist
 
-            print('end------')
+            # print('end------')
 
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 

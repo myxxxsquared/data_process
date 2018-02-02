@@ -2,7 +2,6 @@ import numpy as np
 import cv2
 import math
 from random import random
-import time
 import warnings
 warnings.simplefilter('ignore', np.RankWarning)
 
@@ -49,8 +48,7 @@ def is_validate_point(im, point):
     return (point[0] < row) and (point[1] < col)
 
 def is_inside_point_cnt(point, cnt):
-    # ugly place. point here is (row, col)
-    # but in the contour points points are (col, row)
+    # in the contour points,  points are (col, row)
     point = (point[1], point[0])
     return cv2.pointPolygonTest(cnt, point, False) >= 0
 
