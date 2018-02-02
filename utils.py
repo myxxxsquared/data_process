@@ -660,8 +660,8 @@ if __name__ == '__main__':
     with open('cnts.json', 'r') as f:
         char_cnts, word_cnts = json.load(f)
 
-    char_cnts = np.array(char_cnts)
-    word_cnts = np.array(word_cnts)
+    char_cnts = [np.array(char_cnt, np.float32) for char_cnt in char_cnts]
+    word_cnts = [np.array(word_cnt, np.float32) for word_cnt in word_cnts]
 
 
     im = np.zeros((origin.shape[0], origin.shape[1], 3))
