@@ -507,6 +507,7 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
         hull_points = list(hull_points)
         hull = cv2.convexHull(np.array(hull_points, np.float32))
         mask_fill = np.zeros((row, col), np.uint8)
+        hull = np.array(hull, np.int32)
         print(hull)
         print(hull.shape)
         print(hull.dtype)
