@@ -2,7 +2,6 @@
 #from .util import *              # <- for data_augmentation
 from .utils import get_maps
 import argparse
-import cv2
 import numpy as np
 
 parser = argparse.ArgumentParser()
@@ -83,10 +82,6 @@ class data_churn(object):
                 curvature, float
                 ]
         }
-
-        :param args:
-        :param kw:
-        :return:
         """
 
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
@@ -106,6 +101,12 @@ class data_churn(object):
         sin_theta = np.zeros(img.shape[:2], np.float32)
         for point, s_t in sin_theta_dict.items():
             sin_theta[point[0], point[1]] = s_t
+        TR = TR[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
+        TCL = TCL[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
+        radius = radius[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
+        cos_theta = cos_theta[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
+        sin_theta = sin_theta[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
+
         maps = [TR, TCL, radius, cos_theta, sin_theta]
         return img_name, img, maps
 
@@ -134,11 +135,5 @@ if __name__=='__main__':
     #implement the main function for call data labeling conversion
     a=data_churn()## params
     a.data_to_tfrecord(args.tf_record_path)
-    word_cnts = np.reshape(gt['wordBB'][0][0], (-1, 4, 2))
-    char_cnts = np.reshape(gt['charBB'][0][0], (-1, 4, 2))
-    img = np.zeros((1000,1000))
-    cnts = [char_cnts, word_cnts]
-    skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(img, cnts, False, 0.15, 2.0, 1.0)
-
 
 
