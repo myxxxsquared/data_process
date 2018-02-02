@@ -668,7 +668,7 @@ if __name__ == '__main__':
     #     char_cnts, word_cnts = json.load(f)
 
     for i in range(len(gt['imnames'][0])):
-        imname = gt['imnames'][0][i]
+        imname = gt['imnames'][0][i][0]
         origin = cv2.imread('/home/rjq/data/SynthText/SynthText/'+imname)
         word_cnts = np.transpose(gt['wordBB'][0][i], (2,1,0))
         char_cnts = np.transpose(gt['charBB'][0][i], (2,1,0))
