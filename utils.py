@@ -6,6 +6,7 @@ import time
 import warnings
 warnings.simplefilter('ignore', np.RankWarning)
 
+
 def get_l2_dist(point1, point2):
     '''
     :param point1: tuple (x, y)
@@ -13,6 +14,7 @@ def get_l2_dist(point1, point2):
     :return: float
     '''
     return float(((point1[0]-point2[0])**2+(point1[1]-point2[1])**2)**0.5)
+
 
 def get_l1_dist(point1, point2):
     '''
@@ -22,11 +24,13 @@ def get_l1_dist(point1, point2):
     '''
     return float(abs(point1[0]-point2[0])+abs(point1[1]-point2[1]))
 
+
 def get_cos(point, point1, point2):
     # point is pivot
     vec1 = (point[0]-point1[0], point[1]-point1[1])
     vec2 = (point[0]-point2[0], point[1]-point2[1])
     return float((vec1[0]*vec2[0]+vec1[1]*vec2[1])/(get_l2_dist(point,point1)*get_l2_dist(point,point2)))
+
 
 def get_shortest_dist(point, point1, point2):
     dist1 = get_l2_dist(point, point1)
@@ -35,6 +39,7 @@ def get_shortest_dist(point, point1, point2):
         return min(dist1, dist2)
     else:
         return dist1 * math.sqrt(1-get_cos(point1, point, point2)**2)
+
 
 def get_theta(points_list):
     '''
@@ -53,6 +58,7 @@ def get_theta(points_list):
     theta = np.arctan(m)
     return theta
 
+
 def get_radius(point, cnt):
     '''
     :param point: (x, y), row, col
@@ -68,10 +74,11 @@ def get_radius(point, cnt):
         dist_list.append(get_shortest_dist(point, cnt_changed[i], cnt_changed[i+1]))
     return max(dist_list)
 
+
 def is_validate_cnts(im, cnts):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
-    :param cnts: list(numpy.ndarray), shape (n, 1, 2), dtype int32, point order (col, row)
+    :param cnts: list(numpy.ndarray), shape (n, 1, 2), dtype float32, point order (col, row)
     :return: bool
     '''
     cols, rows = [], []
@@ -87,6 +94,7 @@ def is_validate_cnts(im, cnts):
     if im_col < col_max: flag = False
     return flag
 
+
 def is_validate_point(im, point):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
@@ -96,15 +104,17 @@ def is_validate_point(im, point):
     row, col = im.shape[:2]
     return (point[0] < row) and (point[1] < col)
 
+
 def is_inside_point_cnt(point, cnt):
     '''
     :param point: (x, y) where x is row, y is col
-    :param cnt: numpy.ndarray, shape (n, 1, 2), dtype int32, point order (col, row)
+    :param cnt: numpy.ndarray, shape (n, 1, 2), dtype float32, point order (col, row)
     :return: bool
     '''
     cnt = np.array(cnt, np.float32)
     point = (point[1], point[0])
     return cv2.pointPolygonTest(cnt, point, False) >= 0
+
 
 def validate(im, cnts):
     '''
@@ -112,7 +122,7 @@ def validate(im, cnts):
     :param cnts: list(numpy.ndarray), shape (n, 1, 2), dtype int32, point order (col, row)
     :return:
         im: numpy.ndarray, shape (row, col, 3), dtype uint 8
-        cnts: list(numpy.ndarray), shape (n, 1, 2), dtype int32, point order (col, row)
+        cnts: list(numpy.ndarray), shape (n, 1, 2), dtype float32, point order (col, row)
     '''
     cols, rows = [], []
     for cnt in cnts:
@@ -130,10 +140,11 @@ def validate(im, cnts):
         im = np.concatenate((im, temp), 1)
     return im, cnts
 
+
 def resize(im, cnts, row, col):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
-    :param cnts: list(numpy.ndarray), shape (n, 1, 2), dtype int32, point order (col, row)
+    :param cnts: list(numpy.ndarray), shape (n, 1, 2), dtype float32, point order (col, row)
     :param row: int
     :param col: int
     :return:
@@ -151,6 +162,7 @@ def resize(im, cnts, row, col):
         cnts_.append(temp)
     return im_, cnts_
 
+
 def sampling(p1,p2,sampling_num):
     '''
     :param p1: point(x,y)
@@ -162,6 +174,15 @@ def sampling(p1,p2,sampling_num):
     y = np.linspace(p1[1], p2[1], sampling_num)
     return [(x[i],y[i]) for i in range(x.shape[0])]
 
+
+def get_cos_with_4(p1,p2,p3,p4):
+    vector_1 = (p2[0]-p1[0],p2[1]-p1[1])
+    vector_2 = (p4[0]-p3[0], p4[1]-p3[1])
+    if get_l2_dist(vector_2,(0,0))*get_l2_dist(vector_1,(0,0)) == 0.0:
+        return 0.0
+    return (vector_1[1]*vector_2[1]+vector_1[0]*vector_2[0])/(get_l2_dist(vector_2,(0,0))*get_l2_dist(vector_1,(0,0)))
+
+
 def find_mid_line_with_radius_theta(points_list, crop_skel, neighbor, sampling_num=500):
     '''
     :param points_list: list(tuple), tuple (x, y)
@@ -172,19 +193,12 @@ def find_mid_line_with_radius_theta(points_list, crop_skel, neighbor, sampling_n
         theta_dict: dict, key is tuple (x, y), value is float
     '''
 
-    def neg_cosine(p1,p2,p3,p4):
-        vector_1 = (p2[0]-p1[0],p2[1]-p1[1])
-        vector_2 = (p4[0]-p3[0], p4[1]-p3[1])
-        if get_l2_dist(vector_2,(0,0))*get_l2_dist(vector_1,(0,0)) == 0.0:
-            return 0.0
-        return (vector_1[1]*vector_2[1]+vector_1[0]*vector_2[0])/(get_l2_dist(vector_2,(0,0))*get_l2_dist(vector_1,(0,0)))
-
     points_list = [tuple(point) for point in points_list]
 
     if len(points_list) > 4:
         circular_points_list=points_list+points_list[:3]
         cosine_list=[(circular_points_list[i+1],circular_points_list[i+2],
-                      neg_cosine(circular_points_list[i+0],
+                      get_cos_with_4(circular_points_list[i+0],
                                  circular_points_list[i+1],
                                  circular_points_list[i+2],
                                  circular_points_list[i+3]),i)
@@ -294,6 +308,7 @@ def find_mid_line_with_radius_theta(points_list, crop_skel, neighbor, sampling_n
     theta_dict = temp_theta_dict
     return center_line, radius_dict, theta_dict
 
+
 def get_maps_textbox(im, cnts, thickness, neighbor, crop_skel):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
@@ -363,6 +378,7 @@ def get_maps_textbox(im, cnts, thickness, neighbor, crop_skel):
 
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
+
 def find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500):
     '''
     :param char_cnt_per_text: list(tuple(point, char_cnt)); point: (x, y) int;
@@ -407,6 +423,7 @@ def find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500):
         assert char_cnt_per_text[i][0] in theta_dict
     return skel_points, radius_dict, theta_dict
 
+
 def get_center_point(cnt):
     '''
     :param cnt: list(tuple(col,row))
@@ -418,6 +435,7 @@ def get_center_point(cnt):
         xs.append(point[1])
         ys.append(point[0])
     return int(round(sum(xs)/len(xs))), int(round(sum(ys)/len(ys)))
+
 
 def reorder(char_cnt_per_text):
     '''
@@ -485,6 +503,7 @@ def reorder(char_cnt_per_text):
         new.append(char_cnt_per_text[index])
     return new
 
+
 def reconstruct(skel_points, radius_dict_cnt, row, col):
     '''
     :param skel_points: list(tuple(x,y))
@@ -507,6 +526,7 @@ def reconstruct(skel_points, radius_dict_cnt, row, col):
     hull = np.array(hull, np.int32)
     mask_fill = cv2.fillPoly(mask_fill,[hull],(255)).astype(np.bool)
     return mask_fill
+
 
 def get_maps_charbox(im, cnts, thickness):
     '''
@@ -630,11 +650,14 @@ def get_maps_charbox(im, cnts, thickness):
 
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
+
 def get_maps(im, cnts, is_textbox, thickness, neighbor, crop_skel):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
-    :param cnts: list(numpy.ndarray), shape (n, 1, 2), dtype int32, point order (col, row) for textbox
-           cnts: for charbox
+    :param if is_textbox is True:
+            cnts: list(numpy.ndarray), shape (n, 1, 2), dtype int32, point order (col, row) for textbox
+           if is_textbox is False:
+           cnts: [char_cnts, text_cnts], both char_cnts and text_cnts are the same as the text_cnts above
     :return:
     '''
 
@@ -653,7 +676,6 @@ def get_maps(im, cnts, is_textbox, thickness, neighbor, crop_skel):
 
 
 if __name__ == '__main__':
-
     def save_heatmap(save_name, map):
         if np.max(map) != 0.0 or np.max(map) != 0:
             cv2.imwrite(save_name, (map * 255 / np.max(map)).astype(np.uint8))
@@ -676,10 +698,11 @@ if __name__ == '__main__':
     # with open('cnts.json', 'r') as f:
     #     char_cnts, word_cnts = json.load(f)
     pic_num = len(gt['imnames'][0])
-    for i in range(pic_num):
+    # for i in range(pic_num):
+    for i in [10,]:
         imname = gt['imnames'][0][i][0]
         origin = cv2.imread('/home/rjq/data/SynthText/SynthText/'+imname)
-        cv2.imwrite(str(i)+'_origin.jpg', origin)
+        # cv2.imwrite(str(i)+'_origin.jpg', origin)
         word_cnts = np.transpose(gt['wordBB'][0][i], (2,1,0))
         char_cnts = np.transpose(gt['charBB'][0][i], (2,1,0))
         char_cnts = [np.array(char_cnt, np.float32) for char_cnt in char_cnts]
