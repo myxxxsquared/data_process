@@ -682,7 +682,7 @@ if __name__ == '__main__':
 
 
     img = np.zeros((1000,1000))
-    cnts = [char_cnts, [word_cnts[0]]]
+    cnts = [char_cnts, word_cnts]
     skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(img, cnts, False, 0.15, 2.0, 1.0)
     TR = mask_fills[0]
     for i in range(1, len(mask_fills)):
