@@ -660,5 +660,6 @@ if __name__ == '__main__':
     (91, 127),
     (61, 103),
     (127, 85)]
+
     for point in points:
         print(is_inside_point_cnt(point, cnt))
