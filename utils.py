@@ -462,7 +462,7 @@ def reorder(char_cnt_per_text):
         count[start]+=1
         count[end]+=1
     if max(count) > 2:
-        return False
+        return None
 
     deque = []
     start, end = path[0]
@@ -552,7 +552,6 @@ def get_maps_charbox(im, cnts, thickness):
 
         if char_cnt_per_text == []:
             print('char_cnt_per_text_len is 0')
-            print(text_cnt)
             count = 0
             for char_cnt in char_cnts:
                 print(count)
@@ -563,7 +562,8 @@ def get_maps_charbox(im, cnts, thickness):
         print('strat reorder')
         char_cnt_per_text = reorder(char_cnt_per_text)
 
-        if char_cnt_per_text is False:
+        print(char_cnt_per_text)
+        if char_cnt_per_text is None:
             text_cnts.append(text_cnt)
         else:
             print('pop out those claimed char_cnt')
