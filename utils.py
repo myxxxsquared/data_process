@@ -581,7 +581,7 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
                             connect_dict[candidate] = []
                         connect_dict[candidate].append(point)
                 t2 = time.time()
-                print('t2', t2-t1)
+                # print('t2', t2-t1)
 
         print('start getting score')
         # score map
