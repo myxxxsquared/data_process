@@ -700,7 +700,7 @@ if __name__ == '__main__':
     pic_num = len(gt['imnames'][0])
     # for i in range(pic_num):
 
-    for index in [10,12]:
+    for index in range(pic_num):
         imname = gt['imnames'][0][index][0]
         origin = cv2.imread('/home/rjq/data/SynthText/SynthText/'+imname)
         # cv2.imwrite(str(i)+'_origin.jpg', origin)
@@ -737,10 +737,10 @@ if __name__ == '__main__':
             sin_theta[point[0], point[1]] = s_t
         maps = [TR, TCL, radius, cos_theta, sin_theta]
 
-        # save_heatmap(str(index)+'_TR.jpg', TR)
+        save_heatmap(str(index)+'_TR.jpg', TR)
         save_heatmap(str(index)+'_TCL.jpg', TCL)
         # save_heatmap(str(index)+'_radius.jpg', radius)
-        # save_heatmap(str(index)+'_cos_theta.jpg', cos_theta)
+        save_heatmap(str(index)+'_cos_theta.jpg', cos_theta)
         # save_heatmap(str(index)+'_sin_theta.jpg', sin_theta)
 
     # cnt = [[423.16126397,439.60847343],
