@@ -500,8 +500,8 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
         hull_points = set()
         for point in skel_points:
             radius = radius_dict[point]
-            for i in range(len(int(radius))+1):
-                for j in range(len(int(radius))+1):
+            for i in range(int(radius)+1):
+                for j in range(int(radius)+1):
                     if get_l2_dist((0,0),(i,j)) < radius:
                         hull_points.add((point[0]+i, point[1]+j))
         hull = cv2.convexHull(np.array(hull_points))
