@@ -689,7 +689,7 @@ if __name__ == '__main__':
     # for i in range(1, len(mask_fills)):
     #     TR = np.bitwise_or(TR, mask_fills[i])
     # TR = TR.astype(np.int32)
-    TR = np.sum(mask_fills.astype(np.int32), 0)
+    TR = np.sum(mask_fills, 0)
     TCL = np.zeros(img.shape[:2], np.bool)
     for point, _ in score_dict.items():
         TCL[point[0], point[1]] = True
