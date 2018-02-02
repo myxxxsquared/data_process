@@ -685,10 +685,11 @@ if __name__ == '__main__':
     img = np.zeros((1000,1000))
     cnts = [char_cnts, [word_cnts[0]]]
     skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(img, cnts, False, 0.15, 2.0, 1.0)
-    TR = mask_fills[0]
-    for i in range(1, len(mask_fills)):
-        TR = np.bitwise_or(TR, mask_fills[i])
-    TR = TR.astype(np.int32)
+    # TR = mask_fills[0]
+    # for i in range(1, len(mask_fills)):
+    #     TR = np.bitwise_or(TR, mask_fills[i])
+    # TR = TR.astype(np.int32)
+    TR = np.sum(mask_fills.astype(np.int32), 0)
     TCL = np.zeros(img.shape[:2], np.bool)
     for point, _ in score_dict.items():
         TCL[point[0], point[1]] = True
