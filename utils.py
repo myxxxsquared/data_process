@@ -499,7 +499,7 @@ def reconstruct(skel_points, radius_dict_cnt, row, col):
     hull = np.array(hull, np.int32)
     print(hull.shape)
     print(hull.dtype)
-    mask_fill = cv2.fillPoly(mask_fill,hull,(255)).astype(np.bool)
+    mask_fill = cv2.fillPoly(mask_fill,[hull],(255)).astype(np.bool)
     return mask_fill
 
 def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
