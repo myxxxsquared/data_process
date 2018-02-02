@@ -401,6 +401,8 @@ def find_mid_line_with_radius_theta_char(char_cnt_per_text, crop_skel, neighbor,
             skel_points.add(sample)
             radius_dict[sample] = radius
             theta_dict[sample] = theta
+    if len_ == 1:
+        theta_dict[char_cnt_per_text[0][0]] = math.pi/2
     for i in range(len_):
         assert char_cnt_per_text[i][0] in radius_dict
         assert char_cnt_per_text[i][0] in theta_dict
@@ -529,6 +531,7 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
     char_cnts, text_cnts = cnts
     print(len(char_cnts))
     for text_cnt in text_cnts:
+        print('start----------')
         char_cnt_per_text = []
         for char_cnt in char_cnts:
             char_cnt = np.squeeze(char_cnt)
@@ -546,9 +549,10 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
                 print(is_inside_point_cnt(get_center_point(char_cnt), text_cnt))
                 count += 1
 
-
+        print('strat reorder')
         char_cnt_per_text = reorder(char_cnt_per_text)
 
+        print('start get mid line')
         skel_points, radius_dict_cnt, theta_dict_cnt = \
             find_mid_line_with_radius_theta_char(char_cnt_per_text, crop_skel, neighbor, sampling_num=500)
 
@@ -604,6 +608,8 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
             cos_theta_dict[point] = math.cos(theta_dict[min_dist_point[0], min_dist_point[1]])
             sin_theta_dict[point] = math.sin(theta_dict[min_dist_point[0], min_dist_point[1]])
             radius_dict[point] = radius_dict[min_dist_point[0], min_dist_point[1]]-min_dist
+
+        print('end------')
 
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
