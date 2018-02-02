@@ -445,6 +445,9 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
         print('char_cnt_per_text', char_cnt_per_text)
         print('-'*10)
         len_ = len(char_cnt_per_text)
+        if len_ == 1:
+            return char_cnt_per_text
+
         info = np.zeros((len_, len_))
         for i in range(len_):
             for j in range(len_):
