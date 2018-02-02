@@ -540,13 +540,17 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
             if is_inside_point_cnt(center_point, text_cnt):
                 char_cnt_per_text.append((center_point, char_cnt))
 
+
         if char_cnt_per_text == []:
             print(text_cnt)
             count = 0
             for char_cnt in char_cnts:
                 print(count)
                 print(get_center_point(char_cnt))
+                print(is_inside_point_cnt(get_center_point(char_cnt), text_cnt))
                 count += 1
+
+
         char_cnt_per_text = reorder(char_cnt_per_text)
 
         skel_points, radius_dict_cnt, theta_dict_cnt = \
@@ -629,42 +633,40 @@ if __name__ == '__main__':
     word_cnts = np.array(word_cnts)
 
 
+    im = np.zeros((1000, 1000, 3))
+    im = cv2.drawContours(im, np.array(word_cnts, np.int32), -1, (255,255,255), 1)
+    im = cv2.drawContours(im, np.array(char_cnts, np.int32), -1, (0,0,255), 1)
+    cv2.imwrite('box.jpg', im)
+
+    # cnt = [[423.16126397,439.60847343],
+    #  [450.66887979,  466.31976402],
+    # [479.76190495,
+    # 504.59927448],
+    # [418.80489444 , 450.13965942]]
+    #
+    # points=[
+    # (327, 328),
+    # (248, 325),
+    # (378, 317),
+    # (363, 357),
+    # (315, 350),
+    # (353, 373),
+    # (289, 254),
+    # (148, 131),
+    # (103, 98),
+    # (46, 72),
+    # (98, 62),
+    # (91, 57),
+    # (91, 127),
+    # (61, 103),
+    # (127, 85)]
+
+    # for point in points:
+    #     print(is_inside_point_cnt(point, cnt))
+
+
 
     img = np.zeros((1000,1000))
     cnts = [char_cnts, word_cnts]
-    im = np.zeros((1000, 1000))
-    im = cv2.drawContours(im, [np.array(word_cnts[0], np.int32)], -1, (255), 1)
-    im = cv2.drawContours(im, np.array(char_cnts, np.int32), -1, (255), 1)
-    cv2.imwrite('box.jpg', im)
-
-    cnt = [[423.16126397,439.60847343],
-     [450.66887979,  466.31976402],
-    [479.76190495,
-    504.59927448],
-    [418.80489444 , 450.13965942]]
-
-    points=[
-    (327, 328),
-    (248, 325),
-    (378, 317),
-    (363, 357),
-    (315, 350),
-    (353, 373),
-    (289, 254),
-    (148, 131),
-    (103, 98),
-    (46, 72),
-    (98, 62),
-    (91, 57),
-    (91, 127),
-    (61, 103),
-    (127, 85)]
-
-    for point in points:
-        print(is_inside_point_cnt(point, cnt))
-
-
-
-
     skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(img, cnts, False, 0.15, 2.0, 1.0)
 
