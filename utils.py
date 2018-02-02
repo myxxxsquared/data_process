@@ -688,4 +688,32 @@ if __name__ == '__main__':
     img = np.zeros((1000,1000))
     cnts = [char_cnts, word_cnts]
     skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(img, cnts, False, 0.15, 2.0, 1.0)
+    TR = mask_fills[0]
+    for i in range(1, len(mask_fills)):
+        TR = np.bitwise_and(TR, mask_fills[i])
+    TCL = np.zeros(img.shape[:2], np.bool)
+    for point, _ in score_dict.items():
+        TCL[point[0], point[1]] = True
+    radius = np.zeros(img.shape[:2], np.float32)
+    for point, r in radius_dict.items():
+        radius[point[0], point[1]] = r
+    cos_theta = np.zeros(img.shape[:2], np.float32)
+    for point, c_t in cos_theta_dict.items():
+        cos_theta[point[0], point[1]] = c_t
+    sin_theta = np.zeros(img.shape[:2], np.float32)
+    for point, s_t in sin_theta_dict.items():
+        sin_theta[point[0], point[1]] = s_t
+    maps = [TR, TCL, radius, cos_theta, sin_theta]
 
+
+    def save_heatmap(save_name, map):
+        if np.max(map) != 0.0 or np.max(map) != 0:
+            cv2.imwrite(save_name, map.astype(np.uint8) * 255 / np.max(map))
+        else:
+            cv2.imwrite(save_name, map.astype(np.uint8))
+
+    save_heatmap('TR.jpg', TR)
+    save_heatmap('TCL.jpg', TCL)
+    save_heatmap('radius.jpg', radius)
+    save_heatmap('cos_theta.jpg', cos_theta)
+    save_heatmap('sin_theta.jpg', sin_theta)
