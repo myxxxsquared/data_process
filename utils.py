@@ -532,6 +532,7 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
     print(len(char_cnts))
     for text_cnt in text_cnts:
         print('start----------')
+        print('text_cnt', text_cnt)
         char_cnt_per_text = []
         for char_cnt in char_cnts:
             char_cnt = np.squeeze(char_cnt)
@@ -541,6 +542,7 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
 
 
         if char_cnt_per_text == []:
+            print('char_cnt_per_text_len is 0')
             print(text_cnt)
             count = 0
             for char_cnt in char_cnts:
