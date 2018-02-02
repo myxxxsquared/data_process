@@ -440,7 +440,8 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
                 char_cnt: np.ndarray(4,2) # suppose to be 4
         :return: char_cnt_per_text, same as the input
         '''
-        assert char_cnt_per_text[0][1].shape == (4, 2), char_cnt_per_text[0]
+        # assert char_cnt_per_text[0][1].shape == (4, 2), char_cnt_per_text[0]
+        print(char_cnt_per_text)
         len_ = len(char_cnt_per_text)
         info = np.zeros((len_, len_))
         for i in range(len_):
