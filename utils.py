@@ -540,11 +540,14 @@ def get_maps_charbox(im, cnts, thickness):
         print('start----------')
         print('text_cnt', text_cnt)
         char_cnt_per_text = []
-        for char_cnt in char_cnts:
+
+        char_cnt_index = []
+        for index, char_cnt in enumerate(char_cnts):
             # char_cnt = np.squeeze(char_cnt)
             center_point = get_center_point(char_cnt)
             if is_inside_point_cnt(center_point, text_cnt):
                 char_cnt_per_text.append((center_point, char_cnt))
+                char_cnt_index.append(index)
 
 
         if char_cnt_per_text == []:
@@ -564,8 +567,8 @@ def get_maps_charbox(im, cnts, thickness):
             text_cnts.append(text_cnt)
         else:
             print('pop out those claimed char_cnt')
-            for _, char_cnt in char_cnt_per_text:
-                char_cnts.remove(char_cnt)
+            for index in char_cnt_index:
+                char_cnts.pop(index)
 
             print('start get mid line')
             skel_points, radius_dict_cnt, theta_dict_cnt = \
