@@ -101,10 +101,8 @@ def is_inside_point_cnt(point, cnt):
     :param cnt: numpy.ndarray, shape (n, 1, 2), dtype int32, point order (col, row)
     :return: bool
     '''
-    # ugly place. point here is (row, col)
-    # but in the contour points points are (col, row)
     cnt = np.array(cnt, np.float32)
-    # point = (point[1], point[0])
+    point = (point[1], point[0])
     return cv2.pointPolygonTest(cnt, point, False) >= 0
 
 def validate(im, cnts):
@@ -408,6 +406,100 @@ def find_mid_line_with_radius_theta_char(char_cnt_per_text, crop_skel, neighbor,
         assert char_cnt_per_text[i][0] in theta_dict
     return skel_points, radius_dict, theta_dict
 
+def get_center_point(cnt):
+    '''
+    :param cnt: list(tuple(col,row))
+    :return: tuple(x, y) x, y are int, x is row, y is col
+    '''
+    cnt = np.squeeze(cnt)
+    xs, ys = [], []
+    for point in cnt:
+        xs.append(point[1])
+        ys.append(point[0])
+    return int(round(sum(xs)/len(xs))), int(round(sum(ys)/len(ys)))
+
+def reorder(char_cnt_per_text):
+    '''
+    :param char_cnt_per_text: list(tuple(point, char_cnt)); point: (x, y) int;
+            char_cnt: np.ndarray(4,2) # suppose to be 4
+    :return: char_cnt_per_text, same as the input
+    '''
+    # assert char_cnt_per_text[0][1].shape == (4, 2), char_cnt_per_text[0]
+    print('char_cnt_per_text', char_cnt_per_text)
+    print('-'*10)
+    len_ = len(char_cnt_per_text)
+    if len_ == 1:
+        return char_cnt_per_text
+
+    info = np.zeros((len_, len_))
+    for i in range(len_):
+        for j in range(len_):
+            dist = get_l2_dist(char_cnt_per_text[i][0], char_cnt_per_text[j][0])
+            info[i, j] = info[j, i] = dist
+    tree = set()
+    tree.add(0)
+    remain = set(range(1,len_))
+    path = []
+
+    while len(tree) < len_:
+        dist_list = []
+        for start in tree:
+            for end in remain:
+                dist_list.append((info[start,end], start, end))
+        start,end = sorted(dist_list)[0][1:]
+        path.append((start, end))
+        tree.add(end)
+        remain.remove(end)
+        print('tree', tree)
+        print('remain', remain)
+        print('path', path)
+        print('-'*10)
+
+    # assert that there is only one path in the tree
+    deque = []
+    start, end = path[0]
+    path.pop(0)
+    deque.append(start)
+    deque.append(end)
+
+    for _ in range(len_):
+        for i in range(len(path)):
+            if path[i][0] == deque[0]:
+                deque.insert(0, path[i][1])
+            elif path[i][0] == deque[-1]:
+                deque.append(path[i][1])
+
+    print(deque)
+    print(path)
+    assert len(deque) == len_
+    new = []
+    for index in deque:
+        new.append(char_cnt_per_text[index])
+    return new
+
+def reconstruct(skel_points, radius_dict_cnt, row, col):
+    '''
+    :param skel_points: list(tuple(x,y))
+    :param radius_dict_cnt:
+    :return:
+        mask_fill numpy.ndarray shape (row, col, 1), dtype bool
+    '''
+    hull_points = set()
+    for point in skel_points:
+        radius = radius_dict_cnt[point]
+        for i in range(int(radius)+1):
+            for j in range(int(radius)+1):
+                if get_l2_dist((0,0),(i,j)) < radius:
+                    hull_points.add((point[0]+i, point[1]+j))
+    hull_points = list(hull_points)
+    hull = cv2.convexHull(np.array(hull_points, np.float32))
+    mask_fill = np.zeros((row, col), np.uint8)
+    hull = np.array(hull, np.int32)
+    print(hull)
+    print(hull.shape)
+    print(hull.dtype)
+    mask_fill = cv2.fillPoly(mask_fill,hull,(255)).astype(np.bool)
+    return mask_fill
 
 def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
     '''
@@ -426,100 +518,6 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
         mask_fills: list(numpy.ndarray), numpy.ndarray shape (row, col, 1), dtype bool
 
     '''
-    def get_center_point(points_list):
-        '''
-        :param points_list: list(tuple(x,y))
-        :return: tuple(x, y) x, y are int
-        '''
-        xs, ys = [], []
-        for point in points_list:
-            xs.append(point[0])
-            ys.append(point[1])
-        return int(round(sum(xs)/len(xs))), int(round(sum(ys)/len(ys)))
-
-    def reorder(char_cnt_per_text):
-        '''
-        :param char_cnt_per_text: list(tuple(point, char_cnt)); point: (x, y) int;
-                char_cnt: np.ndarray(4,2) # suppose to be 4
-        :return: char_cnt_per_text, same as the input
-        '''
-        # assert char_cnt_per_text[0][1].shape == (4, 2), char_cnt_per_text[0]
-        print('char_cnt_per_text', char_cnt_per_text)
-        print('-'*10)
-        len_ = len(char_cnt_per_text)
-        if len_ == 1:
-            return char_cnt_per_text
-
-        info = np.zeros((len_, len_))
-        for i in range(len_):
-            for j in range(len_):
-                dist = get_l2_dist(char_cnt_per_text[i][0], char_cnt_per_text[j][0])
-                info[i, j] = info[j, i] = dist
-        tree = set()
-        tree.add(0)
-        remain = set(range(1,len_))
-        path = []
-
-        while len(tree) < len_:
-            dist_list = []
-            for start in tree:
-                for end in remain:
-                    dist_list.append((info[start,end], start, end))
-            start,end = sorted(dist_list)[0][1:]
-            path.append((start, end))
-            tree.add(end)
-            remain.remove(end)
-            print('tree', tree)
-            print('remain', remain)
-            print('path', path)
-            print('-'*10)
-
-        # assert that there is only one path in the tree
-        deque = []
-        start, end = path[0]
-        path.pop(0)
-        deque.append(start)
-        deque.append(end)
-
-        for _ in range(len_):
-            for i in range(len(path)):
-                if path[i][0] == deque[0]:
-                    deque.insert(0, path[i][1])
-                elif path[i][0] == deque[-1]:
-                    deque.append(path[i][1])
-
-        print(deque)
-        print(path)
-        assert len(deque) == len_
-        new = []
-        for index in deque:
-            new.append(char_cnt_per_text[index])
-        return new
-
-    def reconstruct(skel_points, radius_dict_cnt, row, col):
-        '''
-        :param skel_points: list(tuple(x,y))
-        :param radius_dict_cnt:
-        :return:
-            mask_fill numpy.ndarray shape (row, col, 1), dtype bool
-        '''
-        hull_points = set()
-        for point in skel_points:
-            radius = radius_dict[point]
-            for i in range(int(radius)+1):
-                for j in range(int(radius)+1):
-                    if get_l2_dist((0,0),(i,j)) < radius:
-                        hull_points.add((point[0]+i, point[1]+j))
-        hull_points = list(hull_points)
-        hull = cv2.convexHull(np.array(hull_points, np.float32))
-        mask_fill = np.zeros((row, col), np.uint8)
-        hull = np.array(hull, np.int32)
-        print(hull)
-        print(hull.shape)
-        print(hull.dtype)
-        mask_fill = cv2.fillPoly(mask_fill,hull,(255)).astype(np.bool)
-        return mask_fill
-
     skels_points = []
     radius_dict = {}
     score_dict = {}
@@ -574,13 +572,11 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
         # get belt
         belt = set()
         connect_dict = {}
-        print('skel', len(skel_points))
+        print('skel_num', len(skel_points))
 
         for point in skel_points:
             r = int(thickness*radius_dict[point])
-            print(r)
             for i in range(-r, r+1):
-                t1 = time.time()
                 for j in range(-r, r+1):
                     candidate = (point[0]+i, point[1]+j)
                     # print(is_validate_point(im, candidate))
@@ -590,7 +586,6 @@ def get_maps_charbox(im, cnts, thickness, neighbor, crop_skel):
                             connect_dict[candidate] = []
                         connect_dict[candidate].append(point)
                 t2 = time.time()
-                # print('t2', t2-t1)
 
         print('start getting score')
         # score map
