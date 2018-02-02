@@ -611,21 +611,21 @@ def get_maps(im, cnts, is_textbox, thickness, neighbor, crop_skel):
 
 
 if __name__ == '__main__':
-    import scipy.io as sio
-    gt = sio.loadmat('/home/rjq/data/SynthText/SynthText/gt.mat')
-    word_cnts = np.transpose(gt['wordBB'][0][0], (2,1,0))
-    char_cnts = np.reshape(gt['charBB'][0][0], (2,1,0))
-    import json
-    with open('cnts.json', 'w+') as f:
-        json.dump([char_cnts.tolist(), word_cnts.tolist()], f)
-
-
+    # import scipy.io as sio
+    # gt = sio.loadmat('/home/rjq/data/SynthText/SynthText/gt.mat')
+    # word_cnts = np.transpose(gt['wordBB'][0][0], (2,1,0))
+    # char_cnts = np.reshape(gt['charBB'][0][0], (2,1,0))
     # import json
-    # with open('cnts.json', 'r') as f:
-    #     char_cnts, word_cnts = json.load(f)
+    # with open('cnts.json', 'w+') as f:
+    #     json.dump([char_cnts.tolist(), word_cnts.tolist()], f)
 
-    # char_cnts = np.array(char_cnts)
-    # word_cnts = np.array(word_cnts)
+
+    import json
+    with open('cnts.json', 'r') as f:
+        char_cnts, word_cnts = json.load(f)
+
+    char_cnts = np.array(char_cnts)
+    word_cnts = np.array(word_cnts)
 
 
 
