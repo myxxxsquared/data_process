@@ -533,10 +533,6 @@ def get_maps_charbox(im, cnts, thickness):
     sin_theta_dict = {}
     mask_fills = []
 
-    char_cnts, text_cnts = cnts
-    print(len(char_cnts))
-
-
     while len(text_cnts) != 0:
         text_cnt = text_cnts.pop(0)
         print('start----------')
@@ -635,9 +631,14 @@ def get_maps(im, cnts, is_textbox, thickness, neighbor, crop_skel):
     '''
 
     if is_textbox:
+        cnts = [np.array(cnt, np.float32) for cnt in cnts]
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
             get_maps_textbox(im,cnts, thickness, neighbor, crop_skel)
     else:
+        char_cnts, text_cnts = cnts
+        char_cnts = [np.array(cnt, np.float32) for cnt in char_cnts]
+        text_cnts = [np.array(cnt, np.float32) for cnt in text_cnts]
+        cnts = [char_cnts, text_cnts]
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
             get_maps_charbox(im,cnts, thickness)
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
