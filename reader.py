@@ -230,78 +230,39 @@ if __name__ == '__main__':
                 new.append(cnt_)
         return new
 
-    #totaltext
-    tfrecords_filename = TFRECORD_DIR+'totaltext_train.tfrecords'
-    writer = tf.python_io.TFRecordWriter(tfrecords_filename)
-    count = 0
-    for res in Totaltext_loader(1, 0, True):
-        count += 1
-        print('processing ' +str(count))
-        img_index = res['img_index']
-        img = res['img']
-        img = np.array(img, np.uint8)
-        img_row = img.shape[0]
-        img_col = img.shape[1]
-        contour = res['contour']
-        cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))], np.int64)
-        cnt_num = len(contour)
-        cnt_point_max = int(max(cnt_point_num))
+    def totaltext(save_name, is_train)
+        tfrecords_filename = TFRECORD_DIR+save_name
+        writer = tf.python_io.TFRecordWriter(tfrecords_filename)
+        count = 0
+        for res in Totaltext_loader(1, 0, is_train):
+            count += 1
+            print('processing ' +str(count))
+            img_index = res['img_index']
+            img = res['img']
+            img = np.array(img, np.uint8)
+            img_row = img.shape[0]
+            img_col = img.shape[1]
+            contour = res['contour']
+            cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))], np.int64)
+            cnt_num = len(contour)
+            cnt_point_max = int(max(cnt_point_num))
+            contour = _pad_cnt(contour, cnt_point_max)
+            contour = np.array(contour, np.float32)
+            example = tf.train.Example(features=tf.train.Features(feature={
+                'img_index': _int64_feature(img_index),
+                'img': _bytes_feature(img.tostring()),
+                'contour': _bytes_feature(contour.tostring()),
+                'im_row': _int64_feature(img_row),
+                'im_col': _int64_feature(img_col),
+                'cnt_num': _int64_feature(cnt_num),
+                'cnt_point_num': _bytes_feature(cnt_point_num.tostring()),
+                'cnt_point_max': _int64_feature(cnt_point_max)
+            }))
+            writer.write(example.SerializeToString())
+        writer.close()
 
-        # print('contour', contour)
-        contour = _pad_cnt(contour, cnt_point_max)
-        # print('contour', contour)
-        contour = np.array(contour, np.float32)
-
-        example = tf.train.Example(features=tf.train.Features(feature={
-            'img_index': _int64_feature(img_index),
-            'img': _bytes_feature(img.tostring()),
-            'contour': _bytes_feature(contour.tostring()),
-            'im_row': _int64_feature(img_row),
-            'im_col': _int64_feature(img_col),
-            'cnt_num': _int64_feature(cnt_num),
-            'cnt_point_num': _bytes_feature(cnt_point_num.tostring()),
-            'cnt_point_max': _int64_feature(cnt_point_max)
-        }))
-
-        writer.write(example.SerializeToString())
-    writer.close()
-
-    tfrecords_filename = TFRECORD_DIR+'totaltext_test.tfrecords'
-    writer = tf.python_io.TFRecordWriter(tfrecords_filename)
-
-    print('test')
-    count = 0
-    for res in Totaltext_loader(1, 0, False):
-        count += 1
-        print('processing ' +str(count))
-        img_index = res['img_index']
-        print(img)
-        img = np.array(img, np.uint8)
-        img_row = img.shape[0]
-        img_col = img.shape[1]
-        contour = res['contour']
-        cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))], np.int64)
-        cnt_num = len(contour)
-        cnt_point_max = int(max(cnt_point_num))
-
-        # print('contour', contour)
-        contour = _pad_cnt(contour, cnt_point_max)
-        # print('contour', contour)
-        contour = np.array(contour, np.float32)
-
-        example = tf.train.Example(features=tf.train.Features(feature={
-            'img_index': _int64_feature(img_index),
-            'img': _bytes_feature(img.tostring()),
-            'contour': _bytes_feature(contour.tostring()),
-            'im_row': _int64_feature(img_row),
-            'im_col': _int64_feature(img_col),
-            'cnt_num': _int64_feature(cnt_num),
-            'cnt_point_num': _bytes_feature(cnt_point_num.tostring()),
-            'cnt_point_max': _int64_feature(cnt_point_max)
-        }))
-
-        writer.write(example.SerializeToString())
-    writer.close()
+    totaltext('totaltext_train.tfrecords', True)
+    totaltext('totaltext_test.tfrecords', False)
 
     # record_iterator = tf.python_io.tf_record_iterator(path=tfrecords_filename)
     # for string_record in record_iterator:
