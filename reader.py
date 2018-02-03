@@ -50,7 +50,7 @@ def SynthText_loader(patch_num, n_th_patch, is_train):
     '''
     gt = sio.loadmat(SYNTHTEXT_DIR+'gt.mat')
     pic_num = len(gt['imnames'][0])
-    patch_length = pic_num//patch_num
+    patch_length = pic_num//patch_num+1
     start_point = n_th_patch*patch_length
     if (n_th_patch+1)*patch_length > pic_num:
         end_point = pic_num
@@ -105,7 +105,7 @@ def Totaltext_loader(patch_num, n_th_patch, is_train):
         imnames = [name.split('.')[0] for name in os.listdir(TOTALTEXT_DIR + 'totaltext/Images/Train')]
         imnames = sorted(imnames)
         pic_num = len(imnames)
-        patch_length = pic_num // patch_num
+        patch_length = pic_num // patch_num+1
         start_point = n_th_patch * patch_length
         if (n_th_patch + 1) * patch_length > pic_num:
             end_point = pic_num
@@ -131,7 +131,7 @@ def Totaltext_loader(patch_num, n_th_patch, is_train):
         imnames = [name.split('.')[0] for name in os.listdir(TOTALTEXT_DIR + 'totaltext/Images/Test')]
         imnames = sorted(imnames)
         pic_num = len(imnames)
-        patch_length = pic_num//patch_num
+        patch_length = pic_num//patch_num+1
         start_point = n_th_patch*patch_length
         if (n_th_patch+1)*patch_length > pic_num:
             end_point = pic_num
@@ -316,51 +316,113 @@ if __name__ == '__main__':
 
 
 
+    def totaltext_decoder(tfrecords_filename):
+        record_iterator = tf.python_io.tf_record_iterator(path=tfrecords_filename)
+        for string_record in record_iterator:
+            example = tf.train.Example()
+            example.ParseFromString(string_record)
 
-    # record_iterator = tf.python_io.tf_record_iterator(path=tfrecords_filename)
-    # for string_record in record_iterator:
-    #     example = tf.train.Example()
-    #     example.ParseFromString(string_record)
-    #
-    #     img_index = int(example.features.feature['img_index']
-    #                  .int64_list
-    #                  .value[0])
-    #     img_string = (example.features.feature['img']
-    #                     .bytes_list
-    #                     .value[0])
-    #     contour_string = (example.features.feature['contour']
-    #                     .bytes_list
-    #                     .value[0])
-    #     img_row = int(example.features.feature['im_row']
-    #                  .int64_list
-    #                  .value[0])
-    #     img_col = int(example.features.feature['im_col']
-    #                  .int64_list
-    #                  .value[0])
-    #     cnt_num = int(example.features.feature['cnt_num']
-    #                  .int64_list
-    #                  .value[0])
-    #     cnt_point_num_string = (example.features.feature['cnt_point_num']
-    #                     .bytes_list
-    #                     .value[0])
-    #     cnt_point_max = int(example.features.feature['cnt_point_max']
-    #                  .int64_list
-    #                  .value[0])
-    #
-    #     img_1d = np.fromstring(img_string, dtype=np.uint8)
-    #     reconstructed_img = img_1d.reshape((img_row, img_col, -1))
-    #     img = reconstructed_img
-    #     cnt_point_num = np.fromstring(cnt_point_num_string, dtype=np.int64)
-    #
-    #     contour_1d = np.fromstring(contour_string, dtype=np.float32)
-    #     reconstructed_contour = contour_1d.reshape((cnt_num, cnt_point_max, 1, 2))
-    #     contour = []
-    #     for i in range(cnt_num):
-    #         contour.append(reconstructed_contour[i, :cnt_point_num[i], :, :])
+            img_index = int(example.features.feature['img_index']
+                         .int64_list
+                         .value[0])
+            img_string = (example.features.feature['img']
+                            .bytes_list
+                            .value[0])
+            contour_string = (example.features.feature['contour']
+                            .bytes_list
+                            .value[0])
+            img_row = int(example.features.feature['im_row']
+                         .int64_list
+                         .value[0])
+            img_col = int(example.features.feature['im_col']
+                         .int64_list
+                         .value[0])
+            cnt_num = int(example.features.feature['cnt_num']
+                         .int64_list
+                         .value[0])
+            cnt_point_num_string = (example.features.feature['cnt_point_num']
+                            .bytes_list
+                            .value[0])
+            cnt_point_max = int(example.features.feature['cnt_point_max']
+                         .int64_list
+                         .value[0])
 
+            img_1d = np.fromstring(img_string, dtype=np.uint8)
+            reconstructed_img = img_1d.reshape((img_row, img_col, -1))
+            img = reconstructed_img
+            cnt_point_num = np.fromstring(cnt_point_num_string, dtype=np.int64)
 
+            contour_1d = np.fromstring(contour_string, dtype=np.float32)
+            reconstructed_contour = contour_1d.reshape((cnt_num, cnt_point_max, 1, 2))
+            contour = []
+            for i in range(cnt_num):
+                contour.append(reconstructed_contour[i, :cnt_point_num[i], :, :])
+            yield {'img_index': img_index,
+                   'img': img,
+                   'contour': contour}
 
-    # for res in Totaltext_loader(1, 0, False):
-    #     print(res)
-    # for res in Totaltext_loader(1, 0, True):
-    #     print(res)
+    def synthtext_decoder(tfrecords_filename):
+        record_iterator = tf.python_io.tf_record_iterator(path=tfrecords_filename)
+        for string_record in record_iterator:
+            example = tf.train.Example()
+            example.ParseFromString(string_record)
+
+            img_index = int(example.features.feature['img_index']
+                            .int64_list
+                            .value[0])
+            img_string = (example.features.feature['img']
+                .bytes_list
+                .value[0])
+            char_contour_string = (example.features.feature['char_contour']
+                .bytes_list
+                .value[0])
+            word_contour_string = (example.features.feature['word_contour']
+                .bytes_list
+                .value[0])
+            img_row = int(example.features.feature['im_row']
+                          .int64_list
+                          .value[0])
+            img_col = int(example.features.feature['im_col']
+                          .int64_list
+                          .value[0])
+            char_cnt_num = int(example.features.feature['char_cnt_num']
+                          .int64_list
+                          .value[0])
+            char_cnt_point_num_string = (example.features.feature['char_cnt_point_num']
+                .bytes_list
+                .value[0])
+            char_cnt_point_max = int(example.features.feature['char_cnt_point_max']
+                                .int64_list
+                                .value[0])
+            word_cnt_num = int(example.features.feature['word_cnt_num']
+                          .int64_list
+                          .value[0])
+            word_cnt_point_num_string = (example.features.feature['word_cnt_point_num']
+                .bytes_list
+                .value[0])
+            word_cnt_point_max = int(example.features.feature['word_cnt_point_max']
+                                .int64_list
+                                .value[0])
+
+            img_1d = np.fromstring(img_string, dtype=np.uint8)
+            reconstructed_img = img_1d.reshape((img_row, img_col, -1))
+            img = reconstructed_img
+
+            char_cnt_point_num = np.fromstring(char_cnt_point_num_string, dtype=np.int64)
+            char_contour_1d = np.fromstring(char_contour_string, dtype=np.float32)
+            char_reconstructed_contour = char_contour_1d.reshape((char_cnt_num, char_cnt_point_max, 1, 2))
+            char_contour = []
+            for i in range(char_cnt_num):
+                char_contour.append(char_reconstructed_contour[i, :char_cnt_point_num[i], :, :])
+
+            word_cnt_point_num = np.fromstring(word_cnt_point_num_string, dtype=np.int64)
+            word_contour_1d = np.fromstring(word_contour_string, dtype=np.float32)
+            word_reconstructed_contour = word_contour_1d.reshape((word_cnt_num, word_cnt_point_max, 1, 2))
+            word_contour = []
+            for i in range(word_cnt_num):
+                word_contour.append(word_reconstructed_contour[i, :word_cnt_point_num[i], :, :])
+
+            yield {'img_index': img_index,
+                   'img': img,
+                   'contour': [char_contour, word_contour]}
+
