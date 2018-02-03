@@ -113,20 +113,19 @@ def Totaltext_loader(patch_num, n_th_patch, is_train):
             end_point = (n_th_patch + 1) * patch_length
 
         for index in range(start_point, end_point):
-            print(index)
-            # imname = imnames[index]
-            # origin = cv2.imread(TOTALTEXT_DIR+'totaltext/Images/Train/'+imname+'.jpg')
-            # if origin is None:
-            #     origin = cv2.imread(TOTALTEXT_DIR+'totaltext/Images/Train/'+imname+'.JPG')
-            # if origin is None:
-            #     print(imname+ ' is missed')
-            #     continue
-            # mat = sio.loadmat(TOTALTEXT_DIR + 'groundtruth_text/Groundtruth/Polygon/Train/poly_gt_' + imname + '.mat')
-            # cnts = get_total_cnts(mat)
-            # origin, cnts = validate(origin, cnts)
-            # yield {'img_index': index,
-            #        'img': origin,
-            #        'contour': cnts}
+            imname = imnames[index]
+            origin = cv2.imread(TOTALTEXT_DIR+'totaltext/Images/Train/'+imname+'.jpg')
+            if origin is None:
+                origin = cv2.imread(TOTALTEXT_DIR+'totaltext/Images/Train/'+imname+'.JPG')
+            if origin is None:
+                print(imname+ ' is missed')
+                continue
+            mat = sio.loadmat(TOTALTEXT_DIR + 'groundtruth_text/Groundtruth/Polygon/Train/poly_gt_' + imname + '.mat')
+            cnts = get_total_cnts(mat)
+            origin, cnts = validate(origin, cnts)
+            yield {'img_index': index,
+                   'img': origin,
+                   'contour': cnts}
 
     else:
         imnames = [name.split('.')[0] for name in os.listdir(TOTALTEXT_DIR + 'totaltext/Images/Test')]
@@ -155,18 +154,36 @@ def Totaltext_loader(patch_num, n_th_patch, is_train):
                    'contour': cnts}
 
 
-
-def MSRA_TD_500_loader(start_point,end_point):
-    """
-    generator
-    :param start_point:
-    :param end_point:
+def MSRA_TD_500_loader(patch_num, n_th_patch, is_train):
+    '''
+    :param patch_num:
+    :param n_th_patch:
+    :param is_train:
     :return:
-    {'img_name':str,
-        'img':np.uint8,
-        'contour':List[the contour of each text instance]}
-    """
-    pass
+    '''
+    def get_cnts_msra(textes):
+        cnts = []
+        def reverse_point(point):
+            return (point[1], point[0])
+        for text in textes:
+            points = []
+            text = [float(num) for num in text]
+            x, y, w, h, theta = text[2], text[3], text[4], text[5], text[6]
+            point1 = (x, y)
+            point2 = (x+w, y)
+            point3 = (x+w, y+h)
+            point4 = (x, y+h)
+            rotateMatrix = cv2.getRotationMatrix2D((x+w/2,y+h/2), -theta*180/np.pi,1)
+            point1 = np.matmul(rotateMatrix, point1+(1,))
+            point2 = np.matmul(rotateMatrix, point2+(1,))
+            point3 = np.matmul(rotateMatrix, point3+(1,))
+            point4 = np.matmul(rotateMatrix, point4+(1,))
+            points.append([point1])
+            points.append([point2])
+            points.append([point3])
+            points.append([point4])
+            cnts.append(np.array(points).astype(np.int32))
+        return cnts
 
 def ICDAR2017_loader(start_point,end_point):
     """
@@ -347,14 +364,9 @@ if __name__ == '__main__':
     for job in jobs:
         job.join()
 
-
-
     # totaltext('totaltext_train/', True)
     # totaltext('totaltext_test/', False)
     # synthtext('synthtext/')
-
-
-
 
     def totaltext_decoder(tfrecords_filename):
         record_iterator = tf.python_io.tf_record_iterator(path=tfrecords_filename)
