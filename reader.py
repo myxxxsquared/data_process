@@ -339,14 +339,14 @@ if __name__ == '__main__':
             writer.write(example.SerializeToString())
         writer.close()
 
-    patch_num = 35
-    jobs = []
-    for i in range(patch_num):
-        jobs.append(Process(target=totaltext, args=('totaltext_train/', patch_num, i, True)))
-    for job in jobs:
-        job.start()
-    for job in jobs:
-        job.join()
+    # patch_num = 35
+    # jobs = []
+    # for i in range(patch_num):
+    #     jobs.append(Process(target=totaltext, args=('totaltext_train/', patch_num, i, True)))
+    # for job in jobs:
+    #     job.start()
+    # for job in jobs:
+    #     job.join()
 
     # jobs = []
     # for i in range(patch_num):
@@ -478,3 +478,6 @@ if __name__ == '__main__':
                    'img': img,
                    'contour': [char_contour, word_contour]}
 
+    for res in synthtext_decoder(TFRECORD_DIR+'synthtext.tfrecords'):
+        print(res)
+        print('-----')
