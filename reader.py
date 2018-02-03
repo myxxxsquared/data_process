@@ -75,7 +75,7 @@ def SynthText_loader(patch_num, n_th_patch, is_train):
         char_cnts = [np.array(char_cnt, np.float32) for char_cnt in char_cnts]
         word_cnts = [np.array(word_cnt, np.float32) for word_cnt in word_cnts]
         cnts = [char_cnts, word_cnts]
-        yield {'img_name': imname,
+        yield {'img_index': index,
                'img': origin,
                'contour': cnts}
 
@@ -123,7 +123,7 @@ def Totaltext_loader(patch_num, n_th_patch, is_train):
             mat = sio.loadmat(TOTALTEXT_DIR + 'groundtruth_text/Groundtruth/Polygon/Train/poly_gt_' + imname + '.mat')
             cnts = get_total_cnts(mat)
             origin, cnts = validate(origin, cnts)
-            yield {'img_name': imname,
+            yield {'img_index': index,
                    'img': origin,
                    'contour': cnts}
 
@@ -149,7 +149,7 @@ def Totaltext_loader(patch_num, n_th_patch, is_train):
             mat = sio.loadmat(TOTALTEXT_DIR + 'groundtruth_text/Groundtruth/Polygon/Test/poly_gt_' + imname + '.mat')
             cnts = get_total_cnts(mat)
             origin = validate(origin, cnts)
-            yield {'img_name': imname,
+            yield {'img_index': index,
                    'img': origin,
                    'contour': cnts}
 
@@ -226,7 +226,7 @@ if __name__ == '__main__':
     tfrecords_filename = TFRECORD_DIR+'synthtext.tfrecords'
     writer = tf.python_io.TFRecordWriter(tfrecords_filename)
     for res in Totaltext_loader(1, 0, True):
-        im_name = res['img_name']
+        img_index = res['img_index']
         img = res['img']
         img_row = img.shape[0]
         img_col = img.shape[1]
@@ -236,7 +236,7 @@ if __name__ == '__main__':
         contour = np.array(contour)
 
         example = tf.train.Example(feature=tf.train.Feature(feature={
-            'im_name': _bytes_feature(im_name),
+            'im_name': _int64_feature(img_index),
             'img': _bytes_feature(img.tostring()),
             'contour': _bytes_feature(contour.tostring()),
             'im_row': _int64_feature(img_row),
@@ -257,15 +257,15 @@ if __name__ == '__main__':
     for string_record in record_iterator:
         example = tf.train.Example()
         example.ParseFromString(string_record)
-        im_name = (example.features.feature['im_name']
-                                      .bytes_list
+        im_name = (example.features.feature['img_index']
+                                      .int64_list
                                       .value[0])
         img_string = (example.features.feature['img']
                                       .bytes_list
                                       .value[0])
 
-        print('im_name', im_name)
-        print('img_string', img_string)
+        print('img_index', img_index)
+        print('img_string', img)
 
 
 
