@@ -657,6 +657,7 @@ if __name__ == '__main__':
     # for job in jobs:
     #     job.join()
     #
+
     jobs = []
     for i in range(patch_num):
         jobs.append(Process(target=synthtext_to_pickle, args=('synthtext/', patch_num, i)))
