@@ -229,12 +229,13 @@ if __name__ == '__main__':
     for res in Totaltext_loader(1, 0, True):
         img_index = res['img_index']
         img = res['img']
+        img = np.array(img, np.uint8)
         img_row = img.shape[0]
         img_col = img.shape[1]
         contour = res['contour']
         cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))], np.int64)
         cnt_num = len(contour)
-        contour = np.array(contour)
+        contour = np.array(contour, np.float32)
 
         example = tf.train.Example(features=tf.train.Features(feature={
             'img_index': _int64_feature(img_index),
