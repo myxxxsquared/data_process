@@ -5,7 +5,7 @@ import os
 import math
 import pickle
 
-os.environ["PYTHONHASHSEED"] = 1234
+os.environ["PYTHONHASHSEED"] = '1234'
 
 
 SYNTHTEXT_DIR = '/home/rjq/data/SynthText/SynthText/'
