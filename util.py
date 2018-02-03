@@ -342,5 +342,5 @@ if __name__ == '__main__':
         total += time.time()-start
         DA.demo(image, crop_point_starting)
         i_ += 1
-        x=input()
+        #x=input()
     print(total/i_)
