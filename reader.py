@@ -524,14 +524,14 @@ if __name__ == '__main__':
 
     def othertext_to_pickle(save_dir, patch_num, n_th_patch, is_train, dataset):
         print('start', save_dir,n_th_patch)
-        save_dir = save_dir.strip('/')
-        save_dir = save_dir + '/'
-        if not os.path.exists(TFRECORD_DIR+save_dir):
-            os.mkdir(TFRECORD_DIR+save_dir)
+        #save_dir = save_dir.strip('/')
+        #save_dir = save_dir + '/'
+        #if not os.path.exists(TFRECORD_DIR+save_dir):
+        #    os.mkdir(TFRECORD_DIR+save_dir)
         if is_train:
-            save_path = os.path.join(TFRECORD_DIR+save_dir,dataset+'_train')
+            save_path = os.path.join(TFRECORD_DIR,dataset+'_train')
         else:
-            save_path = os.path.join(TFRECORD_DIR + save_dir, dataset + '_test')
+            save_path = os.path.join(TFRECORD_DIR, dataset + '_test')
 
         if not os.path.exists(save_path):
             os.mkdir(save_path)
@@ -575,9 +575,9 @@ if __name__ == '__main__':
         print('start', save_dir, n_th_patch)
         save_dir = save_dir.strip('/')
         save_dir = save_dir + '/'
-        if not os.path.exists(TFRECORD_DIR + save_dir):
+        if not os.path.exists(TFRECORD_DIR ):
             os.mkdir(TFRECORD_DIR + save_dir)
-        save_path = os.path.join(TFRECORD_DIR + save_dir,  'synthtext')
+        save_path = os.path.join(TFRECORD_DIR ,  'synthtext')
         if not os.path.exists(save_path):
             os.mkdir(save_path)
 
@@ -660,7 +660,7 @@ if __name__ == '__main__':
 
     p=Pool(40)
     p.apply_async(othertext_to_pickle, args=('totaltext_train/', 1, 0, True, 'totaltext'))
-    p.apply_async(othertext_to_pickle, args=('totaltext_test/', 1, 0, True, 'totaltext'))
+    p.apply_async(othertext_to_pickle, args=('totaltext_test/', 1, 0, False, 'totaltext'))
     for i in range(patch_num):
         p.apply_async(synthtext_to_pickle,args=('synthtext/', patch_num, i))
     p.close()
