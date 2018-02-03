@@ -236,7 +236,7 @@ if __name__ == '__main__':
     count = 0
     for res in Totaltext_loader(1, 0, True):
         count += 1
-        print('processing ' +str(i))
+        print('processing ' +str(count))
         img_index = res['img_index']
         img = res['img']
         img = np.array(img, np.uint8)
