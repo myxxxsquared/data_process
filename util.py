@@ -11,7 +11,8 @@ class DataAugmentor(object):
     all data_augmentation defined below should take input as :
     {'img_name':str,   original_name
         'img':np.uint8,
-        'contour':List[np.array(the contour of each text instance), (n,1,2)], ---> np.array(num_TI, num_point, 1, 2)
+        'contour':List[np.array(the contour of each text instance), (n,1,2)], ---> np.array(num_TI, num_point, 1, 2),
+        'center_point':[(x1,y1),(x2,y2)]
         'is_text_cnts': bool, true for cnts of boxes,
                             false for cnts of char}
 
@@ -30,7 +31,7 @@ class DataAugmentor(object):
         gray scale
         **affine transformation#i should implement it myself, maybe
 
-    it takes around 0.32s to generate one augmented image on average.
+    it takes around 0.25~0.3s to generate one augmented image on average.
     50% are processed with affine transformation
 
     """
