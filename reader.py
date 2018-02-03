@@ -561,7 +561,7 @@ if __name__ == '__main__':
                 'is_text_cnts':not(save_path.find('synthtext')>=0)
             }
 
-            pickle.dump(data_instance,os.path.join(save_path,open('%s.bin'%str(hash(img_index)),'wb')))
+            pickle.dump(data_instance,open(os.path.join(save_path,'%s.bin'%str(hash(img_index))),'wb'))
 
 
             print(img)
@@ -622,7 +622,7 @@ if __name__ == '__main__':
                 'is_text_cnts': not (save_path.find('synthtext') >= 0)
             }
 
-            pickle.dump(data_instance, os.path.join(save_path, open('%s.bin' % str(hash(img_index)), 'wb')))
+            pickle.dump(data_instance, open(os.path.join(save_path, '%s.bin' % str(hash(img_index))), 'wb'))
 
 
     print('123')
