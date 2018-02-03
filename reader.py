@@ -228,13 +228,18 @@ if __name__ == '__main__':
     for res in Totaltext_loader(1, 0, True):
         im_name = res['img_name']
         img = res['img']
+        img_row = img.shape[0]
+        img_col = img.shape[1]
         contour = res['contour']
-        row = img.shape[0]
-        col = img.shape[1]
+        cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))])
+        cnt_num = len(contour)
+        contour = np.array(contour)
         print(contour)
+        print(cnt_point_num)
+        print(cnt_num)
         print(contour.tostring())
         print('-'*10)
-
+        a = list()
 
 
     for res in Totaltext_loader(1, 0, False):
