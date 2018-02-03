@@ -217,6 +217,7 @@ if __name__ == '__main__':
     TFRECORD_DIR = '/home/rjq/data_cleaned/tfrecord/'
 
     import tensorflow as tf
+
     def _bytes_feature(value):
         return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
     def _int64_feature(value):
@@ -235,7 +236,7 @@ if __name__ == '__main__':
         cnt_num = len(contour)
         contour = np.array(contour)
 
-        example = tf.train.Example(features=tf.train.Feature(feature={
+        example = tf.train.Example(features=tf.train.Features(feature={
             'im_name': _int64_feature(img_index),
             'img': _bytes_feature(img.tostring()),
             'contour': _bytes_feature(contour.tostring()),
