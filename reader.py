@@ -216,7 +216,7 @@ if __name__ == '__main__':
     TFRECORD_DIR = '/home/rjq/data_cleaned/tfrecord/'
 
     import tensorflow as tf
-    import multiprocessing as mp
+    from multiprocessing import Process
 
     def _bytes_feature(value):
         return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
@@ -232,8 +232,16 @@ if __name__ == '__main__':
                 new.append(cnt_)
         return new
 
-    def totaltext(save_name, patch_num, n_th_patch, is_train):
-        tfrecords_filename = TFRECORD_DIR+save_name
+    def totaltext(save_dir, patch_num, n_th_patch, is_train):
+        save_dir = save_dir.strip('/')
+        save_dir = save_dir + '/'
+        if not os.path.exists(TFRECORD_DIR+save_dir):
+            os.mkdir(TFRECORD_DIR+save_dir)
+        if is_train:
+            tfrecords_filename = TFRECORD_DIR+save_dir+str(n_th_patch)+'_totaltext_train.tfrecords'
+        else:
+            tfrecords_filename = TFRECORD_DIR+save_dir+str(n_th_patch)+'_totaltext_test.tfrecords'
+
         writer = tf.python_io.TFRecordWriter(tfrecords_filename)
         count = 0
         for res in Totaltext_loader(patch_num, n_th_patch, is_train):
@@ -263,8 +271,13 @@ if __name__ == '__main__':
             writer.write(example.SerializeToString())
         writer.close()
 
-    def synthtext(save_name, patch_num, n_th_patch):
-        tfrecords_filename = TFRECORD_DIR+save_name
+    def synthtext(save_dir, patch_num, n_th_patch):
+        save_dir = save_dir.strip('/')
+        save_dir = save_dir + '/'
+        if not os.path.exists(TFRECORD_DIR+save_dir):
+            os.mkdir(TFRECORD_DIR+save_dir)
+
+        tfrecords_filename = TFRECORD_DIR+save_dir+str(n_th_patch)+'_synthtext.tfrecords'
         writer = tf.python_io.TFRecordWriter(tfrecords_filename)
         count = 0
         for res in SynthText_loader(patch_num, n_th_patch, True):
@@ -309,14 +322,36 @@ if __name__ == '__main__':
             writer.write(example.SerializeToString())
         writer.close()
 
-    pool = mp.Pool(35)
-
     patch_num = 35
-    for res in Totaltext_loader(patch_num, 34, True):
-        pass
-    # totaltext('totaltext_train.tfrecords', True)
-    # totaltext('totaltext_test.tfrecords', False)
-    # synthtext('synthtext.tfrecords')
+    jobs = []
+    for i in range(patch_num):
+        jobs.append(Process(target=totaltext, args=('totaltext_train/', patch_num, i, True)))
+    for job in jobs:
+        job.start()
+    for job in jobs:
+        job.join()
+
+    jobs = []
+    for i in range(patch_num):
+        jobs.append(Process(target=totaltext, args=('totaltext_test/', patch_num, i, False)))
+    for job in jobs:
+        job.start()
+    for job in jobs:
+        job.join()
+
+    jobs = []
+    for i in range(patch_num):
+        jobs.append(Process(target=synthtext, args=('synthtext/', patch_num, i)))
+    for job in jobs:
+        job.start()
+    for job in jobs:
+        job.join()
+
+
+
+    # totaltext('totaltext_train/', True)
+    # totaltext('totaltext_test/', False)
+    # synthtext('synthtext/')
 
 
 
