@@ -478,6 +478,9 @@ if __name__ == '__main__':
                    'img': img,
                    'contour': [char_contour, word_contour]}
 
+    count = 0
     for res in synthtext_decoder(TFRECORD_DIR+'synthtext.tfrecords'):
-        print(res['img'])
-        print('-----')
+        cv2.imwrite(str(count)+'.jpg', res['img'])
+        count += 1
+        if count == 100:
+            break
