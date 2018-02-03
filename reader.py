@@ -339,34 +339,34 @@ if __name__ == '__main__':
             writer.write(example.SerializeToString())
         writer.close()
 
-    # patch_num = 35
-    # jobs = []
-    # for i in range(patch_num):
-    #     jobs.append(Process(target=totaltext, args=('totaltext_train/', patch_num, i, True)))
-    # for job in jobs:
-    #     job.start()
-    # for job in jobs:
-    #     job.join()
+    patch_num = 35
+    jobs = []
+    for i in range(patch_num):
+        jobs.append(Process(target=totaltext, args=('totaltext_train/', patch_num, i, True)))
+    for job in jobs:
+        job.start()
+    for job in jobs:
+        job.join()
 
-    # jobs = []
-    # for i in range(patch_num):
-    #     jobs.append(Process(target=totaltext, args=('totaltext_test/', patch_num, i, False)))
-    # for job in jobs:
-    #     job.start()
-    # for job in jobs:
-    #     job.join()
-    #
-    # jobs = []
-    # for i in range(patch_num):
-    #     jobs.append(Process(target=synthtext, args=('synthtext/', patch_num, i)))
-    # for job in jobs:
-    #     job.start()
-    # for job in jobs:
-    #     job.join()
+    jobs = []
+    for i in range(patch_num):
+        jobs.append(Process(target=totaltext, args=('totaltext_test/', patch_num, i, False)))
+    for job in jobs:
+        job.start()
+    for job in jobs:
+        job.join()
 
-    # totaltext('totaltext_train/', True)
-    # totaltext('totaltext_test/', False)
-    # synthtext('synthtext/')
+    jobs = []
+    for i in range(patch_num):
+        jobs.append(Process(target=synthtext, args=('synthtext/', patch_num, i)))
+    for job in jobs:
+        job.start()
+    for job in jobs:
+        job.join()
+
+    totaltext('totaltext_train/', True)
+    totaltext('totaltext_test/', False)
+    synthtext('synthtext/')
 
     def totaltext_decoder(tfrecords_filename):
         record_iterator = tf.python_io.tf_record_iterator(path=tfrecords_filename)
@@ -478,9 +478,9 @@ if __name__ == '__main__':
                    'img': img,
                    'contour': [char_contour, word_contour]}
 
-    count = 0
-    for res in synthtext_decoder(TFRECORD_DIR+'synthtext.tfrecords'):
-        cv2.imwrite(str(count)+'.jpg', res['img'])
-        count += 1
-        if count == 100:
-            break
+    # count = 0
+    # for res in synthtext_decoder(TFRECORD_DIR+'synthtext.tfrecords'):
+    #     cv2.imwrite(str(count)+'.jpg', res['img'])
+    #     count += 1
+    #     if count == 100:
+    #         break
