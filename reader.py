@@ -113,19 +113,20 @@ def Totaltext_loader(patch_num, n_th_patch, is_train):
             end_point = (n_th_patch + 1) * patch_length
 
         for index in range(start_point, end_point):
-            imname = imnames[index]
-            origin = cv2.imread(TOTALTEXT_DIR+'totaltext/Images/Train/'+imname+'.jpg')
-            if origin is None:
-                origin = cv2.imread(TOTALTEXT_DIR+'totaltext/Images/Train/'+imname+'.JPG')
-            if origin is None:
-                print(imname+ ' is missed')
-                continue
-            mat = sio.loadmat(TOTALTEXT_DIR + 'groundtruth_text/Groundtruth/Polygon/Train/poly_gt_' + imname + '.mat')
-            cnts = get_total_cnts(mat)
-            origin, cnts = validate(origin, cnts)
-            yield {'img_index': index,
-                   'img': origin,
-                   'contour': cnts}
+            print(index)
+            # imname = imnames[index]
+            # origin = cv2.imread(TOTALTEXT_DIR+'totaltext/Images/Train/'+imname+'.jpg')
+            # if origin is None:
+            #     origin = cv2.imread(TOTALTEXT_DIR+'totaltext/Images/Train/'+imname+'.JPG')
+            # if origin is None:
+            #     print(imname+ ' is missed')
+            #     continue
+            # mat = sio.loadmat(TOTALTEXT_DIR + 'groundtruth_text/Groundtruth/Polygon/Train/poly_gt_' + imname + '.mat')
+            # cnts = get_total_cnts(mat)
+            # origin, cnts = validate(origin, cnts)
+            # yield {'img_index': index,
+            #        'img': origin,
+            #        'contour': cnts}
 
     else:
         imnames = [name.split('.')[0] for name in os.listdir(TOTALTEXT_DIR + 'totaltext/Images/Test')]
@@ -215,6 +216,7 @@ if __name__ == '__main__':
     TFRECORD_DIR = '/home/rjq/data_cleaned/tfrecord/'
 
     import tensorflow as tf
+    import multiprocessing as mp
 
     def _bytes_feature(value):
         return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
@@ -230,11 +232,11 @@ if __name__ == '__main__':
                 new.append(cnt_)
         return new
 
-    def totaltext(save_name, is_train):
+    def totaltext(save_name, patch_num, n_th_patch, is_train):
         tfrecords_filename = TFRECORD_DIR+save_name
         writer = tf.python_io.TFRecordWriter(tfrecords_filename)
         count = 0
-        for res in Totaltext_loader(1, 0, is_train):
+        for res in Totaltext_loader(patch_num, n_th_patch, is_train):
             count += 1
             print('processing ' +str(count))
             img_index = res['img_index']
@@ -261,14 +263,11 @@ if __name__ == '__main__':
             writer.write(example.SerializeToString())
         writer.close()
 
-    # totaltext('totaltext_train.tfrecords', True)
-    # totaltext('totaltext_test.tfrecords', False)
-
-    def synthtext(save_name):
+    def synthtext(save_name, patch_num, n_th_patch):
         tfrecords_filename = TFRECORD_DIR+save_name
         writer = tf.python_io.TFRecordWriter(tfrecords_filename)
         count = 0
-        for res in SynthText_loader(1, 0, True):
+        for res in SynthText_loader(patch_num, n_th_patch, True):
             count += 1
             print('processing ' +str(count))
             img_index = res['img_index']
@@ -310,8 +309,14 @@ if __name__ == '__main__':
             writer.write(example.SerializeToString())
         writer.close()
 
+    pool = mp.Pool(35)
 
-    synthtext('synthtext.tfrecords')
+    patch_num = 35
+    for res in Totaltext_loader(patch_num, 34, True):
+        pass
+    # totaltext('totaltext_train.tfrecords', True)
+    # totaltext('totaltext_test.tfrecords', False)
+    # synthtext('synthtext.tfrecords')
 
 
 
