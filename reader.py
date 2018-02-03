@@ -641,7 +641,7 @@ if __name__ == '__main__':
     othertext_to_pickle('totaltext_test/', 1, 0, False, 'totaltext')
     # synthtext_to_pickle('synthtext', 0)
 
-    # patch_num = 35
+    patch_num = 35
     # jobs = []
     # for i in range(patch_num):
     #     jobs.append(Process(target=totaltext, args=('totaltext_train/', patch_num, i, True)))
