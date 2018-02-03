@@ -91,7 +91,6 @@ class DataAugmentor(object):
         blur_augmentation_list = self.blur_augmentation_list[:randint(0, 1)]
         shuffle(self.noise_augmentation_list)
         noise_augmentation_list = self.noise_augmentation_list[:randint(0, 1)]
-        print([len(x) for x in [add_augmentation_list,noise_augmentation_list , blur_augmentation_list , other_augmentation_list]])
 
         final_list=add_augmentation_list + noise_augmentation_list + blur_augmentation_list + other_augmentation_list
 
