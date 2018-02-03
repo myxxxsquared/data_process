@@ -212,24 +212,25 @@ class DataAugmentor(object):
                                                        int(keypoints.x)]])[:, ::-1]
                                             for keypoints in input_data['contour'][p].keypoints]
                 input_data['contour'][p] = np.stack(input_data['contour'][p], axis=0)
-                input_data['center_point'][0] = \
-                    transformer.augment_keypoints([
-                        self._key_points(image_shape=input_data['img'].shape,
-                                         point_list=np.array(
-                                             [[list(input_data['center_point'])[0]]]
-                                         ))
-                    ])[0].keypoints[0]
-                input_data['center_point'][0] = (int(input_data['center_point'][0].y),
-                                                 int(input_data['center_point'][0].x))
-                input_data['center_point'][1] = transformer.augment_keypoints([
-                        self._key_points(image_shape=input_data['img'].shape,
-                                         point_list=np.array(
-                                             [[list(input_data['center_point'])[1]]]
-                                         ))
 
-                    ])[0].keypoints[0]
-                input_data['center_point'][1] = (int(input_data['center_point'][1].y),
-                                                 int(input_data['center_point'][1].x))
+            input_data['center_point'][0] = \
+                transformer.augment_keypoints([
+                    self._key_points(image_shape=input_data['img'].shape,
+                                     point_list=np.array(
+                                         [[list(input_data['center_point'])[0]]]
+                                     ))
+                ])[0].keypoints[0]
+            input_data['center_point'][0] = (int(input_data['center_point'][0].y),
+                                             int(input_data['center_point'][0].x))[::-1]
+            input_data['center_point'][1] = transformer.augment_keypoints([
+                    self._key_points(image_shape=input_data['img'].shape,
+                                     point_list=np.array(
+                                         [[list(input_data['center_point'])[1]]]
+                                     ))
+
+                ])[0].keypoints[0]
+            input_data['center_point'][1] = (int(input_data['center_point'][1].y),
+                                             int(input_data['center_point'][1].x))[::-1]
 
         input_data['img'] = np.transpose(input_data['img'], axes=[1, 0, 2])  # ？？？
 
@@ -341,5 +342,5 @@ if __name__ == '__main__':
         total += time.time()-start
         DA.demo(image, crop_point_starting)
         i_ += 1
-        #x=input()
+        x=input()
     print(total/i_)
