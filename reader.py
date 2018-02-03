@@ -298,11 +298,17 @@ if __name__ == '__main__':
                         .value[0])
         img_1d = np.fromstring(img_string, dtype=np.uint8)
         reconstructed_img = img_1d.reshape((img_row, img_col, -1))
+        img = reconstructed_img
         print('reconstructed_img', reconstructed_img)
         cnt_point_num = np.fromstring(cnt_point_num_string, dtype=np.int64)
 
         contour_1d = np.fromstring(contour_string, dtype=np.float32)
-        print('contour_1d', contour_1d)
+        reconstructed_contour = np.reshape((cnt_num, cnt_point_num, 1, 2))
+        contour = []
+        for i in range(len(cnt_num)):
+            contour.append(reconstructed_contour[i, :cnt_point_num[i], :, :])
+
+        print('contour', contour)
         print('cnt_num', cnt_num)
         print('cnt_point_num', cnt_point_num)
         print('img_index', img_index)
