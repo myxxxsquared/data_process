@@ -290,7 +290,7 @@ class DataAugmentor(object):
         cv2.waitKey(1)
         x = input('enter to see next:')
 
-if __name__=='__name__':
+if __name__=='__main__':
     images = glob.glob('/Users/longshangbang/Documents/Total-Text-Dataset-master/Images/Test/*jpg')
     shuffle(images)
     image=cv2.imread(images[0])
