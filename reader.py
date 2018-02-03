@@ -232,7 +232,7 @@ if __name__ == '__main__':
         img_row = img.shape[0]
         img_col = img.shape[1]
         contour = res['contour']
-        cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))], np.int32)
+        cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))], np.int64)
         cnt_num = len(contour)
         contour = np.array(contour)
 
@@ -247,9 +247,10 @@ if __name__ == '__main__':
         }))
 
         writer.write(example.SerializeToString())
-        print(cnt_point_num)
-        print(cnt_num)
-        print(contour.tostring())
+        print('img', img)
+        print('cnt_point_num', cnt_point_num)
+        print('cnt_num', cnt_num)
+        print('contour', contour)
         print('-'*10)
         break
     writer.close()
@@ -283,7 +284,7 @@ if __name__ == '__main__':
         img_1d = np.fromstring(img_string, dtype=np.uint8)
         reconstructed_img = img_1d.reshape((img_row, img_col, -1))
         print('reconstructed_img', reconstructed_img)
-        cnt_point_num = np.fromstring(cnt_point_num_string, dtype=np.int32)
+        cnt_point_num = np.fromstring(cnt_point_num_string, dtype=np.int64)
 
         contour_1d = np.fromstring(contour_string, dtype=np.float32)
         print('contour_1d', contour_1d)
