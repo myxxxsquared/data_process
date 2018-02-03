@@ -310,7 +310,7 @@ if __name__ == '__main__':
         contour_1d = np.fromstring(contour_string, dtype=np.float32)
         reconstructed_contour = contour_1d.reshape((cnt_num, cnt_point_max, 1, 2))
         contour = []
-        for i in range(len(cnt_num)):
+        for i in range(cnt_num):
             contour.append(reconstructed_contour[i, :cnt_point_num[i], :, :])
 
         print('contour', contour)
