@@ -185,6 +185,61 @@ def MSRA_TD_500_loader(patch_num, n_th_patch, is_train):
             cnts.append(np.array(points).astype(np.int32))
         return cnts
 
+    if is_train:
+        imnames = list(set([name.split('.')[0] for name in os.listdir(MSRA_DIR + 'train/')]))
+        imnames = sorted(imnames)
+        pic_num = len(imnames)
+        patch_length = pic_num//patch_num+1
+        start_point = n_th_patch*patch_length
+        if (n_th_patch+1)*patch_length > pic_num:
+            end_point = pic_num
+        else:
+            end_point = (n_th_patch+1)*patch_length
+
+        for index in range(start_point, end_point):
+            imname = imnames[index]
+            origin = cv2.imread(MSRA_DIR+'train/'+imname+'.JPG')
+            if origin is None:
+                print(imname + ' is missed')
+                continue
+            textes = [text.split() for text in open(MSRA_DIR+'train/'+imname+'.gt', 'r').readlines()]
+            if len(textes) == 0:
+                print('cnt for '+imname+'is missed')
+                continue
+            cnts = get_cnts_msra(textes)
+            origin, cnts = validate(origin, cnts)
+            yield {'img_index': index,
+                   'img': origin,
+                   'contour': cnts}
+
+    else:
+        imnames = list(set([name.split('.')[0] for name in os.listdir(MSRA_DIR + 'test/')]))
+        imnames = sorted(imnames)
+        pic_num = len(imnames)
+        patch_length = pic_num // patch_num + 1
+        start_point = n_th_patch * patch_length
+        if (n_th_patch + 1) * patch_length > pic_num:
+            end_point = pic_num
+        else:
+            end_point = (n_th_patch + 1) * patch_length
+
+        for index in range(start_point, end_point):
+            imname = imnames[index]
+            origin = cv2.imread(MSRA_DIR + 'test/' + imname + '.JPG')
+            if origin is None:
+                print(imname + ' is missed')
+                continue
+            textes = [text.split() for text in open(MSRA_DIR + 'test/' + imname + '.gt', 'r').readlines()]
+            if len(textes) == 0:
+                print('cnt for ' + imname + 'is missed')
+                continue
+            cnts = get_cnts_msra(textes)
+            origin, cnts = validate(origin, cnts)
+            yield {'img_index': index,
+                   'img': origin,
+                   'contour': cnts}
+
+
 def ICDAR2017_loader(start_point,end_point):
     """
     :param start_point:
@@ -249,19 +304,23 @@ if __name__ == '__main__':
                 new.append(cnt_)
         return new
 
-    def totaltext(save_dir, patch_num, n_th_patch, is_train):
+    def othertext(save_dir, patch_num, n_th_patch, is_train, dataset):
         save_dir = save_dir.strip('/')
         save_dir = save_dir + '/'
         if not os.path.exists(TFRECORD_DIR+save_dir):
             os.mkdir(TFRECORD_DIR+save_dir)
         if is_train:
-            tfrecords_filename = TFRECORD_DIR+save_dir+str(n_th_patch)+'_totaltext_train.tfrecords'
+            tfrecords_filename = TFRECORD_DIR+save_dir+str(n_th_patch)+'_'+dataset+'_train.tfrecords'
         else:
-            tfrecords_filename = TFRECORD_DIR+save_dir+str(n_th_patch)+'_totaltext_test.tfrecords'
+            tfrecords_filename = TFRECORD_DIR+save_dir+str(n_th_patch)+'_'+dataset+'_test.tfrecords'
 
         writer = tf.python_io.TFRecordWriter(tfrecords_filename)
         count = 0
-        for res in Totaltext_loader(patch_num, n_th_patch, is_train):
+        generators = {'totaltext': Totaltext_loader,
+                      'msra': MSRA_TD_500_loader}
+        generator = generators[dataset]
+
+        for res in generator(patch_num, n_th_patch, is_train):
             count += 1
             print('processing ' +str(count))
             img_index = res['img_index']
@@ -286,6 +345,9 @@ if __name__ == '__main__':
                 'cnt_point_max': _int64_feature(cnt_point_max)
             }))
             writer.write(example.SerializeToString())
+            #TODO
+            print(img)
+            print(contour)
         writer.close()
 
     def synthtext(save_dir, patch_num, n_th_patch):
@@ -339,36 +401,7 @@ if __name__ == '__main__':
             writer.write(example.SerializeToString())
         writer.close()
 
-    patch_num = 35
-    jobs = []
-    for i in range(patch_num):
-        jobs.append(Process(target=totaltext, args=('totaltext_train/', patch_num, i, True)))
-    for job in jobs:
-        job.start()
-    for job in jobs:
-        job.join()
-
-    jobs = []
-    for i in range(patch_num):
-        jobs.append(Process(target=totaltext, args=('totaltext_test/', patch_num, i, False)))
-    for job in jobs:
-        job.start()
-    for job in jobs:
-        job.join()
-
-    jobs = []
-    for i in range(patch_num):
-        jobs.append(Process(target=synthtext, args=('synthtext/', patch_num, i)))
-    for job in jobs:
-        job.start()
-    for job in jobs:
-        job.join()
-
-    totaltext('totaltext_train/', True)
-    totaltext('totaltext_test/', False)
-    synthtext('synthtext/')
-
-    def totaltext_decoder(tfrecords_filename):
+    def othertext_decoder(tfrecords_filename):
         record_iterator = tf.python_io.tf_record_iterator(path=tfrecords_filename)
         for string_record in record_iterator:
             example = tf.train.Example()
@@ -477,6 +510,35 @@ if __name__ == '__main__':
             yield {'img_index': img_index,
                    'img': img,
                    'contour': [char_contour, word_contour]}
+
+    othertext('msra_train/', 10000, 1, True, 'msra')
+    for res in othertext_decoder(TFRECORD_DIR+'msra_train/0_train.tfrecords'):
+        print(res)
+
+    # patch_num = 35
+    # jobs = []
+    # for i in range(patch_num):
+    #     jobs.append(Process(target=totaltext, args=('totaltext_train/', patch_num, i, True)))
+    # for job in jobs:
+    #     job.start()
+    # for job in jobs:
+    #     job.join()
+    #
+    # jobs = []
+    # for i in range(patch_num):
+    #     jobs.append(Process(target=totaltext, args=('totaltext_test/', patch_num, i, False)))
+    # for job in jobs:
+    #     job.start()
+    # for job in jobs:
+    #     job.join()
+    #
+    # jobs = []
+    # for i in range(patch_num):
+    #     jobs.append(Process(target=synthtext, args=('synthtext/', patch_num, i)))
+    # for job in jobs:
+    #     job.start()
+    # for job in jobs:
+    #     job.join()
 
     # count = 0
     # for res in synthtext_decoder(TFRECORD_DIR+'synthtext.tfrecords'):
