@@ -234,7 +234,6 @@ if __name__ == '__main__':
         cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))])
         cnt_num = len(contour)
         contour = np.array(contour)
-        print(contour)
         print(cnt_point_num)
         print(cnt_num)
         print(contour.tostring())
