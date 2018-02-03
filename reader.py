@@ -225,7 +225,7 @@ if __name__ == '__main__':
     #synthtext
     tfrecords_filename = TFRECORD_DIR+'synthtext.tfrecords'
     writer = tf.python_io.TFRecordWriter(tfrecords_filename)
-    for res in Totaltext_loader(1, 1, True):
+    for res in Totaltext_loader(1, 0, True):
         im_name = res['img_name']
         img = res['img']
         contour = res[contour]
@@ -237,7 +237,7 @@ if __name__ == '__main__':
 
 
 
-    for res in Totaltext_loader(1, 1, False):
+    for res in Totaltext_loader(1, 0, False):
         print(res)
-    for res in Totaltext_loader(1, 1, True):
+    for res in Totaltext_loader(1, 0, True):
         print(res)
