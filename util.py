@@ -268,17 +268,18 @@ class DataAugmentor(object):
             'left_top': tuple (x, y), x is row, y is col, please be careful about the order,
                  'right_bottom': tuple (x, y), x is row, y is col}
         """
-        if input_['img'].shape[0] < input_['img'].shape[1]:
-            input_['center_point'] = [(image.shape[0] // 2, image.shape[0] // 2),
-                                      (image.shape[0] // 2, image.shape[1] - image.shape[0] // 2)]
+        if input_data['img'].shape[0] < input_data['img'].shape[1]:
+            input_data['center_point'] = [(input_data['img'].shape[0] // 2, input_data['img'].shape[0] // 2),
+                                      (input_data['img'].shape[0] // 2, input_data['img'].shape[1] - input_data['img'].shape[0] // 2)]
         else:
-            input_['center_point'] = [(image.shape[1] // 2, image.shape[1] // 2),
-                                      (image.shape[0] - image.shape[1] // 2, image.shape[1] // 2)]
+            input_data['center_point'] = [(input_data['img'].shape[1] // 2, image.shape[1] // 2),
+                                      (input_data['img'].shape[0] - input_data['img'].shape[1] // 2, input_data['img'].shape[1] // 2)]
 
         input_data = self._resize(input_data)
 
         if not input_data['is_text_cnts']:
-            yield input_data, (input_data['img'].shape[0]//2, input_data['img'].shape[1]//2)
+            center_point = self._crop_flip_pad(input_data)
+            yield input_data, center_point
             return
         input_data = self._pad(input_data)
         input_data['img'] = np.transpose(input_data['img'], axes=[1, 0, 2])  # ？？？
