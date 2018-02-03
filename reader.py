@@ -212,8 +212,6 @@ def TD500_loader(start_point,end_point):
     pass
 
 if __name__ == '__main__':
-    # for res in SynthText_loader(10, 2, False):
-    #     print(res)
     TFRECORD_DIR = '/home/rjq/data_cleaned/tfrecord/'
 
     import tensorflow as tf
@@ -263,61 +261,49 @@ if __name__ == '__main__':
         }))
 
         writer.write(example.SerializeToString())
-        print('img', img)
-        print('cnt_point_num', cnt_point_num)
-        print('cnt_num', cnt_num)
-        print('contour', contour)
-        print('-'*10)
-        break
     writer.close()
 
-    record_iterator = tf.python_io.tf_record_iterator(path=tfrecords_filename)
-    for string_record in record_iterator:
-        example = tf.train.Example()
-        example.ParseFromString(string_record)
+    # record_iterator = tf.python_io.tf_record_iterator(path=tfrecords_filename)
+    # for string_record in record_iterator:
+    #     example = tf.train.Example()
+    #     example.ParseFromString(string_record)
+    #
+    #     img_index = int(example.features.feature['img_index']
+    #                  .int64_list
+    #                  .value[0])
+    #     img_string = (example.features.feature['img']
+    #                     .bytes_list
+    #                     .value[0])
+    #     contour_string = (example.features.feature['contour']
+    #                     .bytes_list
+    #                     .value[0])
+    #     img_row = int(example.features.feature['im_row']
+    #                  .int64_list
+    #                  .value[0])
+    #     img_col = int(example.features.feature['im_col']
+    #                  .int64_list
+    #                  .value[0])
+    #     cnt_num = int(example.features.feature['cnt_num']
+    #                  .int64_list
+    #                  .value[0])
+    #     cnt_point_num_string = (example.features.feature['cnt_point_num']
+    #                     .bytes_list
+    #                     .value[0])
+    #     cnt_point_max = int(example.features.feature['cnt_point_max']
+    #                  .int64_list
+    #                  .value[0])
+    #
+    #     img_1d = np.fromstring(img_string, dtype=np.uint8)
+    #     reconstructed_img = img_1d.reshape((img_row, img_col, -1))
+    #     img = reconstructed_img
+    #     cnt_point_num = np.fromstring(cnt_point_num_string, dtype=np.int64)
+    #
+    #     contour_1d = np.fromstring(contour_string, dtype=np.float32)
+    #     reconstructed_contour = contour_1d.reshape((cnt_num, cnt_point_max, 1, 2))
+    #     contour = []
+    #     for i in range(cnt_num):
+    #         contour.append(reconstructed_contour[i, :cnt_point_num[i], :, :])
 
-        img_index = int(example.features.feature['img_index']
-                     .int64_list
-                     .value[0])
-        img_string = (example.features.feature['img']
-                        .bytes_list
-                        .value[0])
-        contour_string = (example.features.feature['contour']
-                        .bytes_list
-                        .value[0])
-        img_row = int(example.features.feature['im_row']
-                     .int64_list
-                     .value[0])
-        img_col = int(example.features.feature['im_col']
-                     .int64_list
-                     .value[0])
-        cnt_num = int(example.features.feature['cnt_num']
-                     .int64_list
-                     .value[0])
-        cnt_point_num_string = (example.features.feature['cnt_point_num']
-                        .bytes_list
-                        .value[0])
-        cnt_point_max = int(example.features.feature['cnt_point_max']
-                     .int64_list
-                     .value[0])
-
-        img_1d = np.fromstring(img_string, dtype=np.uint8)
-        reconstructed_img = img_1d.reshape((img_row, img_col, -1))
-        img = reconstructed_img
-        print('reconstructed_img', reconstructed_img)
-        cnt_point_num = np.fromstring(cnt_point_num_string, dtype=np.int64)
-
-        contour_1d = np.fromstring(contour_string, dtype=np.float32)
-        reconstructed_contour = contour_1d.reshape((cnt_num, cnt_point_max, 1, 2))
-        contour = []
-        for i in range(cnt_num):
-            contour.append(reconstructed_contour[i, :cnt_point_num[i], :, :])
-
-        print('contour', contour)
-        print('cnt_num', cnt_num)
-        print('cnt_point_num', cnt_point_num)
-        print('img_index', img_index)
-        # print(img_string)
 
 
     # for res in Totaltext_loader(1, 0, False):
