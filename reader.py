@@ -268,6 +268,7 @@ if __name__ == '__main__':
     #
     # tfrecords_filename = TFRECORD_DIR+'totaltext_test.tfrecords'
     # writer = tf.python_io.TFRecordWriter(tfrecords_filename)
+    print('test')
     count = 0
     for res in Totaltext_loader(1, 0, False):
         count += 1
