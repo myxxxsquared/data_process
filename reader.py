@@ -3,6 +3,9 @@ import numpy as np
 import cv2
 import os
 import math
+import pickle
+
+os.environ["PYTHONHASHSEED"] = 1234
 
 
 SYNTHTEXT_DIR = '/home/rjq/data/SynthText/SynthText/'
@@ -515,6 +518,110 @@ if __name__ == '__main__':
             yield {'img_index': img_index,
                    'img': img,
                    'contour': [char_contour, word_contour]}
+
+    def othertext_to_pickle(save_dir, patch_num, n_th_patch, is_train, dataset):
+        print('start')
+        save_dir = save_dir.strip('/')
+        save_dir = save_dir + '/'
+        if not os.path.exists(TFRECORD_DIR+save_dir):
+            os.mkdir(TFRECORD_DIR+save_dir)
+        if is_train:
+            save_path = os.path.join(TFRECORD_DIR+save_dir,dataset+'_train')
+        else:
+            save_path = os.path.join(TFRECORD_DIR + save_dir, dataset + '_test')
+
+        print('get writer')
+        count = 0
+        generators = {'totaltext': Totaltext_loader,
+                      'msra': MSRA_TD_500_loader}
+        generator = generators[dataset]
+        print(generator)
+
+        for res in generator(patch_num, n_th_patch, is_train):
+            count += 1
+            print('processing ' +str(count))
+            img_index = res['img_index']
+            img = res['img']
+            img = np.array(img, np.uint8)
+            img_row = img.shape[0]
+            img_col = img.shape[1]
+            contour = res['contour']
+            cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))], np.int64)
+            cnt_num = len(contour)
+            cnt_point_max = int(max(cnt_point_num))
+            contour = _pad_cnt(contour, cnt_point_max)
+            contour = np.array(contour, np.float32)
+
+            data_instance={
+                'img_name':img_index,
+                'img':img,
+                'contour':contour,
+                'is_text_cnts':not(save_path.find('synthtext')>=0)
+            }
+
+            pickle.dump(data_instance,os.path.join(save_path,'%s.bin'%str(hash(img_index))))
+
+
+            print(img)
+            print(contour)
+
+    def synthtext_to_pickle(save_dir, patch_num, n_th_patch):
+        save_dir = save_dir.strip('/')
+        save_dir = save_dir + '/'
+        if not os.path.exists(TFRECORD_DIR + save_dir):
+            os.mkdir(TFRECORD_DIR + save_dir)
+        save_path = os.path.join(TFRECORD_DIR + save_dir,  'synthtext')
+
+        count = 0
+        for res in SynthText_loader(patch_num, n_th_patch, True):
+            count += 1
+            print('processing ' +str(count))
+            img_index = res['img_index']
+            img = res['img']
+            img = np.array(img, np.uint8)
+            img_row = img.shape[0]
+            img_col = img.shape[1]
+            contour = res['contour']
+            char_contour, word_contour = contour
+
+            char_cnt_point_num = np.array([len(char_contour[i]) for i in range(len(char_contour))], np.int64)
+            char_cnt_num = len(char_contour)
+            char_cnt_point_max = int(max(char_cnt_point_num))
+            char_contour = _pad_cnt(char_contour, char_cnt_point_max)
+            char_contour = np.array(char_contour, np.float32)
+
+            word_cnt_point_num = np.array([len(word_contour[i]) for i in range(len(word_contour))], np.int64)
+            word_cnt_num = len(word_contour)
+            word_cnt_point_max = int(max(word_cnt_point_num))
+            word_contour = _pad_cnt(word_contour, word_cnt_point_max)
+            word_contour = np.array(word_contour, np.float32)
+
+
+            example = tf.train.Example(features=tf.train.Features(feature={
+                'img_index': _int64_feature(img_index),
+                'img': _bytes_feature(img.tostring()),
+                'char_contour': _bytes_feature(char_contour.tostring()),
+                'word_contour': _bytes_feature(word_contour.tostring()),
+                'im_row': _int64_feature(img_row),
+                'im_col': _int64_feature(img_col),
+                'char_cnt_num': _int64_feature(char_cnt_num),
+                'char_cnt_point_num': _bytes_feature(char_cnt_point_num.tostring()),
+                'char_cnt_point_max': _int64_feature(char_cnt_point_max),
+                'word_cnt_num': _int64_feature(word_cnt_num),
+                'word_cnt_point_num': _bytes_feature(word_cnt_point_num.tostring()),
+                'word_cnt_point_max': _int64_feature(word_cnt_point_max)
+
+            }))
+
+            data_instance = {
+                'img_name': img_index,
+                'img': img,
+                'contour': [char_contour,word_contour],
+                'is_text_cnts': not (save_path.find('synthtext') >= 0)
+            }
+
+            pickle.dump(data_instance, os.path.join(save_path, '%s.bin' % str(hash(img_index))))
+
 
     print('123')
     othertext('msra_train/', 10000, 1, True, 'msra')
