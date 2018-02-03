@@ -233,7 +233,10 @@ if __name__ == '__main__':
     #synthtext
     tfrecords_filename = TFRECORD_DIR+'synthtext.tfrecords'
     writer = tf.python_io.TFRecordWriter(tfrecords_filename)
+    count = 0
     for res in Totaltext_loader(1, 0, True):
+        count += 1
+        print('processing ' +str(i))
         img_index = res['img_index']
         img = res['img']
         img = np.array(img, np.uint8)
@@ -244,9 +247,9 @@ if __name__ == '__main__':
         cnt_num = len(contour)
         cnt_point_max = int(max(cnt_point_num))
 
-        print('contour', contour)
+        # print('contour', contour)
         contour = _pad_cnt(contour, cnt_point_max)
-        print('contour', contour)
+        # print('contour', contour)
         contour = np.array(contour, np.float32)
 
         example = tf.train.Example(features=tf.train.Features(feature={
