@@ -239,7 +239,7 @@ if __name__ == '__main__':
         print(cnt_num)
         print(contour.tostring())
         print('-'*10)
-        a = list()
+        break
 
 
     for res in Totaltext_loader(1, 0, False):
