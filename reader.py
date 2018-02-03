@@ -228,7 +228,7 @@ if __name__ == '__main__':
     for res in Totaltext_loader(1, 0, True):
         im_name = res['img_name']
         img = res['img']
-        contour = res[contour]
+        contour = res['contour']
         row = img.shape[0]
         col = img.shape[1]
         print(contour)
