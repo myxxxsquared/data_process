@@ -261,8 +261,61 @@ if __name__ == '__main__':
             writer.write(example.SerializeToString())
         writer.close()
 
-    totaltext('totaltext_train.tfrecords', True)
-    totaltext('totaltext_test.tfrecords', False)
+    # totaltext('totaltext_train.tfrecords', True)
+    # totaltext('totaltext_test.tfrecords', False)
+
+    def synthtext(save_name):
+        tfrecords_filename = TFRECORD_DIR+save_name
+        writer = tf.python_io.TFRecordWriter(tfrecords_filename)
+        count = 0
+        for res in SynthText_loader(1, 0, True):
+            count += 1
+            print('processing ' +str(count))
+            img_index = res['img_index']
+            img = res['img']
+            img = np.array(img, np.uint8)
+            img_row = img.shape[0]
+            img_col = img.shape[1]
+            contour = res['contour']
+            char_contour, word_contour = contour
+
+            char_cnt_point_num = np.array([len(char_contour[i]) for i in range(len(char_contour))], np.int64)
+            char_cnt_num = len(char_contour)
+            char_cnt_point_max = int(max(char_cnt_point_num))
+            char_contour = _pad_cnt(char_contour, char_cnt_point_max)
+            char_contour = np.array(char_contour, np.float32)
+
+            word_cnt_point_num = np.array([len(word_contour[i]) for i in range(len(word_contour))], np.int64)
+            word_cnt_num = len(word_contour)
+            word_cnt_point_max = int(max(word_cnt_point_num))
+            word_contour = _pad_cnt(word_contour, word_cnt_point_max)
+            word_contour = np.array(word_contour, np.float32)
+
+
+            example = tf.train.Example(features=tf.train.Features(feature={
+                'img_index': _int64_feature(img_index),
+                'img': _bytes_feature(img.tostring()),
+                'char_contour': _bytes_feature(char_contour.tostring()),
+                'word_contour': _bytes_feature(word_contour.tostring()),
+                'im_row': _int64_feature(img_row),
+                'im_col': _int64_feature(img_col),
+                'char_cnt_num': _int64_feature(char_cnt_num),
+                'char_cnt_point_num': _bytes_feature(char_cnt_point_num.tostring()),
+                'char_cnt_point_max': _int64_feature(char_cnt_point_max),
+                'word_cnt_num': _int64_feature(word_cnt_num),
+                'word_cnt_point_num': _bytes_feature(word_cnt_point_num.tostring()),
+                'word_cnt_point_max': _int64_feature(word_cnt_point_max)
+
+            }))
+            writer.write(example.SerializeToString())
+        writer.close()
+
+
+    synthtext('synthtext.tfrecords')
+
+
+
+
 
     # record_iterator = tf.python_io.tf_record_iterator(path=tfrecords_filename)
     # for string_record in record_iterator:
