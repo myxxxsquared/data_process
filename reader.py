@@ -227,7 +227,7 @@ if __name__ == '__main__':
         new = []
         for cnt_ in cnt:
             if len(cnt_) < cnt_point_max:
-                new.append(np.concatenate((cnt_, np.zeros([cnt_point_max-len(cnt_, 1, 2)]))))
+                new.append(np.concatenate((cnt_, np.zeros([cnt_point_max-len(cnt_), 1, 2]))))
             else:
                 new.append(cnt_)
         return new
