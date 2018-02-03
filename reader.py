@@ -241,7 +241,7 @@ if __name__ == '__main__':
         break
 
 
-    for res in Totaltext_loader(1, 0, False):
-        print(res)
-    for res in Totaltext_loader(1, 0, True):
-        print(res)
+    # for res in Totaltext_loader(1, 0, False):
+    #     print(res)
+    # for res in Totaltext_loader(1, 0, True):
+    #     print(res)
