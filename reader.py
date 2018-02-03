@@ -225,16 +225,51 @@ if __name__ == '__main__':
         new = []
         for cnt_ in cnt:
             if len(cnt_) < cnt_point_max:
-                new.append(np.concatenate((cnt_, np.zeros([cnt_point_max-len(cnt_), 1, 2]))))
+                new.append(np.concatenate((cnt_, np.zeros([cnt_point_max-len(cnt_), 1, 2])), 0))
             else:
                 new.append(cnt_)
         return new
 
-    #synthtext
-    tfrecords_filename = TFRECORD_DIR+'synthtext.tfrecords'
+    #totaltext
+    tfrecords_filename = TFRECORD_DIR+'totaltext_train.tfrecords'
     writer = tf.python_io.TFRecordWriter(tfrecords_filename)
     count = 0
-    for res in SynthText_loader(1, 0, True):
+    for res in Totaltext_loader(1, 0, True):
+        count += 1
+        print('processing ' +str(count))
+        img_index = res['img_index']
+        img = res['img']
+        img = np.array(img, np.uint8)
+        img_row = img.shape[0]
+        img_col = img.shape[1]
+        contour = res['contour']
+        cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))], np.int64)
+        cnt_num = len(contour)
+        cnt_point_max = int(max(cnt_point_num))
+
+        # print('contour', contour)
+        contour = _pad_cnt(contour, cnt_point_max)
+        # print('contour', contour)
+        contour = np.array(contour, np.float32)
+
+        example = tf.train.Example(features=tf.train.Features(feature={
+            'img_index': _int64_feature(img_index),
+            'img': _bytes_feature(img.tostring()),
+            'contour': _bytes_feature(contour.tostring()),
+            'im_row': _int64_feature(img_row),
+            'im_col': _int64_feature(img_col),
+            'cnt_num': _int64_feature(cnt_num),
+            'cnt_point_num': _bytes_feature(cnt_point_num.tostring()),
+            'cnt_point_max': _int64_feature(cnt_point_max)
+        }))
+
+        writer.write(example.SerializeToString())
+    writer.close()
+
+    tfrecords_filename = TFRECORD_DIR+'totaltext_test.tfrecords'
+    writer = tf.python_io.TFRecordWriter(tfrecords_filename)
+    count = 0
+    for res in Totaltext_loader(1, 0, False):
         count += 1
         print('processing ' +str(count))
         img_index = res['img_index']
