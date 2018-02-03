@@ -59,30 +59,21 @@ class data_churn(object):
         pass
 
     def _data_labeling(self, img_name, img, cnts, is_text_cnts, left_top, right_bottom):
-        """
-        taking input of the given format:
-        {'img_name':str,   original_name
-        'img':np.uint8, raw_img, it can has arbitary size
-        'contour':List[the contour of each text instance],
-        'is_text_cnts': bool, ture for cnts of boxes,
-                            false for cnts of char
-                            important: if False, cnts = [char_cnts, text_cnts]
-        'left_top': tuple (x, y), x is row, y is col, please be careful about the order,
-        'right_bottom': tuple (x, y), x is row, y is col}
-
-
-        return the labelled data instance:
-        {'img_name':str,   original_name
-        'img':np.uint8,
-        'maps':[TR, 0/1 boolmap, 512*512,
-                TCL, 0/1 boolmap, 512*512
-                radius, float
-                cos(theta), float
-                sin(theta), float
-                curvature, float
-                ]
-        }
-        """
+        '''
+        :param img_name: pass to return directly, (to be determined, int or str)
+        :param img: ndarray, np.uint8,
+        :param cnts:
+                if is_text_cnts is True: list(ndarray), ndarray: dtype np.float32, shape [n, 1, 2]
+                if is_text_cnts is False: list(list(ndarray), list(ndarray)), for [char_cnts, text_cnts]
+        :param is_text_cnts: bool
+        :param left_top: for cropping
+        :param right_bottom: for cropping
+        :return:
+                img_name: passed down
+                img: np.ndarray np.uint8
+                maps: [TR, TCL, radius, cos_theta, sin_theta], all of them are 2-d array,
+                TR: np.bool; TCL: np.bool; radius: np.float32; cos_theta/sin_theta: np.float32
+        '''
 
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
             get_maps(img, cnts, is_text_cnts, self.thickness, self.crop_skel, self.neighbor)
