@@ -252,6 +252,7 @@ if __name__ == '__main__':
         print(contour.tostring())
         print('-'*10)
         break
+    writer.close()
 
     record_iterator = tf.python_io.tf_record_iterator(path=tfrecords_filename)
     for string_record in record_iterator:
