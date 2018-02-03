@@ -523,7 +523,7 @@ if __name__ == '__main__':
                    'contour': [char_contour, word_contour]}
 
     def othertext_to_pickle(save_dir, patch_num, n_th_patch, is_train, dataset):
-        print('start')
+        print('start', save_dir,n_th_patch)
         save_dir = save_dir.strip('/')
         save_dir = save_dir + '/'
         if not os.path.exists(TFRECORD_DIR+save_dir):
@@ -572,6 +572,7 @@ if __name__ == '__main__':
             #print(contour)
 
     def synthtext_to_pickle(save_dir, patch_num, n_th_patch):
+        print('start', save_dir, n_th_patch)
         save_dir = save_dir.strip('/')
         save_dir = save_dir + '/'
         if not os.path.exists(TFRECORD_DIR + save_dir):
