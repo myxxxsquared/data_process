@@ -532,6 +532,9 @@ if __name__ == '__main__':
         else:
             save_path = os.path.join(TFRECORD_DIR + save_dir, dataset + '_test')
 
+        if not os.path.exists(save_path):
+            os.mkdir(save_path)
+
         print('get writer')
         count = 0
         generators = {'totaltext': Totaltext_loader}
@@ -573,6 +576,8 @@ if __name__ == '__main__':
         if not os.path.exists(TFRECORD_DIR + save_dir):
             os.mkdir(TFRECORD_DIR + save_dir)
         save_path = os.path.join(TFRECORD_DIR + save_dir,  'synthtext')
+        if not os.path.exists(save_path):
+            os.mkdir(save_path)
 
         count = 0
         for res in SynthText_loader(patch_num, n_th_patch, True):
