@@ -250,17 +250,15 @@ class DataAugmentor(object):
             'left_top': tuple (x, y), x is row, y is col, please be careful about the order,
                  'right_bottom': tuple (x, y), x is row, y is col}
         """
-        yield copy.deepcopy(input_data), (input_data['img'].shape[0]//2,input_data['img'].shape[1]//2)
+        #yield copy.deepcopy(input_data), (input_data['img'].shape[0]//2,input_data['img'].shape[1]//2)
         input_data = self._enlarge(input_data)
-        yield copy.deepcopy(input_data), (input_data['img'].shape[0]//2,input_data['img'].shape[1]//2)
+        #yield copy.deepcopy(input_data), (input_data['img'].shape[0]//2,input_data['img'].shape[1]//2)
         if not input_data['is_text_cnts']:
             yield input_data,(input_data['img'].shape[0]//2,input_data['img'].shape[1]//2)
             return
-
         input_data = self._pad(input_data)
-        yield copy.deepcopy(input_data), (input_data['img'].shape[0]//2,input_data['img'].shape[1]//2)
-
-        input_data['img']=np.transpose(input_data['img'],axes=[1,0,2])#？？？
+        input_data['img'] = np.transpose(input_data['img'], axes=[1, 0, 2])  # ？？？
+        #yield copy.deepcopy(input_data), (input_data['img'].shape[0]//2,input_data['img'].shape[1]//2)
 
         for i in range(augment_rate):
             #yield self._pixel_augmentation(input_data), self._crop_flip_pad(input_data)
