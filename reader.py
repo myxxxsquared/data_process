@@ -239,11 +239,11 @@ if __name__ == '__main__':
         example = tf.train.Example(features=tf.train.Features(feature={
             'img_index': _int64_feature(img_index),
             'img': _bytes_feature(img.tostring()),
-            # 'contour': _bytes_feature(contour.tostring()),
-            # 'im_row': _int64_feature(img_row),
-            # 'im_col': _int64_feature(img_col),
-            # 'cnt_num': _int64_feature(cnt_num),
-            # 'cnt_point_num': _bytes_feature(cnt_point_num.tostring())
+            'contour': _bytes_feature(contour.tostring()),
+            'im_row': _int64_feature(img_row),
+            'im_col': _int64_feature(img_col),
+            'cnt_num': _int64_feature(cnt_num),
+            'cnt_point_num': _bytes_feature(cnt_point_num.tostring())
         }))
 
         writer.write(example.SerializeToString())
@@ -265,32 +265,32 @@ if __name__ == '__main__':
         img_string = (example.features.feature['img']
                         .bytes_list
                         .value[0])
-        # contour_string = (example.features.feature['contour']
-        #                 .bytes_list
-        #                 .value[0])
-        # img_row = int(example.features.feature['im_row']
-        #              .int64_list
-        #              .value[0])
-        # img_col = int(example.features.feature['im_col']
-        #              .int64_list
-        #              .value[0])
-        # cnt_num = int(example.features.feature['cnt_num']
-        #              .int64_list
-        #              .value[0])
-        # cnt_point_num_string = (example.features.feature['cnt_point_num']
-        #                 .bytes_list
-        #                 .value[0])
-        # img_1d = np.fromstring(img_string, dtype=np.uint8)
-        # reconstructed_img = img_1d.reshape((img_row, img_col, -1))
-        # print('reconstructed_img', reconstructed_img)
-        # cnt_point_num = np.fromstring(cnt_point_num_string, dtype=np.int32)
-        #
-        # contour_1d = np.fromstring(contour_string, dtype=np.float32)
-        # print('contour_1d', contour_1d)
-        # print('cnt_num', cnt_num)
-        # print('cnt_point_num', cnt_point_num)
-        print(img_index)
-        print(img_string)
+        contour_string = (example.features.feature['contour']
+                        .bytes_list
+                        .value[0])
+        img_row = int(example.features.feature['im_row']
+                     .int64_list
+                     .value[0])
+        img_col = int(example.features.feature['im_col']
+                     .int64_list
+                     .value[0])
+        cnt_num = int(example.features.feature['cnt_num']
+                     .int64_list
+                     .value[0])
+        cnt_point_num_string = (example.features.feature['cnt_point_num']
+                        .bytes_list
+                        .value[0])
+        img_1d = np.fromstring(img_string, dtype=np.uint8)
+        reconstructed_img = img_1d.reshape((img_row, img_col, -1))
+        print('reconstructed_img', reconstructed_img)
+        cnt_point_num = np.fromstring(cnt_point_num_string, dtype=np.int32)
+
+        contour_1d = np.fromstring(contour_string, dtype=np.float32)
+        print('contour_1d', contour_1d)
+        print('cnt_num', cnt_num)
+        print('cnt_point_num', cnt_point_num)
+        print('img_index', img_index)
+        # print(img_string)
 
 
     # for res in Totaltext_loader(1, 0, False):
