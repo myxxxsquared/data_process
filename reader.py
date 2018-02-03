@@ -197,6 +197,7 @@ def MSRA_TD_500_loader(patch_num, n_th_patch, is_train):
             end_point = (n_th_patch+1)*patch_length
 
         for index in range(start_point, end_point):
+            print(index)
             imname = imnames[index]
             origin = cv2.imread(MSRA_DIR+'train/'+imname+'.JPG')
             if origin is None:
