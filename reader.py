@@ -223,6 +223,15 @@ if __name__ == '__main__':
     def _int64_feature(value):
         return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
+    def _pad_cnt(cnt, cnt_point_max):
+        new = []
+        for cnt_ in cnt:
+            if len(cnt_) < cnt_point_max:
+                new.append(np.concatenate((cnt_, np.zeros([cnt_point_max-len(cnt_, 1, 2)]))))
+            else:
+                new.append(cnt_)
+        return new
+
     #synthtext
     tfrecords_filename = TFRECORD_DIR+'synthtext.tfrecords'
     writer = tf.python_io.TFRecordWriter(tfrecords_filename)
@@ -236,8 +245,9 @@ if __name__ == '__main__':
         cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))], np.int64)
         cnt_num = len(contour)
         cnt_point_max = int(max(cnt_point_num))
-        contour = [np.pad(cnt, (0, cnt_point_max-len(cnt)),'constant',
-                          constant_values=(np.zeros((1,2)))) for cnt in contour]
+
+        print('contour', contour)
+        contour = _pad_cnt(contour)
         print('contour', contour)
         contour = np.array(contour, np.float32)
 
