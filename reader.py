@@ -235,6 +235,9 @@ if __name__ == '__main__':
         contour = res['contour']
         cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))], np.int64)
         cnt_num = len(contour)
+        cnt_point_max = int(max(cnt_point_num))
+        contour = [np.pad(cnt, (0, cnt_point_max-len(cnt))) for cnt in contour]
+        print('contour', contour)
         contour = np.array(contour, np.float32)
 
         example = tf.train.Example(features=tf.train.Features(feature={
