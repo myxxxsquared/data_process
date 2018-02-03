@@ -236,8 +236,8 @@ if __name__ == '__main__':
         cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))], np.int64)
         cnt_num = len(contour)
         cnt_point_max = int(max(cnt_point_num))
-        contour = [np.pad(cnt, (0, cnt_point_max-len(cnt)),'constant', constant_values=(0, 0)
-                          ) for cnt in contour]
+        contour = [np.pad(cnt, (0, cnt_point_max-len(cnt)),'constant',
+                          constant_values=(np.zeros((1,2)))) for cnt in contour]
         print('contour', contour)
         contour = np.array(contour, np.float32)
 
