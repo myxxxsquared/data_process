@@ -248,7 +248,7 @@ class DataAugmentor(object):
         y = center1[1]+int(p*(center2[1]-center1[1]))
         return x, y
 
-    def augment(self, input_data, augment_rate=100, trans_rate=0.5):
+    def augment(self, input_, augment_rate=100, trans_rate=0.5):
         """
 
         :param input_data:
@@ -268,26 +268,26 @@ class DataAugmentor(object):
             'left_top': tuple (x, y), x is row, y is col, please be careful about the order,
                  'right_bottom': tuple (x, y), x is row, y is col}
         """
+        input_data=copy.deepcopy(input_)
         if input_data['img'].shape[0] < input_data['img'].shape[1]:
             input_data['center_point'] = [(input_data['img'].shape[0] // 2, input_data['img'].shape[0] // 2),
                                       (input_data['img'].shape[0] // 2, input_data['img'].shape[1] - input_data['img'].shape[0] // 2)]
         else:
-            input_data['center_point'] = [(input_data['img'].shape[1] // 2, image.shape[1] // 2),
+            input_data['center_point'] = [(input_data['img'].shape[1] // 2, input_data['img'].shape[1] // 2),
                                       (input_data['img'].shape[0] - input_data['img'].shape[1] // 2, input_data['img'].shape[1] // 2)]
 
         input_data = self._resize(input_data)
 
-        if not input_data['is_text_cnts']:
+        if (not input_data['is_text_cnts']) or (random() < (1 / augment_rate)):
             center_point = self._crop_flip_pad(input_data)
-            yield input_data, center_point
-            return
-        input_data = self._pad(input_data)
-        input_data['img'] = np.transpose(input_data['img'], axes=[1, 0, 2])  # ？？？
-
-        for i in range(augment_rate):
+            return input_data, center_point
+        else:
+            input_data = self._pad(input_data)
+            input_data['img'] = np.transpose(input_data['img'], axes=[1, 0, 2])  # ？？？
+            #for i in range(augment_rate):
             transformed = self._affine_transformation(self._pixel_augmentation(input_data), trans_rate=trans_rate)
             center_point = self._crop_flip_pad(transformed)
-            yield transformed, center_point
+            return transformed, center_point
 
     @staticmethod
     def demo(input_data, crop_point_starting):
@@ -330,15 +330,15 @@ if __name__ == '__main__':
         'is_text_cnts': 'False'
     }
 
-    image_output = DA.augment(input_)
-    DA.demo(input_, (0, 0))
+    #image_output = DA.augment(input_)
+    #DA.demo(input_, (0, 0))
     x = input('enter to see demo:')
     total = 0
     i_ = 0
     while i_ < 50:
         start = time.time()
-        image_, crop_point_starting = next(image_output)
+        image, crop_point_starting = DA.augment(input_)
         total += time.time()-start
-        DA.demo(image_, crop_point_starting)
+        DA.demo(image, crop_point_starting)
         i_ += 1
     print(total/i_)
