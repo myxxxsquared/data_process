@@ -320,6 +320,7 @@ if __name__ == '__main__':
         generators = {'totaltext': Totaltext_loader,
                       'msra': MSRA_TD_500_loader}
         generator = generators[dataset]
+        print(generator)
 
         for res in generator(patch_num, n_th_patch, is_train):
             count += 1
