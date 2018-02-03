@@ -258,7 +258,8 @@ if __name__ == '__main__':
             'im_row': _int64_feature(img_row),
             'im_col': _int64_feature(img_col),
             'cnt_num': _int64_feature(cnt_num),
-            'cnt_point_num': _bytes_feature(cnt_point_num.tostring())
+            'cnt_point_num': _bytes_feature(cnt_point_num.tostring()),
+            'cnt_point_max': _int64_feature(cnt_point_max)
         }))
 
         writer.write(example.SerializeToString())
@@ -296,6 +297,10 @@ if __name__ == '__main__':
         cnt_point_num_string = (example.features.feature['cnt_point_num']
                         .bytes_list
                         .value[0])
+        cnt_point_max = int(example.features.feature['cnt_point_max']
+                     .int64_list
+                     .value[0])
+
         img_1d = np.fromstring(img_string, dtype=np.uint8)
         reconstructed_img = img_1d.reshape((img_row, img_col, -1))
         img = reconstructed_img
@@ -303,7 +308,7 @@ if __name__ == '__main__':
         cnt_point_num = np.fromstring(cnt_point_num_string, dtype=np.int64)
 
         contour_1d = np.fromstring(contour_string, dtype=np.float32)
-        reconstructed_contour = contour_1d.reshape((cnt_num, cnt_point_num, 1, 2))
+        reconstructed_contour = contour_1d.reshape((cnt_num, cnt_point_max, 1, 2))
         contour = []
         for i in range(len(cnt_num)):
             contour.append(reconstructed_contour[i, :cnt_point_num[i], :, :])
