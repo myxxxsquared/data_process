@@ -242,7 +242,7 @@ if __name__ == '__main__':
             'im_row': _int64_feature(img_row),
             'im_col': _int64_feature(img_col),
             'cnt_num': _int64_feature(cnt_num),
-            'cnt_point_num': _bytes_feature(cnt_point_num)
+            'cnt_point_num': _bytes_feature(cnt_point_num.tostring())
         }))
 
         writer.write(example.SerializeToString())
