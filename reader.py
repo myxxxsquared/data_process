@@ -254,19 +254,40 @@ if __name__ == '__main__':
         break
 
     record_iterator = tf.python_io.tf_record_iterator(path=tfrecords_filename)
-
     for string_record in record_iterator:
         example = tf.train.Example()
         example.ParseFromString(string_record)
-        im_name = (example.features.feature['img_index']
-                                      .int64_list
-                                      .value[0])
-        img_string = (example.features.feature['img']
-                                      .bytes_list
-                                      .value[0])
 
-        print('img_index', img_index)
-        print('img_string', img)
+        img_index = int(example.features.feature['img_index']
+                     .int64_list
+                     .value[0])
+        img_string = (example.features.feature['img']
+                        .bytes_list
+                        .value[0])
+        contour_string = (example.features.feature['contour']
+                        .bytes_list
+                        .value[0])
+        img_row = int(example.features.feature['im_row']
+                     .int64_list
+                     .value[0])
+        img_col = int(example.features.feature['im_col']
+                     .int64_list
+                     .value[0])
+        cnt_num = int(example.features.feature['cnt_num']
+                     .int64_list
+                     .value[0])
+        cnt_point_num_string = (example.features.feature['cnt_point_num']
+                        .bytes_list
+                        .value[0])
+        img_1d = np.fromstring(img_string, dtype=np.uint8)
+        reconstructed_img = img_1d.reshape((img_row, img_col, -1))
+        print('reconstructed_img', reconstructed_img)
+        cnt_point_num = np.fromstring(cnt_point_num_string, dtype=np.int32)
+
+        contour_1d = np.fromstring(contour_string, dtype=np.float32)
+        print('contour_1d', contour_1d)
+        print('cnt_num', cnt_num)
+        print('cnt_point_num', cnt_point_num)
 
 
 
