@@ -532,8 +532,8 @@ if __name__ == '__main__':
 
         print('get writer')
         count = 0
-        generators = {'totaltext': Totaltext_loader,
-                      'msra': MSRA_TD_500_loader}
+        generators = {'totaltext': Totaltext_loader}
+                      # 'msra': MSRA_TD_500_loader}
         generator = generators[dataset]
         print(generator)
 
