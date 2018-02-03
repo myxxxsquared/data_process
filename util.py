@@ -325,7 +325,7 @@ if __name__ == '__main__':
     DA = DataAugmentor()
     input_ = {
         'img': image,
-        'contour': [np.cast['int32'](np.random.uniform(0, 1, (1000, 1, 2))*min(image.shape[:2])) for _ in range(1)],
+        'contour': [np.cast['int32'](np.random.uniform(0, 1, (10, 1, 2))*min(image.shape[:2])) for _ in range(1)],
         'type': 'tl',
         'is_text_cnts': 'False'
     }
@@ -341,4 +341,5 @@ if __name__ == '__main__':
         total += time.time()-start
         DA.demo(image, crop_point_starting)
         i_ += 1
+        #x=input()
     print(total/i_)
