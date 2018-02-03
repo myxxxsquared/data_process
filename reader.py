@@ -567,8 +567,8 @@ if __name__ == '__main__':
             pickle.dump(data_instance,open(os.path.join(save_path,'%s.bin'%str(hash(img_index))),'wb'))
 
 
-            print(img)
-            print(contour)
+            #print(img)
+            #print(contour)
 
     def synthtext_to_pickle(save_dir, patch_num, n_th_patch):
         save_dir = save_dir.strip('/')
