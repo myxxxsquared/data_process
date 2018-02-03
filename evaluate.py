@@ -1,11 +1,12 @@
 import numpy as np
+import cv2
 import math
 
 EVALUATE_DIR = '/home/rjq/data_cleaned/data_cleaned/evaluate/'
 def get_l2_dist(point1, point2):
     return ((point1[0]-point2[0])**2+(point1[1]-point2[1])**2)**0.5
 
-def evaluate(img, cnts, is_text_cnts, maps, is_va):
+def evaluate(img, cnts, is_text_cnts, maps, is_viz):
     '''
     :param img: ndarrray, np.uint8,
     :param cnts:
@@ -51,9 +52,9 @@ def evaluate(img, cnts, is_text_cnts, maps, is_va):
         instances.append(instance)
 
     # for each instance build its bounding box(represented by cnt)
-    cnts = []
+    reconstructed_cnts = []
     for instance in instances:
-        zeros = np.zeros((row, col))
+        zeros = np.zeros((row, col), np.uint8)
         for x, y in instance:
             r = radius[x, y]
             for i in range(int(r)+1):
@@ -62,6 +63,17 @@ def evaluate(img, cnts, is_text_cnts, maps, is_va):
                     if next_x < row and next_y < col and \
                         get_l2_dist((next_x, next_y), (x, y)) <= r:
                         zeros[next_x, next_y] = 1
+        _,cnt,_ = cv2.findContours(zeros, 1, 2)
+        if len(cnt) > 1:
+            print('more than one cnt')
+            for cnt_ in cnt:
+                reconstructed_cnts.append(cnt_)
+        else:
+            reconstructed_cnts.append(cnt)
+    reconstructed_cnts = [np.reshape(np.array(reconstructed_cnts, np.float32), (-1, 1, 2))]
+
+    if is_viz:
+        pass
 
 
 

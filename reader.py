@@ -289,7 +289,7 @@ def TD500_loader(start_point,end_point):
     pass
 
 if __name__ == '__main__':
-    TFRECORD_DIR = '/home/rjq/data_cleaned/tfrecord/'
+    TFRECORD_DIR = '/home/rjq/data_cleaned/pkl/'
 
     print('loaded')
     import tensorflow as tf
