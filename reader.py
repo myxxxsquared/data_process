@@ -231,7 +231,7 @@ if __name__ == '__main__':
         img_row = img.shape[0]
         img_col = img.shape[1]
         contour = res['contour']
-        cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))])
+        cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))], np.int32)
         cnt_num = len(contour)
         contour = np.array(contour)
 
