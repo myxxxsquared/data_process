@@ -234,10 +234,23 @@ if __name__ == '__main__':
         cnt_point_num = np.array([len(contour[i]) for i in range(len(contour))])
         cnt_num = len(contour)
         contour = np.array(contour)
-        print(cnt_point_num)
-        print(cnt_num)
-        print(contour.tostring())
-        print('-'*10)
+
+        example = tf.train.Example(feature=tf.train.Feature(feature={
+            'im_name': _bytes_feature(im_name),
+            'img': _bytes_feature(img.tostring()),
+            'contour': _bytes_feature(contour.tostring())
+            'im_row': _int64_feature(img_row),
+            'im_col': _int64_feature(img_col),
+            'cnt_num': _int64_feature(cnt_num),
+            'cnt_point_num': _bytes_feature(cnt_point_num)
+        }))
+
+        writer.write(example.SerializeToString())
+
+        # print(cnt_point_num)
+        # print(cnt_num)
+        # print(contour.tostring())
+        # print('-'*10)
         break
 
 
