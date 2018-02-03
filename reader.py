@@ -157,91 +157,91 @@ def Totaltext_loader(patch_num, n_th_patch, is_train):
                    'contour': cnts}
 
 
-def MSRA_TD_500_loader(patch_num, n_th_patch, is_train):
-    '''
-    :param patch_num:
-    :param n_th_patch:
-    :param is_train:
-    :return:
-    '''
-    def get_cnts_msra(textes):
-        cnts = []
-        def reverse_point(point):
-            return (point[1], point[0])
-        for text in textes:
-            points = []
-            text = [float(num) for num in text]
-            x, y, w, h, theta = text[2], text[3], text[4], text[5], text[6]
-            point1 = (x, y)
-            point2 = (x+w, y)
-            point3 = (x+w, y+h)
-            point4 = (x, y+h)
-            rotateMatrix = cv2.getRotationMatrix2D((x+w/2,y+h/2), -theta*180/np.pi,1)
-            point1 = np.matmul(rotateMatrix, point1+(1,))
-            point2 = np.matmul(rotateMatrix, point2+(1,))
-            point3 = np.matmul(rotateMatrix, point3+(1,))
-            point4 = np.matmul(rotateMatrix, point4+(1,))
-            points.append([point1])
-            points.append([point2])
-            points.append([point3])
-            points.append([point4])
-            cnts.append(np.array(points).astype(np.int32))
-        return cnts
-
-    if is_train:
-        imnames = list(set([name.split('.')[0] for name in os.listdir(MSRA_DIR + 'train/')]))
-        imnames = sorted(imnames)
-        pic_num = len(imnames)
-        patch_length = pic_num//patch_num+1
-        start_point = n_th_patch*patch_length
-        if (n_th_patch+1)*patch_length > pic_num:
-            end_point = pic_num
-        else:
-            end_point = (n_th_patch+1)*patch_length
-
-        for index in range(start_point, end_point):
-            print(index)
-            imname = imnames[index]
-            origin = cv2.imread(MSRA_DIR+'train/'+imname+'.JPG')
-            if origin is None:
-                print(imname + ' is missed')
-                continue
-            textes = [text.split() for text in open(MSRA_DIR+'train/'+imname+'.gt', 'r').readlines()]
-            if len(textes) == 0:
-                print('cnt for '+imname+'is missed')
-                continue
-            cnts = get_cnts_msra(textes)
-            origin, cnts = validate(origin, cnts)
-            yield {'img_index': index,
-                   'img': origin,
-                   'contour': cnts}
-
-    else:
-        imnames = list(set([name.split('.')[0] for name in os.listdir(MSRA_DIR + 'test/')]))
-        imnames = sorted(imnames)
-        pic_num = len(imnames)
-        patch_length = pic_num // patch_num + 1
-        start_point = n_th_patch * patch_length
-        if (n_th_patch + 1) * patch_length > pic_num:
-            end_point = pic_num
-        else:
-            end_point = (n_th_patch + 1) * patch_length
-
-        for index in range(start_point, end_point):
-            imname = imnames[index]
-            origin = cv2.imread(MSRA_DIR + 'test/' + imname + '.JPG')
-            if origin is None:
-                print(imname + ' is missed')
-                continue
-            textes = [text.split() for text in open(MSRA_DIR + 'test/' + imname + '.gt', 'r').readlines()]
-            if len(textes) == 0:
-                print('cnt for ' + imname + 'is missed')
-                continue
-            cnts = get_cnts_msra(textes)
-            origin, cnts = validate(origin, cnts)
-            yield {'img_index': index,
-                   'img': origin,
-                   'contour': cnts}
+# def MSRA_TD_500_loader(patch_num, n_th_patch, is_train):
+#     '''
+#     :param patch_num:
+#     :param n_th_patch:
+#     :param is_train:
+#     :return:
+#     '''
+#     def get_cnts_msra(textes):
+#         cnts = []
+#         def reverse_point(point):
+#             return (point[1], point[0])
+#         for text in textes:
+#             points = []
+#             text = [float(num) for num in text]
+#             x, y, w, h, theta = text[2], text[3], text[4], text[5], text[6]
+#             point1 = (x, y)
+#             point2 = (x+w, y)
+#             point3 = (x+w, y+h)
+#             point4 = (x, y+h)
+#             rotateMatrix = cv2.getRotationMatrix2D((x+w/2,y+h/2), -theta*180/np.pi,1)
+#             point1 = np.matmul(rotateMatrix, point1+(1,))
+#             point2 = np.matmul(rotateMatrix, point2+(1,))
+#             point3 = np.matmul(rotateMatrix, point3+(1,))
+#             point4 = np.matmul(rotateMatrix, point4+(1,))
+#             points.append([point1])
+#             points.append([point2])
+#             points.append([point3])
+#             points.append([point4])
+#             cnts.append(np.array(points).astype(np.int32))
+#         return cnts
+#
+#     if is_train:
+#         imnames = list(set([name.split('.')[0] for name in os.listdir(MSRA_DIR + 'train/')]))
+#         imnames = sorted(imnames)
+#         pic_num = len(imnames)
+#         patch_length = pic_num//patch_num+1
+#         start_point = n_th_patch*patch_length
+#         if (n_th_patch+1)*patch_length > pic_num:
+#             end_point = pic_num
+#         else:
+#             end_point = (n_th_patch+1)*patch_length
+#
+#         for index in range(start_point, end_point):
+#             print(index)
+#             imname = imnames[index]
+#             origin = cv2.imread(MSRA_DIR+'train/'+imname+'.JPG')
+#             if origin is None:
+#                 print(imname + ' is missed')
+#                 continue
+#             textes = [text.split() for text in open(MSRA_DIR+'train/'+imname+'.gt', 'r').readlines()]
+#             if len(textes) == 0:
+#                 print('cnt for '+imname+'is missed')
+#                 continue
+#             cnts = get_cnts_msra(textes)
+#             origin, cnts = validate(origin, cnts)
+#             yield {'img_index': index,
+#                    'img': origin,
+#                    'contour': cnts}
+#
+#     else:
+#         imnames = list(set([name.split('.')[0] for name in os.listdir(MSRA_DIR + 'test/')]))
+#         imnames = sorted(imnames)
+#         pic_num = len(imnames)
+#         patch_length = pic_num // patch_num + 1
+#         start_point = n_th_patch * patch_length
+#         if (n_th_patch + 1) * patch_length > pic_num:
+#             end_point = pic_num
+#         else:
+#             end_point = (n_th_patch + 1) * patch_length
+#
+#         for index in range(start_point, end_point):
+#             imname = imnames[index]
+#             origin = cv2.imread(MSRA_DIR + 'test/' + imname + '.JPG')
+#             if origin is None:
+#                 print(imname + ' is missed')
+#                 continue
+#             textes = [text.split() for text in open(MSRA_DIR + 'test/' + imname + '.gt', 'r').readlines()]
+#             if len(textes) == 0:
+#                 print('cnt for ' + imname + 'is missed')
+#                 continue
+#             cnts = get_cnts_msra(textes)
+#             origin, cnts = validate(origin, cnts)
+#             yield {'img_index': index,
+#                    'img': origin,
+#                    'contour': cnts}
 
 
 def ICDAR2017_loader(start_point,end_point):
