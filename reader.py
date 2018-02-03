@@ -238,7 +238,7 @@ if __name__ == '__main__':
         example = tf.train.Example(feature=tf.train.Feature(feature={
             'im_name': _bytes_feature(im_name),
             'img': _bytes_feature(img.tostring()),
-            'contour': _bytes_feature(contour.tostring())
+            'contour': _bytes_feature(contour.tostring()),
             'im_row': _int64_feature(img_row),
             'im_col': _int64_feature(img_col),
             'cnt_num': _int64_feature(cnt_num),
@@ -246,12 +246,27 @@ if __name__ == '__main__':
         }))
 
         writer.write(example.SerializeToString())
-
-        # print(cnt_point_num)
-        # print(cnt_num)
-        # print(contour.tostring())
-        # print('-'*10)
+        print(cnt_point_num)
+        print(cnt_num)
+        print(contour.tostring())
+        print('-'*10)
         break
+
+    record_iterator = tf.python_io.tf_record_iterator(path=tfrecords_filename)
+
+    for string_record in record_iterator:
+        example = tf.train.Example()
+        example.ParseFromString(string_record)
+        im_name = (example.features.feature['im_name']
+                                      .bytes_list
+                                      .value[0])
+        img_string = (example.features.feature['img']
+                                      .bytes_list
+                                      .value[0])
+
+        print('im_name', im_name)
+        print('img_string', img_string)
+
 
 
     # for res in Totaltext_loader(1, 0, False):
