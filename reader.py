@@ -479,5 +479,5 @@ if __name__ == '__main__':
                    'contour': [char_contour, word_contour]}
 
     for res in synthtext_decoder(TFRECORD_DIR+'synthtext.tfrecords'):
-        print(res)
+        print(res['img'])
         print('-----')
