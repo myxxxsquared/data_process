@@ -4,6 +4,7 @@ import cv2
 import os
 import math
 import pickle
+from multiprocessing import Pool
 
 
 os.environ["PYTHONHASHSEED"] = '1234'
@@ -658,13 +659,11 @@ if __name__ == '__main__':
     #     job.join()
     #
 
-    jobs = []
+    p=Pool(35)
     for i in range(patch_num):
-        jobs.append(Process(target=synthtext_to_pickle, args=('synthtext/', patch_num, i)))
-    for job in jobs:
-        job.start()
-    for job in jobs:
-        job.join()
+        p.apply_async(synthtext_to_pickle,args=('synthtext/', patch_num, i))
+    p.close()
+    p.join()
 
     # count = 0
     # for res in synthtext_decoder(TFRECORD_DIR+'synthtext.tfrecords'):
