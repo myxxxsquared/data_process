@@ -515,6 +515,7 @@ if __name__ == '__main__':
                    'img': img,
                    'contour': [char_contour, word_contour]}
 
+    print('123')
     othertext('msra_train/', 10000, 1, True, 'msra')
     for res in othertext_decoder(TFRECORD_DIR+'msra_train/0_train.tfrecords'):
         print(res['img'])
