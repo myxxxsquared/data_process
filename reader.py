@@ -234,7 +234,7 @@ if __name__ == '__main__':
     tfrecords_filename = TFRECORD_DIR+'synthtext.tfrecords'
     writer = tf.python_io.TFRecordWriter(tfrecords_filename)
     count = 0
-    for res in Totaltext_loader(1, 0, True):
+    for res in SynthText_loader(1, 0, True):
         count += 1
         print('processing ' +str(count))
         img_index = res['img_index']
