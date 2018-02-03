@@ -230,7 +230,7 @@ if __name__ == '__main__':
                 new.append(cnt_)
         return new
 
-    def totaltext(save_name, is_train)
+    def totaltext(save_name, is_train):
         tfrecords_filename = TFRECORD_DIR+save_name
         writer = tf.python_io.TFRecordWriter(tfrecords_filename)
         count = 0
