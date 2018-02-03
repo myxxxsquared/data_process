@@ -247,7 +247,7 @@ if __name__ == '__main__':
         cnt_point_max = int(max(cnt_point_num))
 
         print('contour', contour)
-        contour = _pad_cnt(contour)
+        contour = _pad_cnt(contour, cnt_point_max)
         print('contour', contour)
         contour = np.array(contour, np.float32)
 
