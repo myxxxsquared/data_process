@@ -630,6 +630,7 @@ if __name__ == '__main__':
     #     print(res['contour'])
 
     othertext_to_pickle('totaltext_train/', 1, 0, True, 'totaltext')
+
     # patch_num = 35
     # jobs = []
     # for i in range(patch_num):
