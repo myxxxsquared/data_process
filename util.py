@@ -11,7 +11,7 @@ class DataAugmentor(object):
     all data_augmentation defined below should take input as :
     {'img_name':str,   original_name
         'img':np.uint8,
-        'contour':List[np.array(the contour of each text instance), (n,1,2)],
+        'contour':List[np.array(the contour of each text instance), (n,1,2)], ---> np.array(num_TI, num_point, 1, 2)
         'is_text_cnts': bool, true for cnts of boxes,
                             false for cnts of char}
 
@@ -298,7 +298,7 @@ if __name__=='__main__':
     DA=DataAugmentor()
     input_={
         'img':image,
-        'contour':[np.cast['int32'](np.random.uniform(0,1,(2,1,2))*min(image.shape[:2]))]+[np.array([[[10,100]],[[100,200]]])],
+        'contour':[np.cast['int32'](np.random.uniform(0,1,(1000,1,2))*min(image.shape[:2])) for _ in range(1)],
         'type':'tl',
         'is_text_cnts':'False'
     }
