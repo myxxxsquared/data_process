@@ -214,8 +214,30 @@ def TD500_loader(start_point,end_point):
 if __name__ == '__main__':
     # for res in SynthText_loader(10, 2, False):
     #     print(res)
+    TFRECORD_DIR = '/home/rjq/data_cleaned/tfrecord/'
 
-    for res in Totaltext_loader(10, 2, True):
+    import tensorflow as tf
+    def _bytes_feature(value):
+        return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
+    def _int64_feature(value):
+        return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
+
+    #synthtext
+    tfrecords_filename = TFRECORD_DIR+'synthtext.tfrecords'
+    writer = tf.python_io.TFRecordWriter(tfrecords_filename)
+    for res in Totaltext_loader(1, 1, True):
+        im_name = res['img_name']
+        img = res['img']
+        contour = res[contour]
+        row = img.shape[0]
+        col = img.shape[1]
+        print(contour)
+        print(contour.tostring())
+        print('-'*10)
+
+
+
+    for res in Totaltext_loader(1, 1, False):
         print(res)
-    for res in Totaltext_loader(10, 2, False):
+    for res in Totaltext_loader(1, 1, True):
         print(res)
