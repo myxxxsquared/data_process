@@ -306,6 +306,7 @@ if __name__ == '__main__':
         return new
 
     def othertext(save_dir, patch_num, n_th_patch, is_train, dataset):
+        print('start')
         save_dir = save_dir.strip('/')
         save_dir = save_dir + '/'
         if not os.path.exists(TFRECORD_DIR+save_dir):
@@ -316,6 +317,7 @@ if __name__ == '__main__':
             tfrecords_filename = TFRECORD_DIR+save_dir+str(n_th_patch)+'_'+dataset+'_test.tfrecords'
 
         writer = tf.python_io.TFRecordWriter(tfrecords_filename)
+        print('get writer')
         count = 0
         generators = {'totaltext': Totaltext_loader,
                       'msra': MSRA_TD_500_loader}
