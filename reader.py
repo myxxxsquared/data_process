@@ -288,9 +288,10 @@ def TD500_loader(start_point,end_point):
 if __name__ == '__main__':
     TFRECORD_DIR = '/home/rjq/data_cleaned/tfrecord/'
 
+    print('loaded')
     import tensorflow as tf
     from multiprocessing import Process
-
+    print('loaded2')
     def _bytes_feature(value):
         return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
     def _int64_feature(value):
