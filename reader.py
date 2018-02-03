@@ -637,6 +637,8 @@ if __name__ == '__main__':
     #     print(res['contour'])
 
     othertext_to_pickle('totaltext_train/', 1, 0, True, 'totaltext')
+    othertext_to_pickle('totaltext_test/', 1, 0, False, 'totaltext')
+    # synthtext_to_pickle('synthtext', 0)
 
     # patch_num = 35
     # jobs = []
@@ -655,13 +657,13 @@ if __name__ == '__main__':
     # for job in jobs:
     #     job.join()
     #
-    # jobs = []
-    # for i in range(patch_num):
-    #     jobs.append(Process(target=synthtext, args=('synthtext/', patch_num, i)))
-    # for job in jobs:
-    #     job.start()
-    # for job in jobs:
-    #     job.join()
+    jobs = []
+    for i in range(patch_num):
+        jobs.append(Process(target=synthtext_to_pickle, args=('synthtext/', patch_num, i)))
+    for job in jobs:
+        job.start()
+    for job in jobs:
+        job.join()
 
     # count = 0
     # for res in synthtext_decoder(TFRECORD_DIR+'synthtext.tfrecords'):
