@@ -237,7 +237,7 @@ if __name__ == '__main__':
         contour = np.array(contour)
 
         example = tf.train.Example(features=tf.train.Features(feature={
-            'im_name': _int64_feature(img_index),
+            'img_index': _int64_feature(img_index),
             'img': _bytes_feature(img.tostring()),
             # 'contour': _bytes_feature(contour.tostring()),
             # 'im_row': _int64_feature(img_row),
