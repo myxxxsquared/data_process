@@ -348,21 +348,21 @@ if __name__ == '__main__':
     for job in jobs:
         job.join()
 
-    jobs = []
-    for i in range(patch_num):
-        jobs.append(Process(target=totaltext, args=('totaltext_test/', patch_num, i, False)))
-    for job in jobs:
-        job.start()
-    for job in jobs:
-        job.join()
-
-    jobs = []
-    for i in range(patch_num):
-        jobs.append(Process(target=synthtext, args=('synthtext/', patch_num, i)))
-    for job in jobs:
-        job.start()
-    for job in jobs:
-        job.join()
+    # jobs = []
+    # for i in range(patch_num):
+    #     jobs.append(Process(target=totaltext, args=('totaltext_test/', patch_num, i, False)))
+    # for job in jobs:
+    #     job.start()
+    # for job in jobs:
+    #     job.join()
+    #
+    # jobs = []
+    # for i in range(patch_num):
+    #     jobs.append(Process(target=synthtext, args=('synthtext/', patch_num, i)))
+    # for job in jobs:
+    #     job.start()
+    # for job in jobs:
+    #     job.join()
 
     # totaltext('totaltext_train/', True)
     # totaltext('totaltext_test/', False)
