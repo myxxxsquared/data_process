@@ -688,7 +688,7 @@ if __name__ == '__main__':
     import pickle
 
     for i in range(10):
-        res = pickle.load(open(PKL_DIR+'totaltext_train/'+str(i)'.bin', 'rb'))
+        res = pickle.load(open(PKL_DIR+'totaltext_train/'+str(i)+'.bin', 'rb'))
         print(res['img_name'],
               res['contour'],
               res['img'])
