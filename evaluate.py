@@ -90,7 +90,7 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         viz = cv2.drawContours(viz, cnts, -1, (255,255,255), 1)
         reconstructed_cnts = [np.array(cnt, np.int32) for cnt in reconstructed_cnts]
         viz = cv2.drawContours(viz, reconstructed_cnts, -1, (0,0,255), 1)
-        cv2.imwrite(EVALUATE_DIR+save_name, viz)
+        cv2.imwrite(EVALUATE_DIR+'1.jpg', viz)
 
     cnts_num = len(cnts)
     re_cnts_num = len(reconstructed_cnts)
