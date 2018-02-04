@@ -352,7 +352,8 @@ def get_maps_textbox(im, cnts, thickness,crop_skel, neighbor):
     mask_fills = []
     for cnt in cnts:
         cnt = np.squeeze(cnt)
-        point_list = [(point[0],point[1]) for point in cnt]
+        # change cordinate from cnt to point_list
+        point_list = [(point[1],point[0]) for point in cnt]
         skel_points, radius_dict_cnt, theta_dict_cnt = \
             find_mid_line_with_radius_theta(point_list, crop_skel, neighbor, sampling_num=500)
 
