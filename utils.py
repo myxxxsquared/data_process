@@ -672,6 +672,9 @@ if __name__ == '__main__':
     print(res['img_name'],
           res['contour'],
           res['img'])
+    im = res['img']
+    cnts = res['contour']
+    get_maps(im, cnts, True, 1.0, 1.0, 1.0)
 
 
     ######## test char_cnts and text_cnts ############
