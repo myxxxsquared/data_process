@@ -84,6 +84,13 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
 
     #TODO
     if is_viz:
+        def save_heatmap(save_name, map):
+            if np.max(map) != 0.0 or np.max(map) != 0:
+                cv2.imwrite(save_name, map.astype(np.uint8) * 255 / np.max(map))
+            else:
+                cv2.imwrite(save_name, map.astype(np.uint8))
+        save_heatmap('TR.jpg', TR)
+        save_heatmap('TCL.jpg', TCL)
         assert save_name is not None
         viz = np.zeros(img.shape,np.uint8)
         cnts = [np.array(cnt, np.int32) for cnt in cnts]
