@@ -74,6 +74,7 @@ def SynthText_loader(patch_num, n_th_patch, is_train):
         word_cnts = [np.array(word_cnt, np.float32) for word_cnt in word_cnts]
         cnts = [char_cnts, word_cnts]
         yield {'img_index': index,
+               'img_name': imname,
                'img': origin,
                'contour': cnts}
 
@@ -124,6 +125,7 @@ def Totaltext_loader(patch_num, n_th_patch, is_train):
             origin = np.array(origin, np.uint8)
             cnts = [np.array(cnt, np.float32) for cnt in cnts]
             yield {'img_index': index,
+                   'img_name': imname,
                    'img': origin,
                    'contour': cnts}
 
@@ -152,6 +154,7 @@ def Totaltext_loader(patch_num, n_th_patch, is_train):
             origin = np.array(origin, np.uint8)
             cnts = [np.array(cnt, np.float32) for cnt in cnts]
             yield {'img_index': index,
+                   'img_name': imname,
                    'img': origin,
                    'contour': cnts}
 
@@ -310,19 +313,20 @@ if __name__ == '__main__':
             count += 1
             print('processing ' +str(count))
             img_index = res['img_index']
+            img_name = res['img_name']
             img = res['img']
             contour = res['contour']
             img = np.array(img, np.uint8)
             contour = [np.array(cnt, np.float32) for cnt in contour]
 
             data_instance={
-                'img_name':img_index,
+                'img_name':img_name,
                 'img':img,
                 'contour':contour,
-                'is_text_cnts': False
+                'is_text_cnts': True
             }
 
-            pickle.dump(data_instance,open(os.path.join(save_path,'%s.bin'%str(hash(img_index))),'wb'))
+            pickle.dump(data_instance,open(os.path.join(save_path,str(img_index)+'.bin','wb')))
 
 
     def synthtext_to_pickle(save_dir, patch_num, n_th_patch):
@@ -337,6 +341,7 @@ if __name__ == '__main__':
             count += 1
             print('processing ' +str(count))
             img_index = res['img_index']
+            img_name = res['img_name']
             img = res['img']
             contour = res['contour']
             char_contour, word_contour = contour
@@ -346,18 +351,18 @@ if __name__ == '__main__':
             contour = [char_contour, word_contour]
 
             data_instance = {
-                'img_name': img_index,
+                'img_name': img_name,
                 'img': img,
                 'contour': contour,
-                'is_text_cnts': True
+                'is_text_cnts': False
             }
 
-            pickle.dump(data_instance, open(os.path.join(save_path, '%s.bin' % str(hash(img_index))), 'wb'))
+            pickle.dump(data_instance, open(os.path.join(save_path, str(img_index)+'.bin', 'wb')))
 
 
     #
     patch_num = 35
-    p=Pool(35)
+    p=Pool(patch_num)
     p.apply_async(othertext_to_pickle, args=('totaltext_train/', 1, 0, True, 'totaltext'))
     p.apply_async(othertext_to_pickle, args=('totaltext_test/', 1, 0, False, 'totaltext'))
     for i in range(patch_num):
