@@ -650,7 +650,8 @@ def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor):
     '''
 
     if is_textbox:
-        cnts = [np.array(cnt, np.float32) for cnt in cnts]
+        cnts = [np.array(cnt, np.int32) for cnt in cnts]
+
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
             get_maps_textbox(im,cnts, thickness, crop_skel, neighbor)
     else:
