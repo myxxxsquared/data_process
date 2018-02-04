@@ -668,8 +668,10 @@ if __name__ == '__main__':
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     import pickle
 
-    im, cnt = pickle.load(open(PKL_DIR+'totaltext_train/275.bin', 'rb'))
-    print(im, cnt)
+    res = pickle.load(open(PKL_DIR+'totaltext_train/275.bin', 'rb'))
+    print(res['img_name'],
+          res['contour'],
+          res['img'])
 
 
     ######## test char_cnts and text_cnts ############
