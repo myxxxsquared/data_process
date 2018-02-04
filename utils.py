@@ -776,6 +776,7 @@ if __name__ == '__main__':
             else:
                 cv2.imwrite(save_name, map.astype(np.uint8))
         cv2.imwrite(img_name+'.jpg', img)
+        print(img.shape)
         zeros = np.zeros_like(img)
         cnts = [np.array(cnt, np.int32) for cnt in cnts]
         zeros = cv2.drawContours(zeros, cnts, -1, (255,255,255), 1)
