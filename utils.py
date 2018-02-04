@@ -721,7 +721,10 @@ if __name__ == '__main__':
             cv2.imwrite(save_name, (map * 255 / np.max(map)).astype(np.uint8))
         else:
             cv2.imwrite(save_name, map.astype(np.uint8))
-
+    cv2.imwrite(img_name+'.jpg', img)
+    zeros = np.zeros_like(img)
+    zeros = cv2.drawContours(zeros, cnts, -1, (255,255,255), 1)
+    cv2.imwrite(img_name+'_box.jpg', zeros)
     save_heatmap(img_name+'_TR.jpg', TR)
     save_heatmap(img_name+'_TCL.jpg', TCL)
     save_heatmap(img_name+'_radius.jpg', radius)
