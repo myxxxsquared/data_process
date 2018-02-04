@@ -723,6 +723,7 @@ if __name__ == '__main__':
             cv2.imwrite(save_name, map.astype(np.uint8))
     cv2.imwrite(img_name+'.jpg', img)
     zeros = np.zeros_like(img)
+    cnts = [np.array(cnt, np.int32) for cnt in cnts]
     zeros = cv2.drawContours(zeros, cnts, -1, (255,255,255), 1)
     cv2.imwrite(img_name+'_box.jpg', zeros)
     save_heatmap(img_name+'_TR.jpg', TR)
