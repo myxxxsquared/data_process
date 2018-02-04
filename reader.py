@@ -326,7 +326,7 @@ if __name__ == '__main__':
                 'is_text_cnts': True
             }
 
-            pickle.dump(data_instance,open(os.path.join(save_path,str(img_index)+'.bin','wb')))
+            pickle.dump(data_instance,open(os.path.join(save_path,'%s.bin'%str(hash(img_index))),'wb'))
 
 
     def synthtext_to_pickle(save_dir, patch_num, n_th_patch):
@@ -357,12 +357,12 @@ if __name__ == '__main__':
                 'is_text_cnts': False
             }
 
-            pickle.dump(data_instance, open(os.path.join(save_path, str(img_index)+'.bin', 'wb')))
+            pickle.dump(data_instance, open(os.path.join(save_path, '%s.bin' % str(hash(img_index))), 'wb'))
 
 
     #
     patch_num = 35
-    p=Pool(patch_num)
+    p=Pool(35)
     p.apply_async(othertext_to_pickle, args=('totaltext_train/', 1, 0, True, 'totaltext'))
     p.apply_async(othertext_to_pickle, args=('totaltext_test/', 1, 0, False, 'totaltext'))
     for i in range(patch_num):
