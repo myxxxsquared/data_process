@@ -1,8 +1,7 @@
 import numpy as np
 import cv2
-import math
+from utils import get_maps
 
-EVALUATE_DIR = '/home/rjq/data_cleaned/data_cleaned/evaluate/'
 def get_l2_dist(point1, point2):
     return ((point1[0]-point2[0])**2+(point1[1]-point2[1])**2)**0.5
 
@@ -99,7 +98,7 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         viz = cv2.drawContours(viz, cnts, -1, (255,255,255), 1)
         reconstructed_cnts = [np.array(cnt, np.int32) for cnt in reconstructed_cnts]
         viz = cv2.drawContours(viz, reconstructed_cnts, -1, (0,0,255), 1)
-        cv2.imwrite('1.jpg', viz)
+        cv2.imwrite(save_name, viz)
 
     cnts_num = len(cnts)
     re_cnts_num = len(reconstructed_cnts)
@@ -182,32 +181,27 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
 
 
 if __name__ == '__main__':
+    EVALUATE_DIR = '/home/rjq/data_cleaned/data_cleaned/evaluate/'
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     import pickle
-    from utils import get_maps
 
-    def data_labeling(img_name, img, cnts, is_text_cnts):
-        '''
-        :param img_name: pass to return directly, (to be determined, int or str)
-        :param img: ndarray, np.uint8,
-        :param cnts:
-                if is_text_cnts is True: list(ndarray), ndarray: dtype np.float32, shape [n, 1, 2]
-                if is_text_cnts is False: list(list(ndarray), list(ndarray)), for [char_cnts, text_cnts]
-        :param is_text_cnts: bool
-        :param left_top: for cropping
-        :param right_bottom: for cropping
-        :return:
-                img_name: passed down
-                img: np.ndarray np.uint8
-                maps: [TR, TCL, radius, cos_theta, sin_theta], all of them are 2-d array,
-                TR: np.bool; TCL: np.bool; radius: np.float32; cos_theta/sin_theta: np.float32
-        '''
+    for i in range(9, 10):
+        res = pickle.load(open(PKL_DIR+'synthtext/'+str(i)+'.bin', 'rb'))
+        print(res['img_name'],
+              res['contour'],
+              res['img'])
+
+        img_name = res['img_name']
+        img_name = img_name.replace('/', '_')
+        img = res['img']
+        cnts = res['contour']
+        is_text_cnts = res['is_text_cnts']
 
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
-            get_maps(img, cnts, is_text_cnts, thickness=0.15, crop_skel=1.0, neighbor=2)
+            get_maps(img, cnts, is_text_cnts, 0.15, 1.0, 2)
         TR = mask_fills[0]
         for i in range(1, len(mask_fills)):
-            TR = np.bitwise_and(TR, mask_fills[i])
+            TR = np.bitwise_or(TR, mask_fills[i])
         TCL = np.zeros(img.shape[:2], np.bool)
         for point, _ in score_dict.items():
             TCL[point[0], point[1]] = True
@@ -220,29 +214,30 @@ if __name__ == '__main__':
         sin_theta = np.zeros(img.shape[:2], np.float32)
         for point, s_t in sin_theta_dict.items():
             sin_theta[point[0], point[1]] = s_t
-        # TR = TR[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
-        # TCL = TCL[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
-        # radius = radius[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
-        # cos_theta = cos_theta[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
-        # sin_theta = sin_theta[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
+
+
+        def save_heatmap(save_name, map):
+            map = np.array(map, np.float32)
+            if np.max(map) != 0.0 or np.max(map) != 0:
+                cv2.imwrite(save_name, (map * 255 / np.max(map)).astype(np.uint8))
+            else:
+                cv2.imwrite(save_name, map.astype(np.uint8))
+        # cv2.imwrite(img_name+'.jpg', img)
+        # char_cnts, text_cnts = cnts
+        # zeros = np.zeros_like(img)
+        # char_cnts = [np.array(cnt, np.int32) for cnt in char_cnts]
+        # text_cnts = [np.array(cnt, np.int32) for cnt in text_cnts]
+        # zeros = cv2.drawContours(zeros, char_cnts, -1, (0,0,255), 1)
+        # zeros = cv2.drawContours(zeros, text_cnts, -1, (255,255,255), 1)
+        # cv2.imwrite(img_name+'_box.jpg', zeros)
+        # save_heatmap(img_name+'_TR.jpg', TR)
+        # save_heatmap(img_name+'_TCL.jpg', TCL)
+        # save_heatmap(img_name+'_radius.jpg', radius)
+        # save_heatmap(img_name+'_cos_theta.jpg', cos_theta)
+        # save_heatmap(img_name+'_sin_theta.jpg', sin_theta)
 
         maps = [TR, TCL, radius, cos_theta, sin_theta]
-        return img_name, img, maps
-
-    res = pickle.load(open(PKL_DIR+'totaltext_train/275.bin', 'rb'))
-    img_name = res['img_name']
-    im = res['img']
-    cnts = res['contour']
-    is_text_cnts = res['is_text_cnts']
-
-    img_name, img, maps = data_labeling(img_name, im, cnts, is_text_cnts)
-
-    final_precision, final_recall = evaluate(img, cnts, is_text_cnts, maps,
-                                             True, img_name)
-    print(final_precision, final_recall)
-
-
-
+        evaluate(img, cnts, is_text_cnts, maps, True, img_name)
 
 
 
