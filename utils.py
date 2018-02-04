@@ -9,7 +9,7 @@ warnings.simplefilter('ignore', np.RankWarning)
 
 def get_l2_dist(point1, point2):
     '''
-    :param point1: tuple (x, y)
+    :param point1: tuple (x, y) int or float
     :param point2: tuple (x, y)
     :return: float
     '''
@@ -18,7 +18,7 @@ def get_l2_dist(point1, point2):
 
 def get_l1_dist(point1, point2):
     '''
-    :param point1: tuple (x, y)
+    :param point1: tuple (x, y) int or float
     :param point2: tuple (x, y)
     :return: float
     '''
@@ -26,6 +26,12 @@ def get_l1_dist(point1, point2):
 
 
 def get_cos(point, point1, point2):
+    '''
+    :param point: tuple (x, y) int or float
+    :param point1: tuple (x, y) int or float
+    :param point2: tuple (x, y) int or float
+    :return: float
+    '''
     # point is pivot
     vec1 = (point[0]-point1[0], point[1]-point1[1])
     vec2 = (point[0]-point2[0], point[1]-point2[1])
@@ -33,6 +39,12 @@ def get_cos(point, point1, point2):
 
 
 def get_shortest_dist(point, point1, point2):
+    '''
+    :param point: tuple (x, y) int or float
+    :param point1: tuple (x, y) int or float
+    :param point2: tuple (x, y) int or float
+    :return: float
+    '''
     dist1 = get_l2_dist(point, point1)
     dist2 = get_l2_dist(point, point2)
     if get_cos(point1, point, point2) < 0 or get_cos(point2, point, point1) < 0:
@@ -43,11 +55,11 @@ def get_shortest_dist(point, point1, point2):
 
 def get_theta(points_list):
     '''
-    :param points_list: list(tuple), tuple (x, y)
+    :param points_list: list(tuple), tuple (x, y) int or float
     :return: float
     '''
     if len(points_list) < 2:
-        assert AttributeError('get_theta need at least 2 points')
+        raise AttributeError('get_theta need at least 2 points')
     xs, ys = [], []
     for (x,y) in points_list:
         xs.append(x)
@@ -61,8 +73,8 @@ def get_theta(points_list):
 
 def get_radius(point, cnt):
     '''
-    :param point: (x, y), row, col
-    :param cnt: cnt: numpy.ndarray, shape (n, 1, 2) or (n, 2), dtype int32, point order (col, row)
+    :param point: (x, y), int or float, x needs to be row, y needs to be col
+    :param cnt: cnt: numpy.ndarray, shape (n, 1, 2) or (n, 2), dtype float32 or int32, point order (col, row)
     :return:
     '''
     cnt = np.squeeze(cnt)
@@ -78,14 +90,15 @@ def get_radius(point, cnt):
 def is_validate_cnts(im, cnts):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
-    :param cnts: list(numpy.ndarray), shape (n, 1, 2), dtype float32, point order (col, row)
+    :param cnts: list(numpy.ndarray), shape (n, 1, 2) or (n, 2), dtype float32 or int32, point order (col, row)
     :return: bool
     '''
     cols, rows = [], []
     for cnt in cnts:
+        cnt = np.squeeze(cnt)
         for i in range(len(cnt)):
-            cols.append(cnt[i][0][0])
-            rows.append(cnt[i][0][1])
+            cols.append(cnt[i][0])
+            rows.append(cnt[i][1])
     col_max = max(cols)
     row_max = max(rows)
     im_row, im_col = im.shape[0]-1, im.shape[1]-1
@@ -98,7 +111,7 @@ def is_validate_cnts(im, cnts):
 def is_validate_point(im, point):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
-    :param point: (x, y) where x is row, y is col
+    :param point: (x, y) int or float , x needs to be row, y needs to be col
     :return: bool
     '''
     row, col = im.shape[:2]
@@ -107,8 +120,8 @@ def is_validate_point(im, point):
 
 def is_inside_point_cnt(point, cnt):
     '''
-    :param point: (x, y) where x is row, y is col
-    :param cnt: numpy.ndarray, shape (n, 1, 2), dtype float32, point order (col, row)
+    :param point: (x, y) int or float, where x is row, y is col
+    :param cnt: numpy.ndarray, shape (n, 1, 2), dtype int32 or float32, point order (col, row)
     :return: bool
     '''
     cnt = np.array(cnt, np.float32)
@@ -119,18 +132,19 @@ def is_inside_point_cnt(point, cnt):
 def validate(im, cnts):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
-    :param cnts: list(numpy.ndarray), shape (n, 1, 2), dtype int32, point order (col, row)
+    :param cnts: list(numpy.ndarray), shape (n, 1, 2) or (n,2), dtype int32 or float32, point order (col, row)
     :return:
         im: numpy.ndarray, shape (row, col, 3), dtype uint 8
         cnts: list(numpy.ndarray), shape (n, 1, 2), dtype float32, point order (col, row)
     '''
     cols, rows = [], []
     for cnt in cnts:
+        cnt = np.squeeze(cnt)
         for i in range(len(cnt)):
-            cols.append(cnt[i][0][0])
-            rows.append(cnt[i][0][1])
-    col_max = max(cols)
-    row_max = max(rows)
+            cols.append(cnt[i][0])
+            rows.append(cnt[i][1])
+    col_max = int(max(cols))
+    row_max = int(max(rows))
     im_row, im_col = im.shape[0]-1, im.shape[1]-1
     if im_row < row_max:
         temp = np.zeros([row_max-im_row, im.shape[1], im.shape[2]])
@@ -138,6 +152,7 @@ def validate(im, cnts):
     if im_col < col_max:
         temp = np.zeros([im.shape[0], col_max-im_col, im.shape[2]])
         im = np.concatenate((im, temp), 1)
+    cnts = [np.array(np.reshape(cnt, (-1,1,2)), np.float32) for cnt in cnts]
     return im, cnts
 
 
@@ -149,23 +164,25 @@ def resize(im, cnts, row, col):
     :param col: int
     :return:
         im: numpy.ndarray, shape (row, col, 3), dtype uint 8
-        cnts: list(numpy.ndarray), shape (n, 1, 2), dtype int32, point order (col, row)
+        cnts: list(numpy.ndarray), shape (n, 1, 2), dtype float32, point order (col, row)
     '''
     im_row, im_col = im.shape[0], im.shape[1]
     im_ = cv2.resize(im, (row, col), interpolation = cv2.INTER_CUBIC)
     cnts_ = []
     for cnt in cnts:
-        temp = np.zeros_like(cnt)
+        cnt = np.reshape(cnt, (-1,1,2))
+        temp = np.zeros_like(cnt, np.float32)
         for i in range(len(cnt)):
-            temp[i][0][0] = int(cnt[i][0][0]*col/im_col)
-            temp[i][0][1] = int(cnt[i][0][1]*row/im_row)
+            temp[i][0][0] = cnt[i][0][0]*col/im_col
+            temp[i][0][1] = cnt[i][0][1]*row/im_row
         cnts_.append(temp)
+    cnts_ = [np.array(np.reshape(cnt, (-1,1,2)), np.float32) for cnt in cnts_]
     return im_, cnts_
 
 
 def sampling(p1,p2,sampling_num):
     '''
-    :param p1: point(x,y)
+    :param p1: point(x,y) int or float
     :param p2: point(x,y)
     :param sampling_num:
     :return: points_list, list(point), float
@@ -176,6 +193,13 @@ def sampling(p1,p2,sampling_num):
 
 
 def get_cos_with_4(p1,p2,p3,p4):
+    '''
+    :param p1: point(x,y) int or float
+    :param p2: point(x,y) int or float
+    :param p3: point(x,y) int or float
+    :param p4: point(x,y) int or float
+    :return: float
+    '''
     vector_1 = (p2[0]-p1[0],p2[1]-p1[1])
     vector_2 = (p4[0]-p3[0], p4[1]-p3[1])
     if get_l2_dist(vector_2,(0,0))*get_l2_dist(vector_1,(0,0)) == 0.0:
@@ -279,8 +303,9 @@ def find_mid_line_with_radius_theta(points_list, crop_skel, neighbor, sampling_n
         for point in center_line:
             theta_dict[point] = theta
     else:
+        neighbor = int(neighbor)
         for p,point in enumerate(center_line):
-            theta = get_theta(list(set(center_line[max(p-2,0):p+2])))
+            theta = get_theta(list(set(center_line[max(p-neighbor,0):p+neighbor])))
             theta_dict[point] = theta
 
     temp = []
@@ -308,7 +333,7 @@ def find_mid_line_with_radius_theta(points_list, crop_skel, neighbor, sampling_n
 def get_maps_textbox(im, cnts, thickness,crop_skel, neighbor):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
-    :param cnts: list(numpy.ndarray), shape (n, 1, 2), dtype int32, point order (col, row)
+    :param cnts: list(numpy.ndarray), shape (n, 1, 2), dtype int32 or float32, point order (col, row)
     :return: skels_points, radius_dict, cos_theta_dict, sin_theta_dict, theta_dict, mask_fills
         skels_points: list(tuple), tuple (x, y), x y are int
         radius_dict: dict, key is tuple (x, y), value is float
@@ -379,7 +404,7 @@ def get_maps_textbox(im, cnts, thickness,crop_skel, neighbor):
 def find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500):
     '''
     :param char_cnt_per_text: list(tuple(point, char_cnt)); point: (x, y) int;
-                            char_cnt: np.ndarray(4,2) # suppose to be 4
+                            char_cnt: np.ndarray(4,2) or (4,1,2)
     :param crop_skel:
     :param neighbor:
     :param sampling_num:
@@ -437,7 +462,7 @@ def get_center_point(cnt):
 def reorder(char_cnt_per_text):
     '''
     :param char_cnt_per_text: list(tuple(point, char_cnt)); point: (x, y) int;
-            char_cnt: np.ndarray(4,2) # suppose to be 4
+            char_cnt: np.ndarray(4,2) or(4,1,2)
     :return: char_cnt_per_text, same as the input
     '''
     # assert char_cnt_per_text[0][1].shape == (4, 2), char_cnt_per_text[0]
@@ -466,7 +491,7 @@ def reorder(char_cnt_per_text):
         remain.remove(end)
 
     # assert that there is only one path in the tree
-    count = [0 for i in range(len_)]
+    count = [0 for _ in range(len_)]
     for start, end in path:
         count[start]+=1
         count[end]+=1
@@ -546,8 +571,6 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
 
     while len(text_cnts) != 0:
         text_cnt = text_cnts.pop(0)
-        # print('start----------')
-        # print('text_cnt', text_cnt)
         char_cnt_per_text = []
 
         char_cnt_index = []
@@ -557,27 +580,27 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
                 char_cnt_per_text.append((center_point, char_cnt))
                 char_cnt_index.append(index)
 
-        # print('strat reorder')
         char_cnt_per_text = reorder(char_cnt_per_text)
 
-        # print('char_cnt_per_text', char_cnt_per_text)
+        # text_cnts are recalled only char_cnt_per_text returns None
+        # in case that text_cnts overlap with each other
         if char_cnt_per_text is None:
             text_cnts.append(text_cnt)
         else:
-            # print('pop out those claimed char_cnt')
+            # delete claimed char_cnts
             char_cnts_temp = []
             for i in range(len(char_cnts)):
                 if i not in char_cnt_index:
                     char_cnts_temp.append(char_cnts[i])
             char_cnts = char_cnts_temp
 
-            # print('start get mid line')
+            # it char_cnt is a text_cnt itself,
+            # treat it as a text_cnt and call the function for text_cnt
             if len(char_cnt_per_text) == 1:
                 point_list = [(point[0], point[1]) for point in char_cnt_per_text[0][1]]
                 # print(point_list)
                 skel_points, radius_dict_cnt, theta_dict_cnt = \
                     find_mid_line_with_radius_theta(point_list, crop_skel, neighbor)
-                pass
             else:
                 skel_points, radius_dict_cnt, theta_dict_cnt = \
                     find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500)
@@ -588,36 +611,28 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
                 theta_dict[point] = theta
             [skels_points.append(point) for point in skel_points]
 
-            # print('start getting reconstruct')
             mask_fill = reconstruct(skel_points, radius_dict_cnt, im.shape[0], im.shape[1])
             mask_fills.append(mask_fill.astype(np.bool))
-
-            # print('start getting belt')
 
             # get belt
             belt = set()
             connect_dict = {}
-            # print('skel_num', len(skel_points))
 
             for point in skel_points:
                 r = int(thickness*radius_dict[point])
                 for i in range(-r, r+1):
                     for j in range(-r, r+1):
                         candidate = (point[0]+i, point[1]+j)
-                        # print(is_validate_point(im, candidate))
                         if is_validate_point(im, candidate):
                             belt.add(candidate)
                             if candidate not in connect_dict:
                                 connect_dict[candidate] = []
                             connect_dict[candidate].append(point)
-                    t2 = time.time()
 
-            # print('start getting score')
             # score map
             for point in belt:
                 score_dict[point] = True
 
-            # print('start getting theta, radius')
             # theta, raidus map
             for point in belt:
                 min_dist = 1e8
@@ -631,23 +646,28 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
                 sin_theta_dict[point] = math.sin(theta_dict[min_dist_point[0], min_dist_point[1]])
                 radius_dict[point] = radius_dict[min_dist_point[0], min_dist_point[1]]-min_dist
 
-            # print('end------')
-
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
 
 def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
-    :param if is_textbox is True:
-            cnts: list(numpy.ndarray), shape (n, 1, 2), dtype int32, point order (col, row) for textbox
+    :param cnts:
+           if is_textbox is True:
+            cnts: list(numpy.ndarray), shape (n, 1, 2), dtype int32 or float32, point order (col, row) for textbox
            if is_textbox is False:
-           cnts: [char_cnts, text_cnts], both char_cnts and text_cnts are the same as the text_cnts above
-    :return:
+            cnts: [char_cnts, text_cnts], both char_cnts and text_cnts are the same as the text_cnts above
+    :param is_textbox: bool
+    :param thickness: float, used to span a belt from center(skeleton) line, used both for (text_cnts) and (char&text cnts)
+    :param crop_skel: float, used to crop the head and end of center(skeleton) line, used for (text_cnts)
+    :param neighbor: int, used to determine the range for fitting aline to get theta, used both for (text_cnts) and (char&text cnts)
+    :return: skels_points: list(tuple) center(skeleton) line, (x, y) int, x is row, y is col
+             radius_dict, score_dict, cos_theta_dict, sin_theta_dict: key is tuple(x,y), value is float
+             mask_fills: list(np.ndarray) shape(row,col,1), dtype bool
     '''
 
     if is_textbox:
-        cnts = [np.array(cnt, np.int32) for cnt in cnts]
+        cnts = [np.array(cnt, np.float32) for cnt in cnts]
 
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
             get_maps_textbox(im,cnts, thickness, crop_skel, neighbor)
@@ -662,19 +682,51 @@ def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor):
 
 
 if __name__ == '__main__':
-    pass
     ########### test text_cnts ############
-    # PKL_DIR = '/home/rjq/data_cleaned/pkl/'
-    # import pickle
-    #
-    # res = pickle.load(open(PKL_DIR+'totaltext_train/275.bin', 'rb'))
-    # print(res['img_name'],
-    #       res['contour'],
-    #       res['img'])
-    # im = res['img']
-    # cnts = res['contour']
-    # get_maps(im, cnts, True, 1.0, 1.0, 1.0)
 
+    PKL_DIR = '/home/rjq/data_cleaned/pkl/'
+    import pickle
+
+    res = pickle.load(open(PKL_DIR+'totaltext_train/275.bin', 'rb'))
+    print(res['img_name'],
+          res['contour'],
+          res['img'])
+
+    img_name = res['img_name']
+    img = res['img']
+    cnts = res['contour']
+    is_text_cnts = res['is_text_cnts']
+
+    skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
+        get_maps(img, cnts, is_text_cnts, 0.15, 1.0, 2)
+    TR = mask_fills[0]
+    for i in range(1, len(mask_fills)):
+        TR = np.bitwise_or(TR, mask_fills[i])
+    TCL = np.zeros(img.shape[:2], np.bool)
+    for point, _ in score_dict.items():
+        TCL[point[0], point[1]] = True
+    radius = np.zeros(img.shape[:2], np.float32)
+    for point, r in radius_dict.items():
+        radius[point[0], point[1]] = r
+    cos_theta = np.zeros(img.shape[:2], np.float32)
+    for point, c_t in cos_theta_dict.items():
+        cos_theta[point[0], point[1]] = c_t
+    sin_theta = np.zeros(img.shape[:2], np.float32)
+    for point, s_t in sin_theta_dict.items():
+        sin_theta[point[0], point[1]] = s_t
+
+
+    def save_heatmap(save_name, map):
+        if np.max(map) != 0.0 or np.max(map) != 0:
+            cv2.imwrite(save_name, (map * 255 / np.max(map)).astype(np.uint8))
+        else:
+            cv2.imwrite(save_name, map.astype(np.uint8))
+
+    save_heatmap(img_name+'_TR.jpg', TR)
+    save_heatmap(img_name+'_TCL.jpg', TCL)
+    save_heatmap(img_name+'_radius.jpg', radius)
+    save_heatmap(img_name+'_cos_theta.jpg', cos_theta)
+    save_heatmap(img_name+'_sin_theta.jpg', sin_theta)
 
     ######## test char_cnts and text_cnts ############
     # def save_heatmap(save_name, map):
@@ -744,30 +796,4 @@ if __name__ == '__main__':
     #     # save_heatmap(str(index)+'_radius.jpg', radius)
     #     save_heatmap(str(index)+'_cos_theta.jpg', cos_theta)
     #     # save_heatmap(str(index)+'_sin_theta.jpg', sin_theta)
-
-    # cnt = [[423.16126397,439.60847343],
-    #  [450.66887979,  466.31976402],
-    # [479.76190495,
-    # 504.59927448],
-    # [418.80489444 , 450.13965942]]
-    #
-    # points=[
-    # (327, 328),
-    # (248, 325),
-    # (378, 317),
-    # (363, 357),
-    # (315, 350),
-    # (353, 373),
-    # (289, 254),
-    # (148, 131),
-    # (103, 98),
-    # (46, 72),
-    # (98, 62),
-    # (91, 57),
-    # (91, 127),
-    # (61, 103),
-    # (127, 85)]
-
-    # for point in points:
-    #     print(is_inside_point_cnt(point, cnt))
 

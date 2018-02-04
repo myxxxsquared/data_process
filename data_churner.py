@@ -79,7 +79,7 @@ class data_churn(object):
             get_maps(img, cnts, is_text_cnts, self.thickness, self.crop_skel, self.neighbor)
         TR = mask_fills[0]
         for i in range(1, len(mask_fills)):
-            TR = np.bitwise_and(TR, mask_fills[i])
+            TR = np.bitwise_or(TR, mask_fills[i])
         TCL = np.zeros(img.shape[:2], np.bool)
         for point, _ in score_dict.items():
             TCL[point[0], point[1]] = True
