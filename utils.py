@@ -665,7 +665,8 @@ def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor):
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
+
     ########### test text_cnts ############
     # PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     # import pickle
