@@ -346,7 +346,8 @@ def get_maps_textbox(im, cnts, thickness,crop_skel, neighbor):
 
         print('start filling mask')
         mask_fill = np.zeros(im.shape[:2], dtype = np.uint8)
-        mask_fill = cv2.fillPoly(mask_fill, pts = [cnt], color=(255))
+        cnt_ = np.array(cnt_, np.int32)
+        mask_fill = cv2.fillPoly(mask_fill, pts = [cnt_], color=(255))
         mask_fills.append(mask_fill.copy().astype(np.bool))
 
         print('getting belt')
@@ -354,9 +355,9 @@ def get_maps_textbox(im, cnts, thickness,crop_skel, neighbor):
         belt = set()
         connect_dict = {}
         for point in skel_points:
-            thickness = int(thickness*radius_dict[point])
-            for i in range(-thickness, thickness+1):
-                for j in range(-thickness, thickness+1):
+            r = int(thickness*radius_dict[point])
+            for i in range(-r, r+1):
+                for j in range(-r, r+1):
                     candidate = (point[0]+i, point[1]+j)
                     if is_validate_point(im, candidate):
                         belt.add(candidate)
