@@ -261,7 +261,7 @@ def find_mid_line_with_radius_theta(points_list, crop_skel, neighbor, sampling_n
             p=int(random()*len(point_list_one))
             point_list_one.pop(p)
 
-    center_line = []
+    center_line = set()
     radius_dict = {}
     theta_dict = {}
 
@@ -269,22 +269,16 @@ def find_mid_line_with_radius_theta(points_list, crop_skel, neighbor, sampling_n
         x1, y1 = point_list_one[i][0], point_list_one[i][1]
         x2, y2 = point_list_two[i][0], point_list_two[i][1]
         x, y = int(round((x1+x2)/2)), int(round((y1+y2)/2))
-        center_line.append((x,y))
+        center_line.add((x,y))
         radius_dict[(x,y)] = get_l2_dist((x1,y1),(x2,y2))/2
-
+    center_line=list(center_line)
     if len(points_list) == 4:
-        theta = get_theta(center_line)
+        theta = get_theta([center_line[0]]+center_line[::30]+[center_line[-1]])
         for point in center_line:
             theta_dict[point] = theta
     else:
-        for point in center_line:
-            width = int(neighbor * radius_dict[point])
-            fit_points = []
-            for fit_point in center_line:
-                if point[0] - width <= fit_point[0] <= point[0] + width and \
-                        point[1] - width <= fit_point[1] <= point[1] + width:
-                    fit_points.append(fit_point)
-            theta = get_theta(fit_points)
+        for p,point in enumerate(center_line):
+            theta = get_theta(list(set(center_line[max(p-2,0):p+2])))
             theta_dict[point] = theta
 
     temp = []
@@ -339,7 +333,7 @@ def get_maps_textbox(im, cnts, thickness,crop_skel, neighbor):
             radius_dict[point] = radius
         for point, theta in theta_dict_cnt.items():
             theta_dict[point] = theta
-        [skels_points.append(point) for point in skel_points]
+        for point in skel_points:skels_points.append(point)
 
         mask_fill = np.zeros(im.shape[:2], dtype = np.uint8)
         cnt_ = np.array(cnt, np.int32)
@@ -665,8 +659,8 @@ def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor):
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
 
-# if __name__ == '__main__':
-
+if __name__ == '__main__':
+    pass
     ########### test text_cnts ############
     # PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     # import pickle
