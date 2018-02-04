@@ -346,7 +346,7 @@ def get_maps_textbox(im, cnts, thickness,crop_skel, neighbor):
 
         print('start filling mask')
         mask_fill = np.zeros(im.shape[:2], dtype = np.uint8)
-        cnt_ = np.array(cnt_, np.int32)
+        cnt_ = np.array(cnt, np.int32)
         mask_fill = cv2.fillPoly(mask_fill, pts = [cnt_], color=(255))
         mask_fills.append(mask_fill.copy().astype(np.bool))
 
