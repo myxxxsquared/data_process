@@ -91,7 +91,7 @@ def Totaltext_loader(patch_num, n_th_patch, is_train):
         for i in range(len(mat['polygt'])):
             temp = []
             for x, y in zip(mat['polygt'][i][1][0], mat['polygt'][i][3][0]):
-                temp.append([x,y])
+                temp.append([y,x])
             temp = np.expand_dims(np.array(temp), 1).astype(np.float32)
             cnts.append(temp)
         cnts_ = []
@@ -326,7 +326,7 @@ if __name__ == '__main__':
                 'is_text_cnts': True
             }
 
-            pickle.dump(data_instance,open(os.path.join(save_path,'%s.bin'%str(hash(img_index))),'wb'))
+            pickle.dump(data_instance,open(os.path.join(save_path,'{}.bin'.format((img_index))),'wb'))
 
 
     def synthtext_to_pickle(save_dir, patch_num, n_th_patch):
@@ -357,7 +357,7 @@ if __name__ == '__main__':
                 'is_text_cnts': False
             }
 
-            pickle.dump(data_instance, open(os.path.join(save_path, '%s.bin' % str(hash(img_index))), 'wb'))
+            pickle.dump(data_instance, open(os.path.join(save_path, '{}.bin'.format((img_index))), 'wb'))
 
 
     #
