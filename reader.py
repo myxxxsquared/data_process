@@ -290,7 +290,7 @@ def TD500_loader(start_point,end_point):
 if __name__ == '__main__':
     import pickle
     import tensorflow as tf
-    from multiprocessing import Process
+    from multiprocessing import Pool
 
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     os.environ["PYTHONHASHSEED"] = '1234'
