@@ -667,16 +667,16 @@ def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor):
 
 if __name__ == '__main__':
     ########### test text_cnts ############
-    PKL_DIR = '/home/rjq/data_cleaned/pkl/'
-    import pickle
-
-    res = pickle.load(open(PKL_DIR+'totaltext_train/275.bin', 'rb'))
-    print(res['img_name'],
-          res['contour'],
-          res['img'])
-    im = res['img']
-    cnts = res['contour']
-    get_maps(im, cnts, True, 1.0, 1.0, 1.0)
+    # PKL_DIR = '/home/rjq/data_cleaned/pkl/'
+    # import pickle
+    #
+    # res = pickle.load(open(PKL_DIR+'totaltext_train/275.bin', 'rb'))
+    # print(res['img_name'],
+    #       res['contour'],
+    #       res['img'])
+    # im = res['img']
+    # cnts = res['contour']
+    # get_maps(im, cnts, True, 1.0, 1.0, 1.0)
 
 
     ######## test char_cnts and text_cnts ############
