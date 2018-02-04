@@ -39,7 +39,7 @@ def validate(im, cnts):
     return im, cnts
 
 
-def SynthText_loader(patch_num, n_th_patch, is_train):
+def SynthText_loader(patch_num, n_th_patch):
     '''
     :param patch_num:
     :param n_th_patch:
@@ -91,7 +91,7 @@ def Totaltext_loader(patch_num, n_th_patch, is_train):
         for i in range(len(mat['polygt'])):
             temp = []
             for x, y in zip(mat['polygt'][i][1][0], mat['polygt'][i][3][0]):
-                temp.append([x,y ])
+                temp.append([x,y])
             temp = np.expand_dims(np.array(temp), 1).astype(np.float32)
             cnts.append(temp)
         cnts_ = []
@@ -296,7 +296,6 @@ if __name__ == '__main__':
     from multiprocessing import Pool
 
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
-    os.environ["PYTHONHASHSEED"] = '1234'
     generators = {'totaltext': Totaltext_loader}
 
 
@@ -337,7 +336,7 @@ if __name__ == '__main__':
         save_path = PKL_DIR + save_dir
 
         count = 0
-        for res in SynthText_loader(patch_num, n_th_patch, True):
+        for res in SynthText_loader(patch_num, n_th_patch):
             count += 1
             print('processing ' +str(count))
             img_index = res['img_index']
@@ -363,8 +362,8 @@ if __name__ == '__main__':
     #
     patch_num = 35
     p=Pool(35)
-    p.apply_async(othertext_to_pickle, args=('totaltext_train/', 1, 0, True, 'totaltext'))
-    p.apply_async(othertext_to_pickle, args=('totaltext_test/', 1, 0, False, 'totaltext'))
+    # p.apply_async(othertext_to_pickle, args=('totaltext_train/', 1, 0, True, 'totaltext'))
+    # p.apply_async(othertext_to_pickle, args=('totaltext_test/', 1, 0, False, 'totaltext'))
     for i in range(patch_num):
         p.apply_async(synthtext_to_pickle,args=('synthtext/', patch_num, i))
     p.close()
