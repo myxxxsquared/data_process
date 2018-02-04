@@ -669,13 +669,22 @@ if __name__ == '__main__':
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     import pickle
 
-    res = pickle.load(open(PKL_DIR+'totaltext_train/275.bin', 'rb'))
+    # res = pickle.load(open(PKL_DIR+'totaltext_train/275.bin', 'rb'))
+    # print(res['img_name'],
+    #       res['contour'],
+    #       res['img'])
+    # im = res['img']
+    # cnts = res['contour']
+    # get_maps(im, cnts, True, 1.0, 1.0, 1.0)
+
+
+    res = pickle.load(open(PKL_DIR+'synthtext/275.bin', 'rb'))
     print(res['img_name'],
           res['contour'],
           res['img'])
     im = res['img']
     cnts = res['contour']
-    get_maps(im, cnts, True, 1.0, 1.0, 1.0)
+    get_maps(im, cnts, False, 1.0, 1.0, 1.0)
 
 
     ######## test char_cnts and text_cnts ############
