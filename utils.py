@@ -684,8 +684,8 @@ if __name__ == '__main__':
           res['img'])
     im = res['img']
     cnts = res['contour']
-    get_maps(im, cnts, False, 1.0, 1.0, 1.0)
-
+    print('--------')
+    print(get_maps(im, cnts, False, 1.0, 1.0, 1.0))
 
     ######## test char_cnts and text_cnts ############
     # def save_heatmap(save_name, map):
