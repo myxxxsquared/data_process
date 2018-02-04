@@ -86,6 +86,7 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
     if is_viz:
         assert save_name is not None
         viz = np.zeros(img.shape)
+        cnts = [np.array(cnt, np.int32) for cnt in cnts]
         viz = cv2.drawContours(viz, cnts, -1, (255,255,255), 1)
         viz = cv2.drawContours(viz, reconstructed_cnts, -1, (0,0,255), 1)
         cv2.imwrite(EVALUATE_DIR+save_name, viz)
