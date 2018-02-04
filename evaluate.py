@@ -95,8 +95,8 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
     cnts_num = len(cnts)
     re_cnts_num = len(reconstructed_cnts)
 
-    cnts_mask = [None for i in range(cnts_num)]
-    re_cnts_mask = [None for j in range(re_cnts_num)]
+    cnts_mask = []
+    re_cnts_mask = []
 
     for i in range(cnts_num):
         zeros = np.zeros(img.shape[:2], np.uint8)
