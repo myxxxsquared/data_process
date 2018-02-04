@@ -327,7 +327,7 @@ def get_maps_textbox(im, cnts, thickness,crop_skel, neighbor):
     mask_fills = []
     for cnt in cnts:
         cnt = np.squeeze(cnt)
-        point_list = [(point[1],point[0]) for point in cnt]
+        point_list = [(point[0],point[1]) for point in cnt]
         skel_points, radius_dict_cnt, theta_dict_cnt = \
             find_mid_line_with_radius_theta(point_list, crop_skel, neighbor, sampling_num=500)
 
@@ -340,7 +340,7 @@ def get_maps_textbox(im, cnts, thickness,crop_skel, neighbor):
         mask_fill = np.zeros(im.shape[:2], dtype = np.uint8)
         cnt_ = np.array(cnt, np.int32)
         mask_fill = cv2.fillPoly(mask_fill, pts = [cnt_], color=(255))
-        mask_fills.append(mask_fill.copy().astype(np.bool))
+        mask_fills.append(mask_fill.copy().astype(np.bool).transpose(1,0))
 
         # get belt
         belt = set()
@@ -573,7 +573,7 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
 
             # print('start get mid line')
             if len(char_cnt_per_text) == 1:
-                point_list = [(point[1], point[0]) for point in char_cnt_per_text[0][1]]
+                point_list = [(point[0], point[1]) for point in char_cnt_per_text[0][1]]
                 # print(point_list)
                 skel_points, radius_dict_cnt, theta_dict_cnt = \
                     find_mid_line_with_radius_theta(point_list, crop_skel, neighbor)
