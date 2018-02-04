@@ -217,7 +217,6 @@ def find_mid_line_and_radius(points_list,dist='l1',sampling_num=500):
     theta_dict = temp_theta_dict
     return center_line, radius_dict, theta_dict
 
-
 def get_maps_algo3(im, cnts):
     global error
     if DIST == 'l1': dist_func = get_l1_dist
@@ -305,4 +304,3 @@ def get_maps(im, cnts, algo = 3):
     mask_fill = np.expand_dims(np.sign(np.sum(mask_fills, 0)).astype(MAP_TYPE),2)
     maps = np.concatenate((maps, mask_fill), 2)
     return mask_skel, maps
-
