@@ -173,7 +173,7 @@ if __name__ == '__main__':
     import pickle
     from utils import get_maps
 
-    def data_labeling(img_name, img, cnts, is_text_cnts, left_top, right_bottom):
+    def data_labeling(img_name, img, cnts, is_text_cnts):
         '''
         :param img_name: pass to return directly, (to be determined, int or str)
         :param img: ndarray, np.uint8,
@@ -207,11 +207,11 @@ if __name__ == '__main__':
         sin_theta = np.zeros(img.shape[:2], np.float32)
         for point, s_t in sin_theta_dict.items():
             sin_theta[point[0], point[1]] = s_t
-        TR = TR[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
-        TCL = TCL[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
-        radius = radius[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
-        cos_theta = cos_theta[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
-        sin_theta = sin_theta[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
+        # TR = TR[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
+        # TCL = TCL[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
+        # radius = radius[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
+        # cos_theta = cos_theta[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
+        # sin_theta = sin_theta[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
 
         maps = [TR, TCL, radius, cos_theta, sin_theta]
         return img_name, img, maps
