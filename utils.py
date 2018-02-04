@@ -687,7 +687,7 @@ if __name__ == '__main__':
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     import pickle
 
-    res = pickle.load(open(PKL_DIR+'totaltext_train/275.bin', 'rb'))
+    res = pickle.load(open(PKL_DIR+'totaltext_train/9.bin', 'rb'))
     print(res['img_name'],
           res['contour'],
           res['img'])
