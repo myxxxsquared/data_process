@@ -261,7 +261,8 @@ def find_mid_line_with_radius_theta(points_list, crop_skel, neighbor, sampling_n
             p=int(random()*len(point_list_one))
             point_list_one.pop(p)
 
-    center_line = set()
+    center_line_set = set()
+    center_line = []
     radius_dict = {}
     theta_dict = {}
 
@@ -269,9 +270,10 @@ def find_mid_line_with_radius_theta(points_list, crop_skel, neighbor, sampling_n
         x1, y1 = point_list_one[i][0], point_list_one[i][1]
         x2, y2 = point_list_two[i][0], point_list_two[i][1]
         x, y = int(round((x1+x2)/2)), int(round((y1+y2)/2))
-        center_line.add((x,y))
+        if not((x,y) in center_line_set):
+            center_line.append((x,y))
+        center_line_set.add((x,y))
         radius_dict[(x,y)] = get_l2_dist((x1,y1),(x2,y2))/2
-    center_line=list(center_line)
     if len(points_list) == 4:
         theta = get_theta([center_line[0]]+center_line[::30]+[center_line[-1]])
         for point in center_line:
