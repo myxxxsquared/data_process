@@ -330,21 +330,26 @@ def get_maps_textbox(im, cnts, thickness,crop_skel, neighbor):
     sin_theta_dict = {}
     mask_fills = []
     for cnt in cnts:
+        print('-*10 start')
         cnt = np.squeeze(cnt)
         point_list = [(point[1],point[0]) for point in cnt]
+        print('start finding mid line')
         skel_points, radius_dict_cnt, theta_dict_cnt = \
             find_mid_line_with_radius_theta(point_list, crop_skel, neighbor, sampling_num=500)
 
+        print('start wrting radius and theta')
         for point, radius in radius_dict_cnt.items():
             radius_dict[point] = radius
         for point, theta in theta_dict_cnt.items():
             theta_dict[point] = theta
         [skels_points.append(point) for point in skel_points]
 
+        print('start filling mask')
         mask_fill = np.zeros(im.shape[:2], dtype = np.uint8)
         mask_fill = cv2.fillPoly(mask_fill, pts = [cnt], color=(255))
         mask_fills.append(mask_fill.copy().astype(np.bool))
 
+        print('getting belt')
         # get belt
         belt = set()
         connect_dict = {}
@@ -359,10 +364,12 @@ def get_maps_textbox(im, cnts, thickness,crop_skel, neighbor):
                             connect_dict[candidate] = []
                         connect_dict[candidate].append(point)
 
+        print('geting score')
         # score map
         for point in belt:
             score_dict[point] = True
 
+        print('geting theta radius on the belt')
         # theta, raidus map
         for point in belt:
             min_dist = 1e8
@@ -669,23 +676,14 @@ if __name__ == '__main__':
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     import pickle
 
-    # res = pickle.load(open(PKL_DIR+'totaltext_train/275.bin', 'rb'))
-    # print(res['img_name'],
-    #       res['contour'],
-    #       res['img'])
-    # im = res['img']
-    # cnts = res['contour']
-    # get_maps(im, cnts, True, 1.0, 1.0, 1.0)
-
-
-    res = pickle.load(open(PKL_DIR+'synthtext/275.bin', 'rb'))
+    res = pickle.load(open(PKL_DIR+'totaltext_train/275.bin', 'rb'))
     print(res['img_name'],
           res['contour'],
           res['img'])
     im = res['img']
     cnts = res['contour']
-    print('--------')
-    print(get_maps(im, cnts, False, 1.0, 1.0, 1.0))
+    get_maps(im, cnts, True, 1.0, 1.0, 1.0)
+
 
     ######## test char_cnts and text_cnts ############
     # def save_heatmap(save_name, map):
