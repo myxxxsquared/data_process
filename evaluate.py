@@ -72,6 +72,7 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz):
             reconstructed_cnts.append(cnt)
     reconstructed_cnts = [np.reshape(np.array(reconstructed_cnts, np.float32), (-1, 1, 2))]
 
+    #TODO
     if is_viz:
         pass
 
