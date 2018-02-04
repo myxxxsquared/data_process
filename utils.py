@@ -685,11 +685,62 @@ def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor):
 if __name__ == '__main__':
     ########### test text_cnts ############
 
+    # PKL_DIR = '/home/rjq/data_cleaned/pkl/'
+    # import pickle
+    #
+    # for i in range(9, 10):
+    #     res = pickle.load(open(PKL_DIR+'totaltext_train/'+str(i)+'.bin', 'rb'))
+    #     print(res['img_name'],
+    #           res['contour'],
+    #           res['img'])
+    #
+    #     img_name = res['img_name']
+    #     img = res['img']
+    #     cnts = res['contour']
+    #     is_text_cnts = res['is_text_cnts']
+    #
+    #     skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
+    #         get_maps(img, cnts, is_text_cnts, 0.15, 1.0, 2)
+    #     TR = mask_fills[0]
+    #     for i in range(1, len(mask_fills)):
+    #         TR = np.bitwise_or(TR, mask_fills[i])
+    #     TCL = np.zeros(img.shape[:2], np.bool)
+    #     for point, _ in score_dict.items():
+    #         TCL[point[0], point[1]] = True
+    #     radius = np.zeros(img.shape[:2], np.float32)
+    #     for point, r in radius_dict.items():
+    #         radius[point[0], point[1]] = r
+    #     cos_theta = np.zeros(img.shape[:2], np.float32)
+    #     for point, c_t in cos_theta_dict.items():
+    #         cos_theta[point[0], point[1]] = c_t
+    #     sin_theta = np.zeros(img.shape[:2], np.float32)
+    #     for point, s_t in sin_theta_dict.items():
+    #         sin_theta[point[0], point[1]] = s_t
+    #
+    #
+    #     def save_heatmap(save_name, map):
+    #         map = np.array(map, np.float32)
+    #         if np.max(map) != 0.0 or np.max(map) != 0:
+    #             cv2.imwrite(save_name, (map * 255 / np.max(map)).astype(np.uint8))
+    #         else:
+    #             cv2.imwrite(save_name, map.astype(np.uint8))
+    #     cv2.imwrite(img_name+'.jpg', img)
+    #     zeros = np.zeros_like(img)
+    #     cnts = [np.array(cnt, np.int32) for cnt in cnts]
+    #     zeros = cv2.drawContours(zeros, cnts, -1, (255,255,255), 1)
+    #     cv2.imwrite(img_name+'_box.jpg', zeros)
+    #     save_heatmap(img_name+'_TR.jpg', TR)
+    #     save_heatmap(img_name+'_TCL.jpg', TCL)
+    #     save_heatmap(img_name+'_radius.jpg', radius)
+    #     save_heatmap(img_name+'_cos_theta.jpg', cos_theta)
+    #     save_heatmap(img_name+'_sin_theta.jpg', sin_theta)
+
+    ######## test char_cnts and text_cnts ############
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     import pickle
 
     for i in range(9, 10):
-        res = pickle.load(open(PKL_DIR+'totaltext_train/'+str(i)+'.bin', 'rb'))
+        res = pickle.load(open(PKL_DIR+'synthtext/'+str(i)+'.bin', 'rb'))
         print(res['img_name'],
               res['contour'],
               res['img'])
@@ -734,73 +785,3 @@ if __name__ == '__main__':
         save_heatmap(img_name+'_radius.jpg', radius)
         save_heatmap(img_name+'_cos_theta.jpg', cos_theta)
         save_heatmap(img_name+'_sin_theta.jpg', sin_theta)
-
-    ######## test char_cnts and text_cnts ############
-    # def save_heatmap(save_name, map):
-    #     if np.max(map) != 0.0 or np.max(map) != 0:
-    #         cv2.imwrite(save_name, (map * 255 / np.max(map)).astype(np.uint8))
-    #     else:
-    #         cv2.imwrite(save_name, map.astype(np.uint8))
-    #
-    # import scipy.io as sio
-    # gt = sio.loadmat('/home/rjq/data/SynthText/SynthText/gt.mat')
-    # # word_cnts = np.transpose(gt['wordBB'][0][0], (2,1,0))
-    # # char_cnts = np.transpose(gt['charBB'][0][0], (2,1,0))
-    # # imname = gt['imnames'][0][0]
-    # # print(imname)
-    # # import json
-    # # with open('cnts.json', 'w+') as f:
-    # #     json.dump([char_cnts.tolist(), word_cnts.tolist()], f)
-    #
-    # # origin = cv2.imread('/home/rjq/data/SynthText/SynthText/'+'8/ballet_106_0.jpg')
-    # # cv2.imwrite('origin.jpg', origin)
-    # # import json
-    # # with open('cnts.json', 'r') as f:
-    # #     char_cnts, word_cnts = json.load(f)
-    # pic_num = len(gt['imnames'][0])
-    # # for i in range(pic_num):
-    #
-    # for index in range(pic_num):
-    #     imname = gt['imnames'][0][index][0]
-    #     origin = cv2.imread('/home/rjq/data/SynthText/SynthText/'+imname)
-    #     # cv2.imwrite(str(i)+'_origin.jpg', origin)
-    #     word_cnts = np.transpose(gt['wordBB'][0][index], (2,1,0))
-    #     char_cnts = np.transpose(gt['charBB'][0][index], (2,1,0))
-    #     char_cnts = [np.array(char_cnt, np.float32) for char_cnt in char_cnts]
-    #     word_cnts = [np.array(word_cnt, np.float32) for word_cnt in word_cnts]
-    #     print('index:', index)
-    #     print('imname', imname)
-    #
-    #
-    #     im = np.zeros((origin.shape[0], origin.shape[1], 3))
-    #     im = cv2.drawContours(im, np.array(word_cnts, np.int32), -1, (255,255,255), 1)
-    #     # cv2.imwrite(str(i)+'_text_box.jpg', im)
-    #     im = cv2.drawContours(im, np.array(char_cnts, np.int32), -1, (0,0,255), 1)
-    #     cv2.imwrite(str(index)+'_box.jpg', im)
-    #
-    #     cnts = [char_cnts, word_cnts]
-    #     skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = get_maps(origin, cnts, False, 0.15, 2.0, 1.0)
-    #     TR = mask_fills[0]
-    #     for i in range(1, len(mask_fills)):
-    #         TR = np.bitwise_or(TR, mask_fills[i])
-    #     TCL = np.zeros(origin.shape[:2], np.bool)
-    #     for point, _ in score_dict.items():
-    #         TCL[point[0], point[1]] = True
-    #     radius = np.zeros(origin.shape[:2], np.float32)
-    #     for point, r in radius_dict.items():
-    #         radius[point[0], point[1]] = r
-    #     cos_theta = np.zeros(origin.shape[:2], np.float32)
-    #     for point, c_t in cos_theta_dict.items():
-    #         cos_theta[point[0], point[1]] = c_t
-    #     sin_theta = np.zeros(origin.shape[:2], np.float32)
-    #     for point, s_t in sin_theta_dict.items():
-    #         sin_theta[point[0], point[1]] = s_t
-    #     maps = [TR, TCL, radius, cos_theta, sin_theta]
-    #
-    #
-    #     save_heatmap(str(index)+'_TR.jpg', TR)
-    #     save_heatmap(str(index)+'_TCL.jpg', TCL)
-    #     # save_heatmap(str(index)+'_radius.jpg', radius)
-    #     save_heatmap(str(index)+'_cos_theta.jpg', cos_theta)
-    #     # save_heatmap(str(index)+'_sin_theta.jpg', sin_theta)
-
