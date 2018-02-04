@@ -778,7 +778,8 @@ if __name__ == '__main__':
         cv2.imwrite(img_name+'.jpg', img)
         char_cnts, text_cnts = cnts
         zeros = np.zeros_like(img)
-        cnts = [np.array(cnt, np.int32) for cnt in cnts]
+        char_cnts = [np.array(cnt, np.int32) for cnt in char_cnts]
+        text_cnts = [np.array(cnt, np.int32) for cnt in text_cnts]
         zeros = cv2.drawContours(zeros, char_cnts, -1, (0,0,255), 1)
         zeros = cv2.drawContours(zeros, text_cnts, -1, (255,255,255), 1)
         cv2.imwrite(img_name+'_box.jpg', zeros)
