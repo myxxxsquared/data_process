@@ -91,6 +91,7 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
                 cv2.imwrite(save_name, map.astype(np.uint8))
         save_heatmap('TR.jpg', TR)
         save_heatmap('TCL.jpg', TCL)
+        save_heatmap('radius.jpg', radius)
         cv2.imwrite('img.jpg', img)
         assert save_name is not None
         viz = np.zeros(img.shape,np.uint8)
