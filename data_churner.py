@@ -63,7 +63,7 @@ class data_churn(object):
         :param img_name: pass to return directly, (to be determined, int or str)
         :param img: ndarray, np.uint8,
         :param cnts:
-                if is_text_cnts is True: list(ndarray), ndarray: dtype np.float32, shape [n, 1, 2]
+                if is_text_cnts is True: list(ndarray), ndarray: dtype np.float32, shape [n, 1, 2], order(col, row)
                 if is_text_cnts is False: list(list(ndarray), list(ndarray)), for [char_cnts, text_cnts]
         :param is_text_cnts: bool
         :param left_top: for cropping
