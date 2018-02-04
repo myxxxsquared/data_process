@@ -222,7 +222,7 @@ if __name__ == '__main__':
     cnts = res['contour']
     is_text_cnts = res['is_text_cnts']
 
-    img_name, img, maps = data_labeling(im, cnts, is_text_cnts)
+    img_name, img, maps = data_labeling(img_name, im, cnts, is_text_cnts)
 
     final_precision, final_recall = evaluate(img, cnts, is_text_cnts, maps,
                                              True, img_name)
