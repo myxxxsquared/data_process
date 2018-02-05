@@ -50,8 +50,8 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
             instance.append((x,y))
             for i in range(len(direction_x)):
                 for j in range(len(direction_y)):
-                    x_next = x+i
-                    y_next = y+j
+                    x_next = x+direction_x[i]
+                    y_next = y+direction_y[j]
                     if x_next < row and y_next < col and \
                             cropped_TCL_for_search[x_next, y_next] == True:
                         queue.append((x_next, y_next))
