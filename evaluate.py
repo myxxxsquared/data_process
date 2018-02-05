@@ -147,6 +147,7 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
             r_ = recall[i,j]
             if p_ >= tp and r_ >= tr:
                 one_to_one_scroe[i][j] = 1.0
+
     for i in range(cnts_num):
         if np.sum(one_to_one_scroe[i,:]) == 1.0:
             j = int(np.argwhere(one_to_one_scroe[i,:]>0))
