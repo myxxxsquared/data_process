@@ -73,7 +73,8 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         #                     zeros[next_x, next_y] = 1
         for x, y in instance:
             r = radius[x,y]
-            zeros = cv2.circle(zeros, (x,y), r, (255), -1)
+            # be careful, in cv2, coordination is (col, row)
+            zeros = cv2.circle(zeros, (y,x), r, (255), -1)
         _,cnt,_ = cv2.findContours(zeros, 1, 2)
         if len(cnt) > 1:
             print('more than one cnt')
