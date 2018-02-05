@@ -177,9 +177,6 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
 
     return final_precision, final_recall
 
-
-
-
 if __name__ == '__main__':
     EVALUATE_DIR = '/home/rjq/data_cleaned/data_cleaned/evaluate/'
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
