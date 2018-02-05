@@ -131,7 +131,7 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         for j in range(re_cnts_num):
             interset[i,j] = np.sum(cnts_mask[i]&re_cnts_mask[j])
 
-    print('precision', precision)
+    print('precision', precise)
     print('recall', recall)
     print('interset', interset)
 
