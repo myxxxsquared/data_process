@@ -183,8 +183,14 @@ if __name__ == '__main__':
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     import pickle
 
+    # ######test char&text cnts##########
+    # for i in range(9, 10):
+    #     res = pickle.load(open(PKL_DIR+'synthtext/'+str(i)+'.bin', 'rb'))
+
+    ######test text cnts###############
     for i in range(9, 10):
-        res = pickle.load(open(PKL_DIR+'synthtext/'+str(i)+'.bin', 'rb'))
+        res = pickle.load(open(PKL_DIR + 'totaltext_train/' + str(i) + '.bin', 'rb'))
+
         print(res['img_name'],
               res['contour'],
               res['img'])
@@ -220,24 +226,12 @@ if __name__ == '__main__':
                 cv2.imwrite(save_name, (map * 255 / np.max(map)).astype(np.uint8))
             else:
                 cv2.imwrite(save_name, map.astype(np.uint8))
-        # cv2.imwrite(img_name+'.jpg', img)
-        # char_cnts, text_cnts = cnts
-        # zeros = np.zeros_like(img)
-        # char_cnts = [np.array(cnt, np.int32) for cnt in char_cnts]
-        # text_cnts = [np.array(cnt, np.int32) for cnt in text_cnts]
-        # zeros = cv2.drawContours(zeros, char_cnts, -1, (0,0,255), 1)
-        # zeros = cv2.drawContours(zeros, text_cnts, -1, (255,255,255), 1)
-        # cv2.imwrite(img_name+'_box.jpg', zeros)
-        # save_heatmap(img_name+'_TR.jpg', TR)
-        # save_heatmap(img_name+'_TCL.jpg', TCL)
-        # save_heatmap(img_name+'_radius.jpg', radius)
-        # save_heatmap(img_name+'_cos_theta.jpg', cos_theta)
-        # save_heatmap(img_name+'_sin_theta.jpg', sin_theta)
 
         maps = [TR, TCL, radius, cos_theta, sin_theta]
         precision, recall = evaluate(img, cnts, is_text_cnts, maps, True, img_name)
         print('precision', precision)
         print('recall', recall)
+
 
 
 
