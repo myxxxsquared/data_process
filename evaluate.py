@@ -121,14 +121,15 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         for j in range(re_cnts_num):
             recall[i,j] = np.sum(cnts_mask[i]&re_cnts_mask[j])/np.sum(cnts_mask[i])
 
-    interset = np.zeros((cnts_num, re_cnts_num), np.float32)
+    IOU = np.zeros((cnts_num, re_cnts_num), np.float32)
     for i in range(cnts_num):
         for j in range(re_cnts_num):
-            interset[i,j] = np.sum(cnts_mask[i]&re_cnts_mask[j])
+            IOU[i,j] = np.sum(cnts_mask[i]&re_cnts_mask[j])/ \
+                np.sum(cnts_mask[i]^re_cnts_mask[j])
 
     print('precision\n', precise)
     print('recall\n', recall)
-    print('interset\n', interset)
+    print('IOU\n', IOU)
 
     one_to_many_score = np.zeros((cnts_num), np.float32)
     for i in range(cnts_num):
@@ -167,8 +168,8 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
             r_ = recall[i,j]
 
             # one to one
-            if np.sum(interset[i,:])-interset[i,j] == 0.0 and \
-               np.sum(interset[:, j]) - interset[i, j] == 0.0 and \
+            if np.sum(IOU[i,:])-IOU[i,j] == 0.0 and \
+               np.sum(IOU[:, j]) - IOU[i, j] == 0.0 and \
                p_ >= tp and r_ >= tr:
                one_to_many_score[i] = 1.0
                many_to_one_score[j] = 1.0
@@ -176,10 +177,25 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
     print('many_to_one_score\n', many_to_one_score)
     print('one_to_many\n', one_to_many_score)
 
-    final_recall = np.sum(one_to_many_score)/cnts_num
-    final_precision = np.sum(many_to_one_score)/re_cnts_num
+    totaltext_recall = np.sum(one_to_many_score)/cnts_num
+    totaltext_precision = np.sum(many_to_one_score)/re_cnts_num
 
-    return final_precision, final_recall
+    pascal_gt_score = np.zeros((cnts_num), np.float32)
+    pascal_pred_score = np.zeros((re_cnts_num), np.float32)
+    for i in range(cnts_num):
+        for j in range(re_cnts_num):
+            if IOU[i,j] >= 0.5:
+                if pascal_gt_score[i] == 1.0:
+                    pascal_pred_score[j] = 0.0
+                else:
+                    pascal_pred_score[j] = 1.0
+                pascal_gt_score[i] = 1.0
+    pascal_recall = np.sum(pascal_gt_score)/cnts_num
+    pascal_precision = np.sum(pascal_pred_score)/re_cnts_num
+
+
+    return totaltext_recall, totaltext_precision, \
+            pascal_recall, pascal_precision
 
 if __name__ == '__main__':
     EVALUATE_DIR = '/home/rjq/data_cleaned/data_cleaned/evaluate/'
@@ -234,10 +250,11 @@ if __name__ == '__main__':
 
         maps = [TR, TCL, radius, cos_theta, sin_theta]
         t1 = time.time()
-        precision, recall = evaluate(img, cnts, is_text_cnts, maps, True, img_name)
+        totaltext_recall, totaltext_precision, pascal_recall, pascal_precision =\
+            evaluate(img, cnts, is_text_cnts, maps, True, img_name)
         t2 = time.time()
-        print('precision', precision)
-        print('recall', recall)
+        print(totaltext_recall, totaltext_precision, pascal_recall, pascal_precision,
+              sep='\n')
         print('time', t2 - t1)
 
 
