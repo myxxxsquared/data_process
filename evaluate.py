@@ -131,6 +131,9 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         for j in range(re_cnts_num):
             interset[i,j] = np.sum(cnts_mask[i]&re_cnts_mask[j])
 
+    print('precision', precision)
+    print('recall', recall)
+    print('interset', interset)
     one_to_many_score = np.zeros((cnts_num), np.float32)
     for i in range(cnts_num):
         # one to many (splits)
