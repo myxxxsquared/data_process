@@ -137,6 +137,22 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
     print('IOU\n', IOU)
 
     one_to_many_score = np.zeros((cnts_num), np.float32)
+    many_to_one_score = np.zeros((re_cnts_num), np.float32)
+
+    # one to one, overwrite
+    one_to_one_scroe = np.zeros((cnts_num, re_cnts_num), np.float32)
+    for i in range(cnts_num):
+        for j in range(re_cnts_num):
+            p_ = precise[i,j]
+            r_ = recall[i,j]
+            if p_ >= tp and r_ >= tr:
+                one_to_one_scroe[i][j] = 1.0
+    for i in range(cnts_num):
+        if np.sum(one_to_one_scroe[i,:]) == 1.0:
+            j = int(np.argwhere(one_to_one_scroe[i,:]>0))
+            one_to_many_score[i] = 1.0
+            many_to_one_score[j] = 1.0
+
     for i in range(cnts_num):
         # one to many (splits)
         p_list = []
@@ -148,10 +164,10 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         r_sum = 0.0
         for index in index_list:
             r_sum += recall[i, index]
-        if r_sum >= tr:
+        if r_sum >= tr and one_to_many_score[i] != 1.0:
             one_to_many_score[i] = fsk
 
-    many_to_one_score = np.zeros((re_cnts_num), np.float32)
+
     for j in range(re_cnts_num):
         # many to one (merge)
         r_list = []
@@ -163,21 +179,10 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         p_sum = 0.0
         for index in index_list:
             p_sum += precise[index, j]
-        if p_sum >= tp:
+        if p_sum >= tp and many_to_one_score[j] != 1.0:
             many_to_one_score[j] = fsk
 
-    # one to one, overwrite
-    for i in range(cnts_num):
-        for j in range(re_cnts_num):
-            p_ = precise[i,j]
-            r_ = recall[i,j]
 
-            # one to one
-            if np.sum(IOU[i,:])-IOU[i,j] == 0.0 and \
-               np.sum(IOU[:, j]) - IOU[i, j] == 0.0 and \
-               p_ >= tp and r_ >= tr:
-               one_to_many_score[i] = 1.0
-               many_to_one_score[j] = 1.0
 
     print('many_to_one_score\n', many_to_one_score)
     print('one_to_many\n', one_to_many_score)
