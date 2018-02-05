@@ -64,8 +64,8 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         zeros = np.zeros((row, col), np.uint8)
         for x, y in instance:
             r = radius[x, y]
-            for i in range(int(r)+1):
-                for j in range(int(r)+1):
+            for i in range(-int(r), int(r)+1):
+                for j in range(-int(r), int(r)+1):
                     next_x, next_y = x+i, y+j
                     if next_x < row and next_y < col and \
                         get_l2_dist((next_x, next_y), (x, y)) <= r:
