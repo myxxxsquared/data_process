@@ -68,7 +68,8 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
             for i in range(-int(r), int(r)+1):
                 for j in range(-int(r), int(r)+1):
                     next_x, next_y = x+i, y+j
-                    if next_x < row and next_y < col and \
+                    if zeros[next_x, next_y] != 1 and \
+                        next_x < row and next_y < col and \
                         get_l2_dist((next_x, next_y), (x, y)) <= r:
                         zeros[next_x, next_y] = 1
         _,cnt,_ = cv2.findContours(zeros, 1, 2)
