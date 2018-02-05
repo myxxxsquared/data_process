@@ -134,6 +134,7 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
     print('precision', precision)
     print('recall', recall)
     print('interset', interset)
+
     one_to_many_score = np.zeros((cnts_num), np.float32)
     for i in range(cnts_num):
         # one to many (splits)
