@@ -748,6 +748,14 @@ if __name__ == '__main__':
         img = res['img']
         cnts = res['contour']
         is_text_cnts = res['is_text_cnts']
+        cv2.imwrite(img_name+'.jpg', img)
+        char_cnts, text_cnts = cnts
+        zeros = np.zeros_like(img)
+        char_cnts = [np.array(cnt, np.int32) for cnt in char_cnts]
+        text_cnts = [np.array(cnt, np.int32) for cnt in text_cnts]
+        zeros = cv2.drawContours(zeros, char_cnts, -1, (0,0,255), 1)
+        zeros = cv2.drawContours(zeros, text_cnts, -1, (255,255,255), 1)
+        cv2.imwrite(img_name+'_box.jpg', zeros)
 
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
             get_maps(img, cnts, is_text_cnts, 0.15, 1.0, 2)
@@ -774,14 +782,7 @@ if __name__ == '__main__':
                 cv2.imwrite(save_name, (map * 255 / np.max(map)).astype(np.uint8))
             else:
                 cv2.imwrite(save_name, map.astype(np.uint8))
-        cv2.imwrite(img_name+'.jpg', img)
-        char_cnts, text_cnts = cnts
-        zeros = np.zeros_like(img)
-        char_cnts = [np.array(cnt, np.int32) for cnt in char_cnts]
-        text_cnts = [np.array(cnt, np.int32) for cnt in text_cnts]
-        zeros = cv2.drawContours(zeros, char_cnts, -1, (0,0,255), 1)
-        zeros = cv2.drawContours(zeros, text_cnts, -1, (255,255,255), 1)
-        cv2.imwrite(img_name+'_box.jpg', zeros)
+
         save_heatmap(img_name+'_TR.jpg', TR)
         save_heatmap(img_name+'_TCL.jpg', TCL)
         save_heatmap(img_name+'_radius.jpg', radius)
