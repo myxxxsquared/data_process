@@ -61,6 +61,7 @@ def get_theta(points_list):
     if len(points_list) < 2:
         raise AttributeError('get_theta need at least 2 points')
     xs, ys = [], []
+    #print(len(points_list))
     for (x,y) in points_list:
         xs.append(x)
         ys.append(y)
@@ -418,25 +419,28 @@ def find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500):
     radius_dict = {}
     theta_dict = {}
 
-    skel_points = set()
+    skel_points = []
     len_ = len(char_cnt_per_text)
 
     for point, char_cnt in char_cnt_per_text:
         radius_dict[point] = get_radius(point, char_cnt)
 
     for i in range(len_):
-        skel_points.add(char_cnt_per_text[i][0])
+        if not (char_cnt_per_text[i][0] in skel_points):
+            skel_points.append(char_cnt_per_text[i][0])
     for i in range(len_-1):
         point1, point2 = char_cnt_per_text[i][0], char_cnt_per_text[i+1][0]
-        sample_points = sampling(point1, point2, sampling_num)
-        sample_radius = np.linspace(radius_dict[point1], radius_dict[point2], sampling_num)
+        sample_points = sampling(point1, point2, sampling_num//(len_-1))
+        sample_points = list(set([(int(round(x)),int(round(y))) for x,y in sample_points]))
+        sample_radius = np.linspace(radius_dict[point1], radius_dict[point2], len(sample_points))
         if i == 0:
             theta = get_theta([point1, point2])
         else:
             theta = 0.5*(get_theta([point1, point2])+get_theta([point1, char_cnt_per_text[i-1][0]]))
         for point, radius in zip(sample_points, sample_radius):
-            sample = (int(round(point[0])), int(round(point[1])))
-            skel_points.add(sample)
+            sample = (point[0], point[1])
+            if not (char_cnt_per_text[i][0] in skel_points):
+                skel_points.append(sample)
             radius_dict[sample] = radius
             theta_dict[sample] = theta
     if len_ == 1:
@@ -493,6 +497,7 @@ def reorder(char_cnt_per_text):
 
     # assert that there is only one path in the tree
     count = [0 for _ in range(len_)]
+    if len(count)==0: print(len(char_cnt_per_text))
     for start, end in path:
         count[start]+=1
         count[end]+=1
@@ -528,11 +533,13 @@ def reconstruct(skel_points, radius_dict_cnt, row, col):
     '''
     # denote that: when changing from point_list to hull or cnt
     # we need to change the coordination
+    gap=max(len(skel_points)//10,1)
     zeros = np.zeros((row, col), np.uint8)
-    for point in skel_points:
+    for point in skel_points[::gap]+[skel_points[-1]]:
         radius = radius_dict_cnt[point]
-        zeros = cv2.circle(zeros, (point[1], point[0]), radius, (255), -1)
-    hull = cv2.convexHull(zeros)
+        #print(point,radius)
+        zeros = cv2.circle(zeros, (point[1], point[0]), int(round(radius)), (255), -1)
+    hull = cv2.convexHull(np.transpose(np.nonzero(zeros)))
     mask_fill = np.zeros((row, col), np.uint8)
     hull = np.array(hull, np.int32)
     mask_fill = cv2.fillPoly(mask_fill, [hull], (255)).astype(np.bool)
@@ -566,10 +573,10 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
 
     char_cnts, text_cnts = cnts
 
+
     while len(text_cnts) != 0:
         text_cnt = text_cnts.pop(0)
         char_cnt_per_text = []
-
         char_cnt_index = []
         for index, char_cnt in enumerate(char_cnts):
             center_point = get_center_point(char_cnt)
@@ -600,12 +607,11 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
             else:
                 skel_points, radius_dict_cnt, theta_dict_cnt = \
                     find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500)
-
             for point, radius in radius_dict_cnt.items():
                 radius_dict[point] = radius
             for point, theta in theta_dict_cnt.items():
                 theta_dict[point] = theta
-            [skels_points.append(point) for point in skel_points]
+            for point in skel_points: skels_points.append(point)
 
             mask_fill = reconstruct(skel_points, radius_dict_cnt, im.shape[0], im.shape[1])
             mask_fills.append(mask_fill.astype(np.bool))
@@ -613,6 +619,7 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
             # get belt
             belt = set()
             connect_dict = {}
+
 
             for point in skel_points:
                 r = int(thickness*radius_dict[point])
@@ -628,7 +635,6 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
             # score map
             for point in belt:
                 score_dict[point] = True
-
             # theta, raidus map
             for point in belt:
                 min_dist = 1e8
