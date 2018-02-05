@@ -539,7 +539,8 @@ def reconstruct(skel_points, radius_dict_cnt, row, col):
         radius = radius_dict_cnt[point]
         #print(point,radius)
         zeros = cv2.circle(zeros, (point[1], point[0]), int(round(radius)), (255), -1)
-    hull = cv2.convexHull(np.transpose(np.nonzero(zeros)))
+    # hull = cv2.convexHull(np.transpose(np.nonzero(zeros)))
+    hull = cv2.convexHull(zeros)
     mask_fill = np.zeros((row, col), np.uint8)
     hull = np.array(hull, np.int32)
     mask_fill = cv2.fillPoly(mask_fill, [hull], (255)).astype(np.bool)
