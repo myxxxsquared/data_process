@@ -126,9 +126,9 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         for j in range(re_cnts_num):
             interset[i,j] = np.sum(cnts_mask[i]&re_cnts_mask[j])
 
-    # print('precision\n', precise)
-    # print('recall\n', recall)
-    # print('interset\n', interset)
+    print('precision\n', precise)
+    print('recall\n', recall)
+    print('interset\n', interset)
 
     one_to_many_score = np.zeros((cnts_num), np.float32)
     for i in range(cnts_num):
@@ -173,8 +173,8 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
                one_to_many_score[i] = 1.0
                many_to_one_score[j] = 1.0
 
-    # print('many_to_one_score\n', many_to_one_score)
-    # print('one_to_many\n', one_to_many_score)
+    print('many_to_one_score\n', many_to_one_score)
+    print('one_to_many\n', one_to_many_score)
 
     final_recall = np.sum(one_to_many_score)/cnts_num
     final_precision = np.sum(many_to_one_score)/re_cnts_num
