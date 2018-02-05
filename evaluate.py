@@ -88,6 +88,7 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
                 cv2.imwrite(save_name, map.astype(np.uint8) * 255 / np.max(map))
             else:
                 cv2.imwrite(save_name, map.astype(np.uint8))
+        save_heatmap('cropped_TCL.jpg', cropped_TCL)
         save_heatmap('TR.jpg', TR)
         save_heatmap('TCL.jpg', TCL)
         save_heatmap('radius.jpg', radius)
@@ -98,7 +99,7 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         viz = cv2.drawContours(viz, cnts, -1, (255,255,255), 1)
         reconstructed_cnts = [np.array(cnt, np.int32) for cnt in reconstructed_cnts]
         viz = cv2.drawContours(viz, reconstructed_cnts, -1, (0,0,255), 1)
-        cv2.imwrite(save_name, viz)
+        cv2.imwrite('box.jpg', viz)
 
     cnts_num = len(cnts)
     re_cnts_num = len(reconstructed_cnts)
@@ -233,7 +234,7 @@ if __name__ == '__main__':
         # save_heatmap(img_name+'_cos_theta.jpg', cos_theta)
         # save_heatmap(img_name+'_sin_theta.jpg', sin_theta)
 
-        maps = [TR, TCL, radius, cos_theta, sin_theta]
+
         evaluate(img, cnts, is_text_cnts, maps, True, img_name)
 
 
