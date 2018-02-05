@@ -532,10 +532,10 @@ def reconstruct(skel_points, radius_dict_cnt, row, col):
     for point in skel_points:
         radius = radius_dict_cnt[point]
         zeros = cv2.circle(zeros, (point[1], point[0]), radius, (255), -1)
-    _, cnts, _ = cv2.findContours(zeros, 1, 2)
-    mask_fill = np.zeros((row, col), np.uint8)
-    cnts = [np.array(cnt, np.int32) for cnt in cnts]
-    mask_fill = cv2.fillPoly(mask_fill, cnts, (255)).astype(np.bool)
+    # hull = cv2.convexHull(zeros)
+    mask_fill = np.zeros((row, col), np.uint8).astype(np.bool)
+    # hull = np.array(hull, np.int32)
+    # mask_fill = cv2.fillPoly(mask_fill, [hull], (255)).astype(np.bool)
     return mask_fill
 
 
