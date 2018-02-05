@@ -468,6 +468,8 @@ def reorder(char_cnt_per_text):
     '''
     # assert char_cnt_per_text[0][1].shape == (4, 2), char_cnt_per_text[0]
     len_ = len(char_cnt_per_text)
+    if len_ == 0:
+        raise AttributeError('did not find char in text')
     if len_ == 1:
         return char_cnt_per_text
 
