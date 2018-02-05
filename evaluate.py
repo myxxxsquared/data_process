@@ -62,15 +62,6 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
     reconstructed_cnts = []
     for instance in instances:
         zeros = np.zeros((row, col), np.uint8)
-        # for x, y in instance:
-        #     r = radius[x, y]
-        #     for i in range(-int(r), int(r)+1):
-        #         for j in range(-int(r), int(r)+1):
-        #             next_x, next_y = x+i, y+j
-        #             if zeros[next_x, next_y] != 1:
-        #                 if next_x < row and next_y < col and \
-        #                    get_l2_dist((next_x, next_y), (x, y)) <= r:
-        #                     zeros[next_x, next_y] = 1
         for x, y in instance:
             r = radius[x,y]
             # be careful, in cv2, coordination is (col, row)
