@@ -734,7 +734,7 @@ if __name__ == '__main__':
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     import pickle
 
-    for i in range(9, 10):
+    for i in range(10):
         res = pickle.load(open(PKL_DIR+'synthtext/'+str(i)+'.bin', 'rb'))
         print(res['img_name'],
               res['contour'],
