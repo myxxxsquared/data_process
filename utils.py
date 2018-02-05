@@ -541,7 +541,7 @@ def reconstruct(skel_points, radius_dict_cnt, row, col):
     _, cnts, _ = cv2.findContours(zeros, 1, 2)
     mask_fill = np.zeros((row, col), np.uint8)
     cnts = [np.array(cnt, np.int32) for cnt in cnts]
-    mask_fill = cv2.fillPoly(mask_fill, [cnts], (255)).astype(np.bool)
+    mask_fill = cv2.fillPoly(mask_fill, cnts, (255)).astype(np.bool)
     return mask_fill
 
 
