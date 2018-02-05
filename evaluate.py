@@ -64,8 +64,8 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         zeros = np.zeros((row, col), np.uint8)
         for x, y in instance:
             r = radius[x,y]
-            print(r)
-            print(type(r))
+            # print(r)
+            # print(type(r))
             # be careful, in cv2, coordination is (col, row)
             zeros = cv2.circle(zeros, (y,x), r, (255), -1)
         _,cnt,_ = cv2.findContours(zeros, 1, 2)
@@ -88,8 +88,8 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
                 cv2.imwrite(save_name, map.astype(np.uint8))
         assert save_name is not None
         save_name = save_name.replace('/', '_')
-        save_name = save_name.stripe('.jpg')
-        save_name = save_name.stripe('.JPG')
+        save_name = save_name.strip('.jpg')
+        save_name = save_name.strip('.JPG')
         save_heatmap(save_name+'_cropped_TCL.jpg', cropped_TCL)
         save_heatmap(save_name+'_TR.jpg', TR)
         save_heatmap(save_name+'_TCL.jpg', TCL)
