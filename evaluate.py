@@ -64,6 +64,7 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         zeros = np.zeros((row, col), np.uint8)
         for x, y in instance:
             r = radius[x, y]
+            print(r)
             for i in range(-int(r), int(r)+1):
                 for j in range(-int(r), int(r)+1):
                     next_x, next_y = x+i, y+j
