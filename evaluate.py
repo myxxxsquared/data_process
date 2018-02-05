@@ -239,6 +239,8 @@ if __name__ == '__main__':
 
         maps = [TR, TCL, radius, cos_theta, sin_theta]
         t1 = time.time()
+        char_cnts, text_cnts = cnts
+        cnts = [[char_cnts[0]],[text_cnts[0]]]
         precision, recall = evaluate(img, cnts, is_text_cnts, maps, True, img_name)
         t2 = time.time()
         print('precision', precision)
