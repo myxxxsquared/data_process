@@ -196,13 +196,13 @@ if __name__ == '__main__':
     import pickle
     import time
 
-    ######test char&text cnts##########
-    for i in range(9, 10):
-        res = pickle.load(open(PKL_DIR+'synthtext/'+str(i)+'.bin', 'rb'))
+    # ######test char&text cnts##########
+    # for i in range(9, 10):
+    #     res = pickle.load(open(PKL_DIR+'synthtext/'+str(i)+'.bin', 'rb'))
 
     # ######test text cnts###############
-    # for i in range(9, 10):
-    #     res = pickle.load(open(PKL_DIR + 'totaltext_train/' + str(i) + '.bin', 'rb'))
+    for i in range(9, 10):
+        res = pickle.load(open(PKL_DIR + 'totaltext_train/' + str(i) + '.bin', 'rb'))
 
         print(res['img_name'],
               res['contour'],
