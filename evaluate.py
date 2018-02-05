@@ -235,8 +235,9 @@ if __name__ == '__main__':
         # save_heatmap(img_name+'_sin_theta.jpg', sin_theta)
 
         maps = [TR, TCL, radius, cos_theta, sin_theta]
-        evaluate(img, cnts, is_text_cnts, maps, True, img_name)
-
+        precision, recall = evaluate(img, cnts, is_text_cnts, maps, True, img_name)
+        print('precision', precision)
+        print('recall', recall)
 
 
 
