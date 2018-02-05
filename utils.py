@@ -737,7 +737,7 @@ if __name__ == '__main__':
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     import pickle
 
-    for i in range(134195, 134196):
+    for i in (134195, 662602):
         res = pickle.load(open(PKL_DIR+'synthtext/'+str(i)+'.bin', 'rb'))
         print(res['img_name'],
               res['contour'],
@@ -753,7 +753,7 @@ if __name__ == '__main__':
         zeros = np.zeros_like(img)
         char_cnts = [np.array(cnt, np.int32) for cnt in char_cnts]
         text_cnts = [np.array(cnt, np.int32) for cnt in text_cnts]
-        # zeros = cv2.drawContours(zeros, char_cnts, -1, (0,0,255), 1)
+        zeros = cv2.drawContours(zeros, char_cnts, -1, (0,0,255), 1)
         zeros = cv2.drawContours(zeros, text_cnts, -1, (255,255,255), 1)
         cv2.imwrite(img_name+'_box.jpg', zeros)
 
