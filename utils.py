@@ -533,7 +533,7 @@ def reconstruct(skel_points, radius_dict_cnt, row, col):
     zeros = np.zeros((row, col), np.uint8)
     for point in skel_points:
         radius = radius_dict_cnt[point]
-        radius = float(radius)
+        radius = int(round((radius)))
         zeros = cv2.circle(zeros, (point[1], point[0]), radius, (255), -1)
     _,cnts,_ = cv2.findContours(zeros, 1, 2)
     mask_fill = np.zeros((row, col), np.uint8)
