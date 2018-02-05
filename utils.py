@@ -533,13 +533,14 @@ def reconstruct(skel_points, radius_dict_cnt, row, col):
     '''
     # denote that: when changing from point_list to hull or cnt
     # we need to change the coordination
-    gap=max(len(skel_points)//10,1)
+    # gap=max(len(skel_points)//10,1)
     zeros = np.zeros((row, col), np.uint8)
-    for point in skel_points[::gap]+[skel_points[-1]]:
+    for point in skel_points:
         radius = radius_dict_cnt[point]
         zeros = cv2.circle(zeros, (point[1], point[0]), int(round(radius)), (255), -1)
     _, hull, _ = cv2.findContours(zeros, 1, 2)
     mask_fill = np.zeros((row, col), np.uint8)
+    print(hull)
     hull = np.array(hull, np.int32)
     mask_fill = cv2.fillPoly(mask_fill, [hull], (255)).astype(np.bool)
     return mask_fill
