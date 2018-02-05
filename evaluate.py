@@ -193,7 +193,8 @@ if __name__ == '__main__':
 
         print(res['img_name'],
               res['contour'],
-              res['img'])
+              res['img'],
+              res['is_text_cnts'])
 
         img_name = res['img_name']
         img_name = img_name.replace('/', '_')
