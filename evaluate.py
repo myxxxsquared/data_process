@@ -192,7 +192,7 @@ if __name__ == '__main__':
     #     res = pickle.load(open(PKL_DIR+'synthtext/'+str(i)+'.bin', 'rb'))
 
     # ######test text cnts###############
-    for i in range(100):
+    for i in range(99,100):
         res = pickle.load(open(PKL_DIR + 'totaltext_train/' + str(i) + '.bin', 'rb'))
 
         # print(res['img_name'],
