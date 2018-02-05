@@ -64,14 +64,13 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         zeros = np.zeros((row, col), np.uint8)
         for x, y in instance:
             r = radius[x, y]
-            print(r)
             for i in range(-int(r), int(r)+1):
                 for j in range(-int(r), int(r)+1):
                     next_x, next_y = x+i, y+j
-                    if zeros[next_x, next_y] != 1 and \
-                        next_x < row and next_y < col and \
-                        get_l2_dist((next_x, next_y), (x, y)) <= r:
-                        zeros[next_x, next_y] = 1
+                    if zeros[next_x, next_y] != 1:
+                        if next_x < row and next_y < col and \
+                           get_l2_dist((next_x, next_y), (x, y)) <= r:
+                            zeros[next_x, next_y] = 1
         _,cnt,_ = cv2.findContours(zeros, 1, 2)
         if len(cnt) > 1:
             print('more than one cnt')
@@ -184,6 +183,7 @@ if __name__ == '__main__':
     EVALUATE_DIR = '/home/rjq/data_cleaned/data_cleaned/evaluate/'
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     import pickle
+    import time
 
     # ######test char&text cnts##########
     # for i in range(9, 10):
@@ -231,10 +231,12 @@ if __name__ == '__main__':
                 cv2.imwrite(save_name, map.astype(np.uint8))
 
         maps = [TR, TCL, radius, cos_theta, sin_theta]
+        t1 = time.time()
         precision, recall = evaluate(img, cnts, is_text_cnts, maps, True, img_name)
+        t2 = time.time()
         print('precision', precision)
         print('recall', recall)
-
+        print('time', t2 - t1)
 
 
 
