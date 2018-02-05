@@ -195,10 +195,10 @@ if __name__ == '__main__':
     for i in range(100):
         res = pickle.load(open(PKL_DIR + 'totaltext_train/' + str(i) + '.bin', 'rb'))
 
-        print(res['img_name'],
-              res['contour'],
-              res['img'],
-              res['is_text_cnts'])
+        # print(res['img_name'],
+        #       res['contour'],
+        #       res['img'],
+        #       res['is_text_cnts'])
 
         img_name = res['img_name']
         img_name = img_name.replace('/', '_')
