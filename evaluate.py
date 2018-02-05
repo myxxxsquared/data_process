@@ -86,18 +86,21 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
                 cv2.imwrite(save_name, map.astype(np.uint8) * 255 / np.max(map))
             else:
                 cv2.imwrite(save_name, map.astype(np.uint8))
-        save_heatmap('cropped_TCL.jpg', cropped_TCL)
-        save_heatmap('TR.jpg', TR)
-        save_heatmap('TCL.jpg', TCL)
-        save_heatmap('radius.jpg', radius)
-        cv2.imwrite('img.jpg', img)
         assert save_name is not None
+        save_name = save_name.replace('/', '_')
+        save_name = save_name.stripe('.jpg')
+        save_name = save_name.stripe('.JPG')
+        save_heatmap(save_name+'_cropped_TCL.jpg', cropped_TCL)
+        save_heatmap(save_name+'_TR.jpg', TR)
+        save_heatmap(save_name+'_TCL.jpg', TCL)
+        save_heatmap(save_name+'_radius.jpg', radius)
+        cv2.imwrite(save_name+'.jpg', img)
         viz = np.zeros(img.shape,np.uint8)
         cnts = [np.array(cnt, np.int32) for cnt in cnts]
         viz = cv2.drawContours(viz, cnts, -1, (255,255,255), 1)
         reconstructed_cnts = [np.array(cnt, np.int32) for cnt in reconstructed_cnts]
         viz = cv2.drawContours(viz, reconstructed_cnts, -1, (0,0,255), 1)
-        cv2.imwrite('box.jpg', viz)
+        cv2.imwrite(save_name+'_box.jpg', viz)
 
     cnts_num = len(cnts)
     re_cnts_num = len(reconstructed_cnts)
