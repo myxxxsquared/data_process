@@ -61,7 +61,7 @@ def get_theta(points_list):
     '''
     if len(points_list) < 2:
         raise AttributeError('get_theta need at least 2 points')
-    print(len(points_list))
+    # print(len(points_list))
     xs, ys = [], []
     for (x,y) in points_list:
         xs.append(x)
