@@ -67,7 +67,8 @@ def get_theta(points_list):
         ys.append(y)
     xs = np.array(xs)
     ys = np.array(ys)
-    m,b = np.polyfit(xs, ys, 1)
+    # convert back to the coordination of cnts
+    m,b = np.polyfit(ys, xs, 1)
     theta = np.arctan(m)
     return theta
 
