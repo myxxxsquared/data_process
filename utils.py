@@ -596,7 +596,7 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor, chars):
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
 
-def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor, chars):
+def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor, chars=None):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
     :param cnts:
