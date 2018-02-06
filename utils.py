@@ -304,13 +304,11 @@ def find_mid_line_with_radius_theta(points_list, crop_skel, neighbor, sampling_n
         theta = get_theta([center_line[0]]+center_line[::30]+[center_line[-1]])
         for point in center_line:
             theta_dict[point] = theta
-            print('4', theta*180/np.pi)
     else:
         for p,point in enumerate(center_line):
             neighbor_num = int(round(neighbor * radius_dict[point]))
             theta = get_theta(list(set(center_line[max(p-neighbor_num,0):p+neighbor_num])))
             theta_dict[point] = theta
-            print(len(center_line), theta*180/np.pi)
 
     temp = []
     temp_radius_dict = {}
