@@ -48,6 +48,7 @@ def SynthText_loader(patch_num, n_th_patch):
     '''
     gt = sio.loadmat(SYNTHTEXT_DIR+'gt.mat')
     pic_num = len(gt['imnames'][0])
+    print(pic_num)
     patch_length = pic_num//patch_num+1
     start_point = n_th_patch*patch_length
     if (n_th_patch+1)*patch_length > pic_num:
