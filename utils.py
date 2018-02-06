@@ -542,6 +542,7 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor, chars):
             center_point = get_center_point(char_cnt)
             char_cnt_per_text_with_char.append((center_point, char_cnt, char))
             char_cnt_per_text = char_filter(char_cnt_per_text_with_char)
+            print('char_cnt_per_text', char_cnt_per_text)
             if len(char_cnt_per_text) == 1:
                 point_list = [(point[1], point[0]) for point in char_cnt_per_text[0][1]]
                 skel_points, radius_dict_cnt, theta_dict_cnt = \
