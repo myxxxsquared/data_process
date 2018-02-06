@@ -79,12 +79,12 @@ def SynthText_loader(patch_num, n_th_patch):
 
         chars = []
         for line in txt:
-            temp = []
             for sub_line in line.split():
+                temp = []
                 for char in list(sub_line):
                     if char not in ('\n',):
                         temp.append(char)
-            chars.append(temp)
+                chars.append(temp)
 
         yield {'img_index': index,
                'img_name': imname,
