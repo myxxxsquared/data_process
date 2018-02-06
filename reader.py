@@ -370,8 +370,8 @@ if __name__ == '__main__':
             pickle.dump(data_instance, open(os.path.join(save_path, '{}.bin'.format((img_index))), 'wb'))
             del img, contour, data_instance
 
-    patch_num = 35
-    p=Pool(35)
+    patch_num = 40
+    p=Pool(patch_num)
     # p.apply_async(othertext_to_pickle, args=('totaltext_train/', 1, 0, True, 'totaltext'))
     # p.apply_async(othertext_to_pickle, args=('totaltext_test/', 1, 0, False, 'totaltext'))
     for i in range(patch_num):
