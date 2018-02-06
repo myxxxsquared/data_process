@@ -55,7 +55,7 @@ def SynthText_loader(patch_num, n_th_patch):
         end_point = pic_num
     else:
         end_point = (n_th_patch+1)*patch_length
-
+    print(start_point,end_point)
     for index in range(start_point, end_point):
         imname = gt['imnames'][0][index][0]
         origin = cv2.imread('/home/rjq/data/SynthText/SynthText/'+imname)
