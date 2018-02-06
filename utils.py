@@ -541,7 +541,7 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor, chars):
             flatten_index += 1
             center_point = get_center_point(char_cnt)
             char_cnt_per_text_with_char.append((center_point, char_cnt, char))
-            print('char_cnt_per_text', char_cnt_per_text_with_char)
+            print('char_cnt_per_text_with_char', char_cnt_per_text_with_char)
             char_cnt_per_text = char_filter(char_cnt_per_text_with_char)
 
             if len(char_cnt_per_text) == 1:
