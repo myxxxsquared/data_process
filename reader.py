@@ -76,12 +76,14 @@ def SynthText_loader(patch_num, n_th_patch):
         cnts = [char_cnts, word_cnts]
         txt = gt['txt'][0][index].tolist()
         txt = [text.strip() for text in txt]
+
         chars = []
         for line in txt:
             temp = []
-            for char in list(line):
-                if char not in ('\n', ' '):
-                    temp.append(char)
+            for sub_line in line.split():
+                for char in list(sub_line):
+                    if char not in ('\n',):
+                        temp.append(char)
             chars.append(temp)
 
         yield {'img_index': index,
