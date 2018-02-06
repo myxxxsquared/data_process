@@ -304,6 +304,7 @@ def TD500_loader(start_point,end_point):
 if __name__ == '__main__':
     import pickle
     from multiprocessing import Pool
+    from multiprocessing import Process
 
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     generators = {'totaltext': Totaltext_loader}
@@ -372,14 +373,22 @@ if __name__ == '__main__':
             del img_index, img_name, img, contour, char_contour, word_contour, data_instance
             gc.collect()
 
-    patch_num = 40
-    p=Pool(patch_num)
-    # p.apply_async(othertext_to_pickle, args=('totaltext_train/', 1, 0, True, 'totaltext'))
-    # p.apply_async(othertext_to_pickle, args=('totaltext_test/', 1, 0, False, 'totaltext'))
+    # patch_num = 20
+    # p=Pool(patch_num)
+    # # p.apply_async(othertext_to_pickle, args=('totaltext_train/', 1, 0, True, 'totaltext'))
+    # # p.apply_async(othertext_to_pickle, args=('totaltext_test/', 1, 0, False, 'totaltext'))
+    # for i in range(patch_num):
+    #     p.apply_async(synthtext_to_pickle,args=('synthtext_chars/', patch_num, i))
+    # p.close()
+    # p.join()
+    jobs = []
+    patch_num = 20
     for i in range(patch_num):
-        p.apply_async(synthtext_to_pickle,args=('synthtext_chars/', patch_num, i))
-    p.close()
-    p.join()
+        jobs.append(Process(target=synthtext_to_pickle, args=('synthtext_chars/', patch_num, i)))
+    for job in jobs:
+        job.start()
+    for job in jobs:
+        job.join()
 
 
 
