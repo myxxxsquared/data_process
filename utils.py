@@ -650,7 +650,7 @@ if __name__ == '__main__':
         is_text_cnts = res['is_text_cnts']
 
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
-            get_maps(img, cnts, is_text_cnts, thickness=0.15, crop_skel=1.0, neighbor=0.5)
+            get_maps(img, cnts, is_text_cnts, thickness=0.15, crop_skel=1.0, neighbor=0.3)
         TR = mask_fills[0]
         for i in range(1, len(mask_fills)):
             TR = np.bitwise_or(TR, mask_fills[i])
