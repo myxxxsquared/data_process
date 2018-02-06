@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 import os
 import math
-\
+
 SYNTHTEXT_DIR = '/home/rjq/data/SynthText/SynthText/'
 TOTALTEXT_DIR = '/home/rjq/data/Total-Text-Dataset/Download/'
 MSRA_DIR ='/home/rjq/data/MSRA-TD500/MSRA-TD500/MSRA-TD500/'
