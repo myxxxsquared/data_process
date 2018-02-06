@@ -372,7 +372,6 @@ if __name__ == '__main__':
             pickle.dump(data_instance, open(os.path.join(save_path, '{}.bin'.format((img_index))), 'wb'))
 
 
-    #
     patch_num = 35
     p=Pool(35)
     # p.apply_async(othertext_to_pickle, args=('totaltext_train/', 1, 0, True, 'totaltext'))

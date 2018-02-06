@@ -58,7 +58,7 @@ class data_churn(object):
         """
         pass
 
-    def _data_labeling(self, img_name, img, cnts, is_text_cnts, left_top, right_bottom):
+    def _data_labeling(self, img_name, img, cnts, is_text_cnts, left_top, right_bottom, chars = None):
         '''
         :param img_name: pass to return directly, (to be determined, int or str)
         :param img: ndarray, np.uint8,
@@ -68,6 +68,9 @@ class data_churn(object):
         :param is_text_cnts: bool
         :param left_top: for cropping
         :param right_bottom: for cropping
+        :param chars:
+                if is_text_cnts is True: None
+                if is_text_cnts is False: a nested list storing the chars info for synthtext
         :return:
                 img_name: passed down
                 img: np.ndarray np.uint8
@@ -76,7 +79,7 @@ class data_churn(object):
         '''
 
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
-            get_maps(img, cnts, is_text_cnts, self.thickness, self.crop_skel, self.neighbor)
+            get_maps(img, cnts, is_text_cnts, self.thickness, self.crop_skel, self.neighbor, chars)
         TR = mask_fills[0]
         for i in range(1, len(mask_fills)):
             TR = np.bitwise_or(TR, mask_fills[i])

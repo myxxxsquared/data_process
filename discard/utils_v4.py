@@ -6,7 +6,6 @@ import time
 import warnings
 warnings.simplefilter('ignore', np.RankWarning)
 
-BANNED = ("'", '"', ',', '.')
 
 def get_l2_dist(point1, point2):
     '''
@@ -405,9 +404,8 @@ def get_maps_textbox(im, cnts, thickness,crop_skel, neighbor):
 
 def find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500):
     '''
-    :param char_cnt_per_text: list(tuple(point, char_cnt));
-                            point: (x, y) int;
-                            char_cnt: np.ndarray(4,2) or (4,1,2);
+    :param char_cnt_per_text: list(tuple(point, char_cnt)); point: (x, y) int;
+                            char_cnt: np.ndarray(4,2) or (4,1,2)
     :param crop_skel:
     :param neighbor:
     :param sampling_num:
@@ -461,22 +459,66 @@ def get_center_point(cnt):
         ys.append(point[0])
     return int(round(sum(xs)/len(xs))), int(round(sum(ys)/len(ys)))
 
-def char_filter(char_cnt_per_text_with_char):
-    '''
-    :param char_cnt_per_text_with_char: list(tuple(point, char_cnt, char));
-            point: (x, y) int;
-            char_cnt: np.ndarray(4,2) or (4,1,2);
-            char: str
-    :return: char_cnt_per_text: list(tuple(point, char_cnt, char));
-            point: (x, y) int;
-            char_cnt: np.ndarray(4,2) or (4,1,2);
-    '''
-    char_cnt_per_text = []
-    for point, char_cnt, char in char_cnt_per_text_with_char:
-        if char not in BANNED:
-            char_cnt_per_text.append((point, char_cnt))
 
-    return char_cnt_per_text
+def reorder(char_cnt_per_text):
+    '''
+    :param char_cnt_per_text: list(tuple(point, char_cnt)); point: (x, y) int;
+            char_cnt: np.ndarray(4,2) or(4,1,2)
+    :return: char_cnt_per_text, same as the input
+    '''
+    # assert char_cnt_per_text[0][1].shape == (4, 2), char_cnt_per_text[0]
+    len_ = len(char_cnt_per_text)
+    if len_ == 0:
+        raise AttributeError('did not find char in text')
+    if len_ == 1:
+        return char_cnt_per_text
+
+    info = np.zeros((len_, len_))
+    for i in range(len_):
+        for j in range(len_):
+            dist = get_l2_dist(char_cnt_per_text[i][0], char_cnt_per_text[j][0])
+            info[i, j] = info[j, i] = dist
+    tree = set()
+    tree.add(0)
+    remain = set(range(1,len_))
+    path = []
+
+    while len(tree) < len_:
+        dist_list = []
+        for start in tree:
+            for end in remain:
+                dist_list.append((info[start,end], start, end))
+        start,end = sorted(dist_list)[0][1:]
+        path.append((start, end))
+        tree.add(end)
+        remain.remove(end)
+
+    # assert that there is only one path in the tree
+    count = [0 for _ in range(len_)]
+    for start, end in path:
+        count[start]+=1
+        count[end]+=1
+    if max(count) > 2:
+        return None
+
+    deque = []
+    start, end = path[0]
+    path.pop(0)
+    deque.append(start)
+    deque.append(end)
+
+    for _ in range(len_):
+        for i in range(len(path)):
+            if path[i][0] == deque[0]:
+                deque.insert(0, path[i][1])
+            elif path[i][0] == deque[-1]:
+                deque.append(path[i][1])
+
+    assert len(deque) == len_
+    new = []
+    for index in deque:
+        new.append(char_cnt_per_text[index])
+    return new
 
 
 def reconstruct(skel_points, radius_dict_cnt, row, col):
@@ -500,7 +542,7 @@ def reconstruct(skel_points, radius_dict_cnt, row, col):
     return mask_fill
 
 
-def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor, chars):
+def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
     :param cnts: list(list(numpy.ndarray)), shape (n, 1, 2), dtype int32, point order (col, row)
@@ -508,7 +550,6 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor, chars):
     :param thickness: float
     :param neighbor: float
     :param crop_skel: float
-    :param chars: a nested list storing the chars info for synthtext
     :return:
         skels_points: list(tuple), tuple (x, y), x y are int
         radius_dict: dict, key is tuple (x, y), value is float
@@ -527,75 +568,6 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor, chars):
     mask_fills = []
 
     char_cnts, text_cnts = cnts
-    flatten_chars = []
-    for temp in chars:
-        for char in temp:
-            flatten_chars.append(char)
-
-    flatten_index = 0
-    for text_index in range(len(chars)):
-        char_cnt_per_text_with_char = []
-        for char_index in range(len(chars[text_index])):
-            char_cnt = char_cnts[flatten_index]
-            char = flatten_chars[flatten_index]
-            flatten_index += 1
-            center_point = get_center_point(char_cnt)
-            char_cnt_per_text_with_char.append((center_point, char_cnt, char))
-            char_cnt_per_text = char_filter(char_cnt_per_text_with_char)
-            if len(char_cnt_per_text) == 1:
-                point_list = [(point[1], point[0]) for point in char_cnt_per_text[0][1]]
-                skel_points, radius_dict_cnt, theta_dict_cnt = \
-                    find_mid_line_with_radius_theta(point_list, crop_skel, neighbor)
-            else:
-                skel_points, radius_dict_cnt, theta_dict_cnt = \
-                    find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500)
-
-            for point, radius in radius_dict_cnt.items():
-                radius_dict[point] = radius
-            for point, theta in theta_dict_cnt.items():
-                theta_dict[point] = theta
-            [skels_points.append(point) for point in skel_points]
-
-            mask_fill = reconstruct(skel_points, radius_dict_cnt, im.shape[0], im.shape[1])
-            mask_fills.append(mask_fill.astype(np.bool))
-
-            # get belt
-            belt = set()
-            connect_dict = {}
-
-            for point in skel_points:
-                r = int(thickness*radius_dict[point])
-                for i in range(-r, r+1):
-                    for j in range(-r, r+1):
-                        candidate = (point[0]+i, point[1]+j)
-                        if is_validate_point(im, candidate):
-                            belt.add(candidate)
-                            if candidate not in connect_dict:
-                                connect_dict[candidate] = []
-                            connect_dict[candidate].append(point)
-
-            # score map
-            for point in belt:
-                score_dict[point] = True
-
-            # theta, raidus map
-            for point in belt:
-                min_dist = 1e8
-                min_dist_point = None
-                for skel_point in connect_dict[point]:
-                    dist = get_l2_dist(point, skel_point)
-                    if dist < min_dist:
-                        min_dist_point = skel_point
-                        min_dist = dist
-                cos_theta_dict[point] = math.cos(theta_dict[min_dist_point[0], min_dist_point[1]])
-                sin_theta_dict[point] = math.sin(theta_dict[min_dist_point[0], min_dist_point[1]])
-                radius_dict[point] = radius_dict[min_dist_point[0], min_dist_point[1]]-min_dist
-
-
-
-
-
-
 
     while len(text_cnts) != 0:
         text_cnt = text_cnts.pop(0)
@@ -676,7 +648,7 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor, chars):
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
 
-def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor, chars):
+def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor):
     '''
     :param im: numpy.ndarray, shape (row, col, 3), dtype uint 8
     :param cnts:
@@ -699,14 +671,12 @@ def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor, chars):
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
             get_maps_textbox(im,cnts, thickness, crop_skel, neighbor)
     else:
-        if chars is None:
-            raise AttributeError('chars need to be passed in')
         char_cnts, text_cnts = cnts
         char_cnts = [np.array(cnt, np.float32) for cnt in char_cnts]
         text_cnts = [np.array(cnt, np.float32) for cnt in text_cnts]
         cnts = [char_cnts, text_cnts]
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
-            get_maps_charbox(im,cnts, thickness, crop_skel, neighbor, chars)
+            get_maps_charbox(im,cnts, thickness, crop_skel, neighbor)
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
 
@@ -778,7 +748,6 @@ if __name__ == '__main__':
         img = res['img']
         cnts = res['contour']
         is_text_cnts = res['is_text_cnts']
-        chars = res['chars']
         cv2.imwrite(img_name+'.jpg', img)
         char_cnts, text_cnts = cnts
         zeros = np.zeros_like(img)
@@ -789,7 +758,7 @@ if __name__ == '__main__':
         cv2.imwrite(img_name+'_box.jpg', zeros)
 
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
-            get_maps(img, cnts, is_text_cnts, 0.15, 1.0, 3, chars)
+            get_maps(img, cnts, is_text_cnts, 0.15, 1.0, 2)
         TR = mask_fills[0]
         for i in range(1, len(mask_fills)):
             TR = np.bitwise_or(TR, mask_fills[i])
