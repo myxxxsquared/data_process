@@ -3,8 +3,7 @@ import numpy as np
 import cv2
 import os
 import math
-import gc
-
+\
 SYNTHTEXT_DIR = '/home/rjq/data/SynthText/SynthText/'
 TOTALTEXT_DIR = '/home/rjq/data/Total-Text-Dataset/Download/'
 MSRA_DIR ='/home/rjq/data/MSRA-TD500/MSRA-TD500/MSRA-TD500/'
@@ -346,7 +345,7 @@ if __name__ == '__main__':
             os.mkdir(PKL_DIR + save_dir)
         save_path = PKL_DIR + save_dir
 
-        count = 0
+        count = patch_num*n_th_patch
         for res in SynthText_loader(patch_num, n_th_patch):
             count += 1
             print('processing ' +str(count))
@@ -370,25 +369,25 @@ if __name__ == '__main__':
             }
 
             pickle.dump(data_instance, open(os.path.join(save_path, '{}.bin'.format((img_index))), 'wb'))
-            # del img_index, img_name, img, contour, char_contour, word_contour, data_instance
-            # gc.collect()
 
-    # patch_num = 20
-    # p=Pool(patch_num)
-    # # p.apply_async(othertext_to_pickle, args=('totaltext_train/', 1, 0, True, 'totaltext'))
-    # # p.apply_async(othertext_to_pickle, args=('totaltext_test/', 1, 0, False, 'totaltext'))
-    # for i in range(patch_num):
-    #     p.apply_async(synthtext_to_pickle,args=('synthtext_chars/', patch_num, i))
-    # p.close()
-    # p.join()
-    jobs = []
+
     patch_num = 20
+    p=Pool(patch_num)
+    # p.apply_async(othertext_to_pickle, args=('totaltext_train/', 1, 0, True, 'totaltext'))
+    # p.apply_async(othertext_to_pickle, args=('totaltext_test/', 1, 0, False, 'totaltext'))
     for i in range(patch_num):
-        jobs.append(Process(target=synthtext_to_pickle, args=('synthtext_chars/', patch_num, i)))
-    for job in jobs:
-        job.start()
-    for job in jobs:
-        job.join()
+        p.apply_async(synthtext_to_pickle,args=('synthtext_chars/', patch_num, i))
+    p.close()
+    p.join()
+
+    # jobs = []
+    # patch_num = 20
+    # for i in range(patch_num):
+    #     jobs.append(Process(target=synthtext_to_pickle, args=('synthtext_chars/', patch_num, i)))
+    # for job in jobs:
+    #     job.start()
+    # for job in jobs:
+    #     job.join()
 
 
 
