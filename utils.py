@@ -304,9 +304,9 @@ def find_mid_line_with_radius_theta(points_list, crop_skel, neighbor, sampling_n
         for point in center_line:
             theta_dict[point] = theta
     else:
-        neighbor = int(neighbor)
         for p,point in enumerate(center_line):
-            theta = get_theta(list(set(center_line[max(p-neighbor,0):p+neighbor])))
+            neighbor_num = int(round(neighbor * radius_dict[point]))
+            theta = get_theta(list(set(center_line[max(p-neighbor_num,0):p+neighbor_num])))
             theta_dict[point] = theta
 
     temp = []
@@ -607,7 +607,7 @@ def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor, chars):
     :param is_textbox: bool
     :param thickness: float, used to span a belt from center(skeleton) line, used both for (text_cnts) and (char&text cnts)
     :param crop_skel: float, used to crop the head and end of center(skeleton) line, used for (text_cnts)
-    :param neighbor: int, used to determine the range for fitting aline to get theta, used both for (text_cnts) and (char&text cnts)
+    :param neighbor: float, used to determine the range for fitting aline to get theta, used both for (text_cnts) and (char&text cnts)
     :return: skels_points: list(tuple) center(skeleton) line, (x, y) int, x is row, y is col
              radius_dict, score_dict, cos_theta_dict, sin_theta_dict: key is tuple(x,y), value is float
              mask_fills: list(np.ndarray) shape(row,col,1), dtype bool
@@ -633,55 +633,55 @@ def get_maps(im, cnts, is_textbox, thickness, crop_skel, neighbor, chars):
 if __name__ == '__main__':
     ########### test text_cnts ############
 
-    # PKL_DIR = '/home/rjq/data_cleaned/pkl/'
-    # import pickle
-    #
-    # for i in range(9, 10):
-    #     res = pickle.load(open(PKL_DIR+'totaltext_train/'+str(i)+'.bin', 'rb'))
-    #     print(res['img_name'],
-    #           res['contour'],
-    #           res['img'])
-    #
-    #     img_name = res['img_name']
-    #     img = res['img']
-    #     cnts = res['contour']
-    #     is_text_cnts = res['is_text_cnts']
-    #
-    #     skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
-    #         get_maps(img, cnts, is_text_cnts, 0.15, 1.0, 2)
-    #     TR = mask_fills[0]
-    #     for i in range(1, len(mask_fills)):
-    #         TR = np.bitwise_or(TR, mask_fills[i])
-    #     TCL = np.zeros(img.shape[:2], np.bool)
-    #     for point, _ in score_dict.items():
-    #         TCL[point[0], point[1]] = True
-    #     radius = np.zeros(img.shape[:2], np.float32)
-    #     for point, r in radius_dict.items():
-    #         radius[point[0], point[1]] = r
-    #     cos_theta = np.zeros(img.shape[:2], np.float32)
-    #     for point, c_t in cos_theta_dict.items():
-    #         cos_theta[point[0], point[1]] = c_t
-    #     sin_theta = np.zeros(img.shape[:2], np.float32)
-    #     for point, s_t in sin_theta_dict.items():
-    #         sin_theta[point[0], point[1]] = s_t
-    #
-    #
-    #     def save_heatmap(save_name, map):
-    #         map = np.array(map, np.float32)
-    #         if np.max(map) != 0.0 or np.max(map) != 0:
-    #             cv2.imwrite(save_name, (map * 255 / np.max(map)).astype(np.uint8))
-    #         else:
-    #             cv2.imwrite(save_name, map.astype(np.uint8))
-    #     cv2.imwrite(img_name+'.jpg', img)
-    #     zeros = np.zeros_like(img)
-    #     cnts = [np.array(cnt, np.int32) for cnt in cnts]
-    #     zeros = cv2.drawContours(zeros, cnts, -1, (255,255,255), 1)
-    #     cv2.imwrite(img_name+'_box.jpg', zeros)
-    #     save_heatmap(img_name+'_TR.jpg', TR)
-    #     save_heatmap(img_name+'_TCL.jpg', TCL)
-    #     save_heatmap(img_name+'_radius.jpg', radius)
-    #     save_heatmap(img_name+'_cos_theta.jpg', cos_theta)
-    #     save_heatmap(img_name+'_sin_theta.jpg', sin_theta)
+    PKL_DIR = '/home/rjq/data_cleaned/pkl/'
+    import pickle
+
+    for i in range(9, 10):
+        res = pickle.load(open(PKL_DIR+'totaltext_train/'+str(i)+'.bin', 'rb'))
+        print(res['img_name'],
+              res['contour'],
+              res['img'])
+
+        img_name = res['img_name']
+        img = res['img']
+        cnts = res['contour']
+        is_text_cnts = res['is_text_cnts']
+
+        skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
+            get_maps(img, cnts, is_text_cnts, 0.15, 1.0, 2)
+        TR = mask_fills[0]
+        for i in range(1, len(mask_fills)):
+            TR = np.bitwise_or(TR, mask_fills[i])
+        TCL = np.zeros(img.shape[:2], np.bool)
+        for point, _ in score_dict.items():
+            TCL[point[0], point[1]] = True
+        radius = np.zeros(img.shape[:2], np.float32)
+        for point, r in radius_dict.items():
+            radius[point[0], point[1]] = r
+        cos_theta = np.zeros(img.shape[:2], np.float32)
+        for point, c_t in cos_theta_dict.items():
+            cos_theta[point[0], point[1]] = c_t
+        sin_theta = np.zeros(img.shape[:2], np.float32)
+        for point, s_t in sin_theta_dict.items():
+            sin_theta[point[0], point[1]] = s_t
+
+
+        def save_heatmap(save_name, map):
+            map = np.array(map, np.float32)
+            if np.max(map) != 0.0 or np.max(map) != 0:
+                cv2.imwrite(save_name, (map * 255 / np.max(map)).astype(np.uint8))
+            else:
+                cv2.imwrite(save_name, map.astype(np.uint8))
+        cv2.imwrite(img_name+'.jpg', img)
+        zeros = np.zeros_like(img)
+        cnts = [np.array(cnt, np.int32) for cnt in cnts]
+        zeros = cv2.drawContours(zeros, cnts, -1, (255,255,255), 1)
+        cv2.imwrite(img_name+'_box.jpg', zeros)
+        save_heatmap(img_name+'_TR.jpg', TR)
+        save_heatmap(img_name+'_TCL.jpg', TCL)
+        save_heatmap(img_name+'_radius.jpg', radius)
+        save_heatmap(img_name+'_cos_theta.jpg', cos_theta)
+        save_heatmap(img_name+'_sin_theta.jpg', sin_theta)
 
     ######## test char_cnts and text_cnts ############
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
@@ -709,7 +709,8 @@ if __name__ == '__main__':
         cv2.imwrite(img_name+'_box.jpg', zeros)
 
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
-            get_maps(img, cnts, is_text_cnts, 0.15, 1.0, 4, chars)
+            get_maps(img, cnts, is_text_cnts, thickness=0.15, neighbor=1.0, crop_skel=1.0,
+                     chars = chars)
         TR = mask_fills[0]
         for i in range(1, len(mask_fills)):
             TR = np.bitwise_or(TR, mask_fills[i])
