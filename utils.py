@@ -638,7 +638,7 @@ if __name__ == '__main__':
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     import pickle
 
-    for i in range(9, 15):
+    for i in range(100):
         res = pickle.load(open(PKL_DIR+'totaltext_train/'+str(i)+'.bin', 'rb'))
         print(res['img_name'],
               res['contour'],
