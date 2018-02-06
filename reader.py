@@ -368,7 +368,7 @@ if __name__ == '__main__':
             }
 
             pickle.dump(data_instance, open(os.path.join(save_path, '{}.bin'.format((img_index))), 'wb'))
-
+            del img, contour, data_instance
 
     patch_num = 35
     p=Pool(35)

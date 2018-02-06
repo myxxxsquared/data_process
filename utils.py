@@ -463,6 +463,7 @@ def get_center_point(cnt):
         ys.append(point[0])
     return int(round(sum(xs)/len(xs))), int(round(sum(ys)/len(ys)))
 
+
 def char_filter(char_cnt_per_text_with_char):
     '''
     :param char_cnt_per_text_with_char: list(tuple(point, char_cnt, char));
