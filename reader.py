@@ -370,8 +370,8 @@ if __name__ == '__main__':
             }
 
             pickle.dump(data_instance, open(os.path.join(save_path, '{}.bin'.format((img_index))), 'wb'))
-            del img_index, img_name, img, contour, char_contour, word_contour, data_instance
-            gc.collect()
+            # del img_index, img_name, img, contour, char_contour, word_contour, data_instance
+            # gc.collect()
 
     # patch_num = 20
     # p=Pool(patch_num)
