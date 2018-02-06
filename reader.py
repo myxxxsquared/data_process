@@ -39,7 +39,6 @@ def validate(im, cnts):
         im = np.concatenate((im, temp), 1)
     return im, cnts
 
-
 def SynthText_loader(patch_num, n_th_patch):
     '''
     :param patch_num:
@@ -91,7 +90,6 @@ def SynthText_loader(patch_num, n_th_patch):
                'img': origin,
                'contour': cnts,
                'chars': chars}
-
 
 def Totaltext_loader(patch_num, n_th_patch, is_train):
     '''
@@ -171,7 +169,6 @@ def Totaltext_loader(patch_num, n_th_patch, is_train):
                    'img_name': imname,
                    'img': origin,
                    'contour': cnts}
-
 
 def MSRA_TD_500_loader(patch_num, n_th_patch, is_train):
     '''
@@ -258,7 +255,6 @@ def MSRA_TD_500_loader(patch_num, n_th_patch, is_train):
             yield {'img_index': index,
                    'img': origin,
                    'contour': cnts}
-
 
 def ICDAR2017_loader(start_point,end_point):
     """
