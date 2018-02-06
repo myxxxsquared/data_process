@@ -591,88 +591,6 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor, chars):
                 sin_theta_dict[point] = math.sin(theta_dict[min_dist_point[0], min_dist_point[1]])
                 radius_dict[point] = radius_dict[min_dist_point[0], min_dist_point[1]]-min_dist
 
-
-
-
-
-
-
-    while len(text_cnts) != 0:
-        text_cnt = text_cnts.pop(0)
-        char_cnt_per_text = []
-
-        char_cnt_index = []
-        for index, char_cnt in enumerate(char_cnts):
-            center_point = get_center_point(char_cnt)
-            if is_inside_point_cnt(center_point, text_cnt):
-                char_cnt_per_text.append((center_point, char_cnt))
-                char_cnt_index.append(index)
-
-        char_cnt_per_text = reorder(char_cnt_per_text)
-
-        # text_cnts are recalled only char_cnt_per_text returns None
-        # in case that text_cnts overlap with each other
-        if char_cnt_per_text is None:
-            text_cnts.append(text_cnt)
-        else:
-            # delete claimed char_cnts
-            char_cnts_temp = []
-            for i in range(len(char_cnts)):
-                if i not in char_cnt_index:
-                    char_cnts_temp.append(char_cnts[i])
-            char_cnts = char_cnts_temp
-
-            # it char_cnt is a text_cnt itself,
-            # treat it as a text_cnt and call the function for text_cnt
-            if len(char_cnt_per_text) == 1:
-                point_list = [(point[1], point[0]) for point in char_cnt_per_text[0][1]]
-                skel_points, radius_dict_cnt, theta_dict_cnt = \
-                    find_mid_line_with_radius_theta(point_list, crop_skel, neighbor)
-            else:
-                skel_points, radius_dict_cnt, theta_dict_cnt = \
-                    find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500)
-
-            for point, radius in radius_dict_cnt.items():
-                radius_dict[point] = radius
-            for point, theta in theta_dict_cnt.items():
-                theta_dict[point] = theta
-            [skels_points.append(point) for point in skel_points]
-
-            mask_fill = reconstruct(skel_points, radius_dict_cnt, im.shape[0], im.shape[1])
-            mask_fills.append(mask_fill.astype(np.bool))
-
-            # get belt
-            belt = set()
-            connect_dict = {}
-
-            for point in skel_points:
-                r = int(thickness*radius_dict[point])
-                for i in range(-r, r+1):
-                    for j in range(-r, r+1):
-                        candidate = (point[0]+i, point[1]+j)
-                        if is_validate_point(im, candidate):
-                            belt.add(candidate)
-                            if candidate not in connect_dict:
-                                connect_dict[candidate] = []
-                            connect_dict[candidate].append(point)
-
-            # score map
-            for point in belt:
-                score_dict[point] = True
-
-            # theta, raidus map
-            for point in belt:
-                min_dist = 1e8
-                min_dist_point = None
-                for skel_point in connect_dict[point]:
-                    dist = get_l2_dist(point, skel_point)
-                    if dist < min_dist:
-                        min_dist_point = skel_point
-                        min_dist = dist
-                cos_theta_dict[point] = math.cos(theta_dict[min_dist_point[0], min_dist_point[1]])
-                sin_theta_dict[point] = math.sin(theta_dict[min_dist_point[0], min_dist_point[1]])
-                radius_dict[point] = radius_dict[min_dist_point[0], min_dist_point[1]]-min_dist
-
     return skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills
 
 
@@ -767,7 +685,7 @@ if __name__ == '__main__':
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     import pickle
 
-    for i in (662602):
+    for i in (662602,):
         res = pickle.load(open(PKL_DIR+'synthtext/'+str(i)+'.bin', 'rb'))
         print(res['img_name'],
               res['contour'],
