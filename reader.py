@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import os
 import math
+import gc
 
 SYNTHTEXT_DIR = '/home/rjq/data/SynthText/SynthText/'
 TOTALTEXT_DIR = '/home/rjq/data/Total-Text-Dataset/Download/'
@@ -369,6 +370,7 @@ if __name__ == '__main__':
 
             pickle.dump(data_instance, open(os.path.join(save_path, '{}.bin'.format((img_index))), 'wb'))
             del img_index, img_name, img, contour, char_contour, word_contour, data_instance
+            gc.collect()
 
     patch_num = 40
     p=Pool(patch_num)
