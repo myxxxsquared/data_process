@@ -12,7 +12,7 @@ parser.add_argument('tf_record_path', type=str, help='appoint a path to store')
 args = parser.parse_args()
 
 class data_churn(object):
-    def __init__(self, thickness=0.15, neighbor=3.0, crop_skel=1.0, *args,**kw):
+    def __init__(self, thickness=0.15, neighbor=4, crop_skel=1.0, *args,**kw):
         """
         initialize an instance
         :param kw: 'data_set': str, 'SynthText', 'totaltext', etc.

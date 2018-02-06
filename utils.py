@@ -541,7 +541,7 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor, chars):
             flatten_index += 1
             center_point = get_center_point(char_cnt)
             char_cnt_per_text_with_char.append((center_point, char_cnt, char))
-        print('char_cnt_per_text_with_char', char_cnt_per_text_with_char)
+        # print('char_cnt_per_text_with_char', char_cnt_per_text_with_char)
         char_cnt_per_text = char_filter(char_cnt_per_text_with_char)
 
         if len(char_cnt_per_text) == 1:
@@ -687,7 +687,7 @@ if __name__ == '__main__':
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     import pickle
 
-    for i in (662602,):
+    for i in range(100):
         res = pickle.load(open(PKL_DIR+'synthtext_chars/'+str(i)+'.bin', 'rb'))
         print(res['img_name'],
               res['contour'],
@@ -709,7 +709,7 @@ if __name__ == '__main__':
         cv2.imwrite(img_name+'_box.jpg', zeros)
 
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
-            get_maps(img, cnts, is_text_cnts, 0.15, 1.0, 3, chars)
+            get_maps(img, cnts, is_text_cnts, 0.15, 1.0, 4, chars)
         TR = mask_fills[0]
         for i in range(1, len(mask_fills)):
             TR = np.bitwise_or(TR, mask_fills[i])
