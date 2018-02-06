@@ -6,7 +6,7 @@ import math
 
 SYNTHTEXT_DIR = '/home/rjq/data/SynthText/SynthText/'
 TOTALTEXT_DIR = '/home/rjq/data/Total-Text-Dataset/Download/'
-MSRA_DIR =
+MSRA_DIR ='/home/rjq/data/MSRA-TD500/MSRA-TD500/MSRA-TD500/'
 
 
 def data_loader(data_set,patch_num,n_th_patch, is_train):
@@ -74,10 +74,21 @@ def SynthText_loader(patch_num, n_th_patch):
         char_cnts = [np.array(char_cnt, np.float32) for char_cnt in char_cnts]
         word_cnts = [np.array(word_cnt, np.float32) for word_cnt in word_cnts]
         cnts = [char_cnts, word_cnts]
+        txt = gt['txt'][0][index].tolist()
+        txt = [text.strip() for text in txt]
+        chars = []
+        for line in txt:
+            temp = []
+            for char in list(line):
+                if char not in ('\n', ' '):
+                    temp.append(char)
+            chars.append(temp)
+
         yield {'img_index': index,
                'img_name': imname,
                'img': origin,
-               'contour': cnts}
+               'contour': cnts,
+               'chars': chars}
 
 
 def Totaltext_loader(patch_num, n_th_patch, is_train):
@@ -343,6 +354,7 @@ if __name__ == '__main__':
             img_name = res['img_name']
             img = res['img']
             contour = res['contour']
+            chars = res['chars']
             char_contour, word_contour = contour
             img = np.array(img, np.uint8)
             char_contour = np.array(char_contour, np.float32)
@@ -353,7 +365,8 @@ if __name__ == '__main__':
                 'img_name': img_name,
                 'img': img,
                 'contour': contour,
-                'is_text_cnts': False
+                'is_text_cnts': False,
+                'chars': chars
             }
 
             pickle.dump(data_instance, open(os.path.join(save_path, '{}.bin'.format((img_index))), 'wb'))
@@ -365,7 +378,7 @@ if __name__ == '__main__':
     p.apply_async(othertext_to_pickle, args=('totaltext_train/', 1, 0, True, 'totaltext'))
     p.apply_async(othertext_to_pickle, args=('totaltext_test/', 1, 0, False, 'totaltext'))
     for i in range(patch_num):
-        p.apply_async(synthtext_to_pickle,args=('synthtext/', patch_num, i))
+        p.apply_async(synthtext_to_pickle,args=('synthtext_chars/', patch_num, i))
     p.close()
     p.join()
 
