@@ -375,8 +375,8 @@ if __name__ == '__main__':
     #
     patch_num = 35
     p=Pool(35)
-    p.apply_async(othertext_to_pickle, args=('totaltext_train/', 1, 0, True, 'totaltext'))
-    p.apply_async(othertext_to_pickle, args=('totaltext_test/', 1, 0, False, 'totaltext'))
+    # p.apply_async(othertext_to_pickle, args=('totaltext_train/', 1, 0, True, 'totaltext'))
+    # p.apply_async(othertext_to_pickle, args=('totaltext_test/', 1, 0, False, 'totaltext'))
     for i in range(patch_num):
         p.apply_async(synthtext_to_pickle,args=('synthtext_chars/', patch_num, i))
     p.close()
