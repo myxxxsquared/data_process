@@ -6,6 +6,7 @@ import math
 
 SYNTHTEXT_DIR = '/home/rjq/data/SynthText/SynthText/'
 TOTALTEXT_DIR = '/home/rjq/data/Total-Text-Dataset/Download/'
+MSRA_DIR =
 
 
 def data_loader(data_set,patch_num,n_th_patch, is_train):

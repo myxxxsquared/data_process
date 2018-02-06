@@ -2,6 +2,8 @@ import numpy as np
 import cv2
 from utils import get_maps
 
+VIZ_DIR = '/home/rjq/data_cleaned/viz/'
+
 def get_l2_dist(point1, point2):
     return ((point1[0]-point2[0])**2+(point1[1]-point2[1])**2)**0.5
 
@@ -90,6 +92,7 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
         save_name = save_name.replace('/', '_')
         save_name = save_name.strip('.jpg')
         save_name = save_name.strip('.JPG')
+        save_name = VIZ_DIR+save_name
         save_heatmap(save_name+'_cropped_TCL.jpg', cropped_TCL)
         save_heatmap(save_name+'_TR.jpg', TR)
         save_heatmap(save_name+'_TCL.jpg', TCL)
@@ -132,9 +135,9 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
             IOU[i,j] = np.sum(cnts_mask[i]&re_cnts_mask[j])/ \
                 np.sum(cnts_mask[i]^re_cnts_mask[j])
 
-    print('precision\n', precise)
-    print('recall\n', recall)
-    print('IOU\n', IOU)
+    # print('precision\n', precise)
+    # print('recall\n', recall)
+    # print('IOU\n', IOU)
 
     one_to_many_score = np.zeros((cnts_num), np.float32)
     many_to_one_score = np.zeros((re_cnts_num), np.float32)
@@ -185,8 +188,8 @@ def evaluate(img, cnts, is_text_cnts, maps, is_viz,
 
 
 
-    print('many_to_one_score\n', many_to_one_score)
-    print('one_to_many\n', one_to_many_score)
+    # print('many_to_one_score\n', many_to_one_score)
+    # print('one_to_many\n', one_to_many_score)
 
     totaltext_recall = np.sum(one_to_many_score)/cnts_num
     totaltext_precision = np.sum(many_to_one_score)/re_cnts_num
