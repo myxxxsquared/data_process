@@ -697,7 +697,7 @@ if __name__ == '__main__':
     PKL_DIR = '/home/rjq/data_cleaned/pkl/'
     import pickle
 
-    for i in range(800000):
+    for i in (3054,):
         res = pickle.load(open(PKL_DIR+'synthtext_chars/'+str(i)+'.bin', 'rb'))
         # print(res['img_name'],
         #       res['contour'],
@@ -725,6 +725,7 @@ if __name__ == '__main__':
             print(cnts[1])
             img, cnts_ = validate(img, cnts[1])
             cnts = [cnts[0], cnts_]
+
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
             get_maps(img, cnts, is_text_cnts, thickness=0.15, neighbor=5, crop_skel=1.0,
                      chars = chars)
