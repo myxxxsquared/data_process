@@ -100,7 +100,7 @@ class data_churn(object):
         radius = radius[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
         cos_theta = cos_theta[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
         sin_theta = sin_theta[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1]]
-
+        img = img[left_top[0]:right_bottom[0], left_top[1]:right_bottom[1],:]
         maps = [TR, TCL, radius, cos_theta, sin_theta]
         return img_name, img, maps
 
