@@ -721,10 +721,13 @@ if __name__ == '__main__':
         if not is_validate_cnts(img, cnts[1]):
             print('img_name', img_name)
             print('index', i)
+            print(img.shape)
+            print(cnts[1])
 
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
             get_maps(img, cnts, is_text_cnts, thickness=0.15, neighbor=5, crop_skel=1.0,
                      chars = chars)
+
         TR = mask_fills[0]
         for i in range(1, len(mask_fills)):
             TR = np.bitwise_or(TR, mask_fills[i])
