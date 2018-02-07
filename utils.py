@@ -692,9 +692,9 @@ if __name__ == '__main__':
 
     for i in range(800000):
         res = pickle.load(open(PKL_DIR+'synthtext_chars/'+str(i)+'.bin', 'rb'))
-        print(res['img_name'],
-              res['contour'],
-              res['img'])
+        # print(res['img_name'],
+        #       res['contour'],
+        #       res['img'])
 
         img_name = res['img_name']
         img_name = img_name.replace('/', '_')
