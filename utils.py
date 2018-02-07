@@ -723,7 +723,8 @@ if __name__ == '__main__':
             print('index', i)
             print(img.shape)
             print(cnts[1])
-
+            img, cnts_ = validate(img, cnts[1])
+            cnts = [cnts[0], cnts_]
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
             get_maps(img, cnts, is_text_cnts, thickness=0.15, neighbor=5, crop_skel=1.0,
                      chars = chars)
