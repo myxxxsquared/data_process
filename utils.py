@@ -301,6 +301,7 @@ def find_mid_line_with_radius_theta(points_list, crop_skel, neighbor, sampling_n
             center_line.append((x,y))
         center_line_set.add((x,y))
         radius_dict[(x,y)] = get_l2_dist((x1,y1),(x2,y2))/2
+
     if len(points_list) == 4:
         theta = get_theta([center_line[0]]+center_line[::30]+[center_line[-1]])
         for point in center_line:
@@ -432,8 +433,8 @@ def find_mid_line_with_radius_theta_char(char_cnt_per_text, sampling_num=500):
         skel_points.add(char_cnt_per_text[i][0])
     for i in range(len_-1):
         point1, point2 = char_cnt_per_text[i][0], char_cnt_per_text[i+1][0]
-        sample_points = sampling(point1, point2, sampling_num)
-        sample_radius = np.linspace(radius_dict[point1], radius_dict[point2], sampling_num)
+        sample_points = sampling(point1, point2, sampling_num//(len_-1))
+        sample_radius = np.linspace(radius_dict[point1], radius_dict[point2], len(sample_points))
         if i == 0:
             theta = get_theta([point1, point2])
         else:
@@ -579,6 +580,12 @@ def get_maps_charbox(im, cnts, thickness, crop_skel, neighbor, chars):
                             connect_dict[candidate] = []
                         connect_dict[candidate].append(point)
 
+        #TODO
+        for point in belt:
+            if not is_validate_point(im, point):
+                print(point)
+                print(im.shape)
+
         # score map
         for point in belt:
             score_dict[point] = True
@@ -710,6 +717,10 @@ if __name__ == '__main__':
         zeros = cv2.drawContours(zeros, char_cnts, -1, (0,0,255), 1)
         zeros = cv2.drawContours(zeros, text_cnts, -1, (255,255,255), 1)
         cv2.imwrite(img_name+'_box.jpg', zeros)
+
+        if not is_validate_cnts(img, cnts[1]):
+            print('img_name', img_name)
+            print('index', i)
 
         skels_points, radius_dict, score_dict, cos_theta_dict, sin_theta_dict, mask_fills = \
             get_maps(img, cnts, is_text_cnts, thickness=0.15, neighbor=5, crop_skel=1.0,
