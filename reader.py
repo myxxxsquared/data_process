@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import os
 import math
+import csv
 
 SYNTHTEXT_DIR = '/home/rjq/data/SynthText/SynthText/'
 TOTALTEXT_DIR = '/home/rjq/data/Total-Text-Dataset/Download/'
@@ -257,49 +258,164 @@ def MSRA_TD_500_loader(patch_num, n_th_patch, is_train):
                    'img': origin,
                    'contour': cnts}
 
-def ICDAR2017_loader(start_point,end_point):
-    """
-    :param start_point:
-    :param end_point:
-    :return:
-    {'img_name':str,
-        'img':np.uint8,
-        'contour':List[the contour of each text instance]}
-    """
-    pass
+class _icdar_loader:
+    _imgdata_icdar2017 = [
+        (
+            0, 7200,
+            ["/home/zwj/ICDAR2017_MLT/training/img_{}.jpg", "/home/zwj/ICDAR2017_MLT/training/img_{}.png"],
+            "/home/zwj/ICDAR2017_MLT/training_gt/gt_img_{}.txt",
+            list(range(1, 7201))
+        ),
+        (
+            7200, 9000,
+            ["/home/zwj/ICDAR2017_MLT/validation/img_{}.jpg", "/home/zwj/ICDAR2017_MLT/validation/img_{}.png"],
+            "/home/zwj/ICDAR2017_MLT/validation_gt/gt_img_{}.txt",
+            list(range(1, 1801))
+        ),
+    ]
 
-def ICDAR2015_loader(start_point,end_point):
-    """
-    :param start_point:
-    :param end_point:
-    :return:
-    {'img_name':str,
-        'img':np.uint8,
-        'contour':List[the contour of each text instance]}
-    """
-    pass
+    _imgdata_icdar2017_rctw = [
+        (
+            0, 8034,
+            ["/home/zwj/ICDAR2017_RCTW/train/image_{}.jpg", "/home/zwj/ICDAR2017_RCTW/train/image_{}.png"],
+            "/home/zwj/ICDAR2017_RCTW/train/image_{}.txt",
+            list(range(8034))
+        ),
+    ]
 
-def ICDAR2013_loader(start_point,end_point):
-    """
-    :param start_point:
-    :param end_point:
-    :return:
-    {'img_name':str,
-        'img':np.uint8,
-        'contour':List[the contour of each text instance]}
-    """
-    pass
+    _imgdata_icdar2015 = [
+        (
+            0, 1000,
+            ["/home/rjq/data/ICDAR2015/ch4_training_images/img_{}.jpg", "/home/rjq/data/ICDAR2015/ch4_training_images/img_{}.png"],
+            "/home/rjq/data/ICDAR2015/ch4_training_localization_transcription_gt/gt_img_{}.txt",
+            list(range(1, 1001))
+        ),
+    ]
 
-def TD500_loader(start_point,end_point):
-    """
-    :param start_point:
-    :param end_point:
-    :return:
-    {'img_name':str,
-        'img':np.uint8,
-        'contour':List[the contour of each text instance]}
-    """
-    pass
+    _imgdata_icdar2013 = [
+        (
+            0, 229,
+            ["/home/rjq/data/ICDAR2013/Challenge2_Training_Task12_Images/{}.jpg", "/home/rjq/data/ICDAR2013/Challenge2_Training_Task12_Images/{}.png"],
+            "/home/rjq/data/ICDAR2013/Challenge2_Training_Task1_GT/gt_{}.txt",
+            list(range(100, 329))
+        ),
+        (
+            229, 462,
+            ["/home/rjq/data/ICDAR2013/Challenge2_Test_Task12_Images/img_{}.jpg", "/home/rjq/data/ICDAR2013/Challenge2_Test_Task12_Images/img_{}.png"],
+            "/home/rjq/data/ICDAR2013/Challenge2_Test_Task1_GT/gt_img_{}.txt",
+            list(range(1, 234))
+        ),
+    ]
+
+    _imgdata_td500 = [
+        (
+            0, 300,
+            ["/home/rjq/data/MSRA-TD500/MSRA-TD500/MSRA-TD500/train/IMG_{:04}.JPG"],
+            "/home/rjq/data/MSRA-TD500/MSRA-TD500/MSRA-TD500/train/IMG_{:04}.gt",
+            [2165,1685,570,2213,809,821,2011,613,571,2199,2172,759,1862,1692,1645,1916,1719,1725,611,605,1724,1730,2205,1678,1687,758,764,748,2163,1683,827,628,601,826,1709,577,1641,1872,1866,2160,2174,1904,1723,818,2028,2014,603,617,602,2029,1736,1905,1939,2112,63,1619,1625,1786,1989,842,665,1547,1553,658,664,1591,472,1778,1977,506,1817,738,704,2113,1815,504,1975,1949,1785,1593,855,1550,896,1544,1545,1579,840,1586,1592,868,1753,1960,511,707,918,2100,515,850,1596,1582,893,2060,1569,2075,1540,2049,892,845,1756,1965,1971,514,1805,2101,702,64,728,2103,700,1783,489,1797,1967,1754,1768,476,2088,1595,884,890,660,2077,2062,649,885,463,1966,81,917,903,2127,730,1823,1957,1758,452,1770,687,650,1572,1567,2046,692,2085,2091,686,1771,1995,1822,719,916,2130,2124,733,1808,531,486,451,1983,479,848,690,2093,653,2078,1571,1570,1558,2051,652,861,849,2086,1799,1941,487,1955,518,530,1809,1835,726,722,1616,1951,497,1986,865,859,656,2055,2040,1549,1561,2097,858,694,2083,864,870,455,1763,469,496,1824,723,910,709,735,1832,1826,1615,1601,1629,523,1946,1761,1991,457,2081,669,899,655,1576,1562,697,2080,873,456,1748,1760,495,481,1947,1600,1614,907,784,753,747,1883,1673,1667,1920,814,1539,155,2024,633,2031,626,815,183,1712,1935,1672,746,752,791,787,2184,750,1705,2224,1922,792,769,594,1701,2208,812,635,621,620,608,1714,595,795,30,597,1676,810,2222,541,1677,582,596,1688,780,794]
+        ),
+        (
+            300, 500,
+            ["/home/rjq/data/MSRA-TD500/MSRA-TD500/MSRA-TD500/test/IMG_{:04}.JPG"],
+            "/home/rjq/data/MSRA-TD500/MSRA-TD500/MSRA-TD500/test/IMG_{:04}.gt",
+            [799,1691,1652,1646,1726,1732,612,607,2010,820,765,2166,1679,836,638,604,2013,610,1718,1903,599,770,760,2177,1867,1654,1668,2215,833,172,2002,1721,1696,763,1864,1657,830,616,158,831,1722,1865,711,2106,739,1802,513,507,1751,2099,103,671,659,1546,670,1626,1791,1587,672,666,1578,667,698,1627,505,1814,1800,59,1970,1964,1757,449,475,461,844,887,2074,1568,2061,886,851,1811,1839,716,2115,714,1620,462,1581,1556,675,2076,1557,891,1543,846,477,1972,1621,1806,2102,485,1943,491,1994,1764,1599,2090,888,2047,678,1598,1605,1836,2126,80,1607,1954,1940,445,1767,2044,1564,875,478,1766,1772,1969,2125,1825,520,1789,468,1992,2257,2082,2096,2069,2041,680,482,521,509,2120,912,721,1952,1749,866,2095,1563,898,668,1953,1628,790,592,545,2030,2018,2025,829,1706,1869,1699,793,1937,1923,803,156,2033,2032,625,802,2218,1936,1671,779,745,2181,1846,1675,1926,1715,1729,2220,807,2221,1933,1674,781,742,1689,554,839,2009,2035,2034,2008,2183]
+        ),
+    ]
+
+    @staticmethod
+    def _processcontour_201517(csvfile):
+        cnts = []
+        for x1, y1, x2, y2, x3, y3, x4, y4, *_ in csv.reader(csvfile):
+            x1, y1, x2, y2, x3, y3, x4, y4 = (float(x.strip('\ufeff')) for x in (x1, y1, x2, y2, x3, y3, x4, y4))
+            cnts.append(np.array([ [[x1, y1]], [[x2, y2]], [[x3, y3]], [[x4, y4]]], dtype=np.float))
+        return cnts
+
+    @staticmethod
+    def _processcontour_2013(csvfile):
+        cnts = []
+        for left, top, right, bottom, *_ in csv.reader(csvfile, delimiter=' '):
+            left, top, right, bottom = (float(x.strip(',')) for x in (left, top, right, bottom))
+            cnts.append(np.array([ [[left, top]], [[left, bottom]], [[right, bottom]], [[right, top]]], dtype=np.float))
+        return cnts
+
+    @staticmethod
+    def _processcontour_td500(csvfile):
+        cnts = []
+        for _, _, x, y, w, h, t in csv.reader(csvfile, delimiter=' '):
+            x, y, w, h, t = (float(x.strip(',')) for x in (x, y, w, h, t))
+            w /= 2
+            h /= 2
+            x += w
+            y += h
+            ct = math.cos(t)
+            st = math.sin(t)
+            wdx = w * ct
+            wdy = w * st
+            hdx = h * st
+            hdy = -h * ct
+            cnts.append(np.array([
+                [[x + wdx + hdx, y + wdy + hdy]],
+                [[x - wdx + hdx, y - wdy + hdy]],
+                [[x - wdx - hdx, y - wdy - hdy]],
+                [[x + wdx - hdx, y + wdy - hdy]]], dtype=np.float))
+        return cnts
+
+    @staticmethod
+    def _load_icdar(imgdata, index, processor_contour):
+        for beginindex, endindex, imgnames_t, gtname_t, files in imgdata:
+            if index >= beginindex and index < endindex:
+                i = files[index - beginindex]
+                havefile = False
+                for imgname_t in imgnames_t:
+                    imgname = imgname_t.format(i)
+                    print(imgname)
+                    if os.path.exists(imgname):
+                        havefile = True
+                        break
+                assert havefile
+                img = cv2.imread(imgname)
+                assert len(img.shape) == 3
+                assert img.shape[2] == 3
+                imname = "img_{}".format(index)
+                gtname = gtname_t.format(i)
+                with open(gtname) as gtfile:
+                    cnts = processor_contour(gtfile)
+
+                return {'img_index': index,
+                'img_name': imname,
+                'img': img,
+                'contour': cnts}
+        assert False
+
+    @staticmethod
+    def _loader(totallen, imgdata, processor_contour, patch_num, n_th_patch):
+        patch_size = math.ceil(totallen / patch_num)
+        for index in range(n_th_patch * patch_size, (n_th_patch+1) * patch_size):
+            yield _icdar_loader._load_icdar(imgdata, index, processor_contour)
+
+def ICDAR2017_loader(patch_num, n_th_patch):
+    return _icdar_loader._loader(9000, _icdar_loader._imgdata_icdar2017, _icdar_loader._processcontour_201517, patch_num, n_th_patch)
+
+def ICDAR2017RCTW_loader(patch_num, n_th_patch):
+    return _icdar_loader._loader(8034, _icdar_loader._imgdata_icdar2017_rctw, _icdar_loader._processcontour_201517, patch_num, n_th_patch)
+
+def ICDAR2015_loader(patch_num, n_th_patch):
+    return _icdar_loader._loader(1000, _icdar_loader._imgdata_icdar2015, _icdar_loader._processcontour_201517, patch_num, n_th_patch)
+
+def ICDAR2013_loader(patch_num, n_th_patch):
+    return _icdar_loader._loader(462, _icdar_loader._imgdata_icdar2013, _icdar_loader._processcontour_2013, patch_num, n_th_patch)
+
+def TD500_loader(patch_num, n_th_patch):
+    return _icdar_loader._loader(500, _icdar_loader._imgdata_td500, _icdar_loader._processcontour_td500, patch_num, n_th_patch)
+
+###################
+# # Test for ICDAR2017_loader, ICDAR2017RCTW_loader, ICDAR2015_loader, ICDAR2013_loader, TD500_loader
+# from itertools import chain
+# import sys
+# for img in chain(ICDAR2017_loader(1, 0), ICDAR2017RCTW_loader(1, 0), ICDAR2015_loader(1, 0), ICDAR2013_loader(1, 0), TD500_loader(1, 0)):
+#     print(img['img_index'], img['img_name'], img['img'].shape, len(img['contour']))
+# sys.exit(0)
+###################
 
 if __name__ == '__main__':
     import pickle
